@@ -2,6 +2,8 @@ import React from "react";
 import { Box, Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { Chip } from "@mui/material";
 import { useParams } from "react-router-dom";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import ExploreIcon from "@mui/icons-material/Explore";
 
 // Dữ liệu sân đầy đủ
 const venueData = [
@@ -87,10 +89,11 @@ const venueData = [
 
 const CourtDetail = () => {
   const { id } = useParams(); // Lấy tham số sân từ URL
+  const decodedId = decodeURIComponent(id); // Decode tên sân từ URL
 
   let venue = null;
-  if (id) {
-    venue = venueData.find((v) => v.name === id);
+  if (decodedId) {
+    venue = venueData.find((v) => v.name === decodedId);
   }
 
   // Nếu không tìm thấy sân theo ID, hoặc không có ID, sử dụng sân đầu tiên
@@ -132,15 +135,24 @@ const CourtDetail = () => {
 
         {/* Right side: Availability and Book Now buttons */}
         <Box sx={{ flex: 0.4 }}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
             <Button
               variant="outlined"
-              sx={{ borderRadius: "50px", width: "100%" }}
+              startIcon={<CalendarMonthIcon />}
+              sx={{
+                borderRadius: "50px",
+                width: "100%",
+                background: "#fff",
+                color: "#4263eb",
+                border: "2px solid #4263eb",
+                "&:hover": { background: "#4263eb", color: "#fff" },
+              }}
             >
               Availability
             </Button>
             <Button
               variant="contained"
+              startIcon={<ExploreIcon />}
               sx={{
                 backgroundColor: "#4263eb",
                 color: "white",
