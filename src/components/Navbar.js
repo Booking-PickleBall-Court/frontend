@@ -112,12 +112,7 @@ function Navbar() {
         {/* Bên phải */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           {/* Ngôn ngữ */}
-          <IconButton onClick={handleLangClick} color="inherit">
-            <LanguageIcon />
-            <Typography variant="body2" sx={{ ml: 0.5 }}>
-              EN
-            </Typography>
-          </IconButton>
+
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
@@ -190,6 +185,20 @@ function Navbar() {
                 }}
               >
                 My Bookings
+              </Button>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/profile"
+                sx={{
+                  fontFamily: "Inter, Arial, sans-serif",
+                  fontSize: 18,
+                  fontWeight: 500,
+                  color: "#222",
+                  textTransform: "none",
+                }}
+              >
+                Profile
               </Button>
               <Button
                 color="inherit"
