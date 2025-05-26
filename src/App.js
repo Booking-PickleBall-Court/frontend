@@ -13,6 +13,7 @@ import MyBookings from "./pages/MyBookings";
 import Explore from "./pages/Explore";
 import Profile from "./pages/Profile";
 import Footer from "./components/Footer";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const theme = createTheme({
   palette: {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/bookings" element={<MyBookings />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
         <Footer />
       </Router>
