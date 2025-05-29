@@ -16,7 +16,7 @@ const venueData = [
       "https://pzone.vn/wp-content/uploads/2024/08/Kina-Pickleball-3.jpg",
     ],
     amenities: ["Parking", "Pro Shop", "Drinks"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
   {
     name: "Biển Đông Pickleball Sport Club",
@@ -29,7 +29,7 @@ const venueData = [
       "https://lh3.googleusercontent.com/p/AF1QipOtisppeT2yV0UjrisbXnE3HYY93sFZJEIT4mUO=s1360-w1360-h1020",
     ],
     amenities: ["Parking", "Pro Shop", "Café"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
   {
     name: "Nana Pickleball",
@@ -42,7 +42,7 @@ const venueData = [
       "https://cdn.shopvnb.com/uploads/images/bai_viet/san-pickleball-nana-2-1727403145.webp",
     ],
     amenities: ["Parking", "Drinks", "Lockers"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
   {
     name: "Picklehead My Khe Beach",
@@ -55,7 +55,7 @@ const venueData = [
       "https://lh3.googleusercontent.com/p/AF1QipPZIayToFxMXw5GtCAZTgfKdkHNym5QcoqPBmpI=s1360-w1360-h1020",
     ],
     amenities: ["Parking", "Showers", "Wi-Fi"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Beach Sports"],
   },
   {
     name: "Thép Việt Pickleball",
@@ -68,7 +68,7 @@ const venueData = [
       "https://cdn.shopvnb.com/uploads/images/tin_tuc/san-pickleball-thep-viet-1-1720653499.webp",
     ],
     amenities: ["Parking", "Drinks", "Pro Shop"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
   {
     name: "Lemon Pickleball",
@@ -81,7 +81,7 @@ const venueData = [
       "https://cdn.shopvnb.com/uploads/images/bai_viet/san-lemon-pickleball-1-1733367806.webp",
     ],
     amenities: ["Parking", "Wi-Fi", "Café"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
 ];
 

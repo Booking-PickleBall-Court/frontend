@@ -12,8 +12,6 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import LanguageIcon from "@mui/icons-material/Language";
 import SportsTennisIcon from "@mui/icons-material/SportsTennis";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import BusinessIcon from "@mui/icons-material/Business";
 
 function Navbar() {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -114,6 +112,7 @@ function Navbar() {
         {/* Bên phải */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           {/* Ngôn ngữ */}
+
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
@@ -173,40 +172,6 @@ function Navbar() {
           )}
           {user.id && (
             <>
-              {user.role === "owner" && (
-                <>
-                  <Button
-                    color="inherit"
-                    component={RouterLink}
-                    to="/owner/dashboard"
-                    startIcon={<DashboardIcon />}
-                    sx={{
-                      fontFamily: "Inter, Arial, sans-serif",
-                      fontSize: 18,
-                      fontWeight: 500,
-                      color: "#222",
-                      textTransform: "none",
-                    }}
-                  >
-                    Dashboard
-                  </Button>
-                  <Button
-                    color="inherit"
-                    component={RouterLink}
-                    to="/owner/courts"
-                    startIcon={<BusinessIcon />}
-                    sx={{
-                      fontFamily: "Inter, Arial, sans-serif",
-                      fontSize: 18,
-                      fontWeight: 500,
-                      color: "#222",
-                      textTransform: "none",
-                    }}
-                  >
-                    Manage Courts
-                  </Button>
-                </>
-              )}
               <Button
                 color="inherit"
                 component={RouterLink}
