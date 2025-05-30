@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Container, Typography, Box, Paper, Grid, Button } from "@mui/material";
+import React, { useState, useEffect, useCallback } from "react";
+import { Container, Typography, Box, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import axios from "axios";
@@ -16,7 +16,7 @@ const venueData = [
       "https://pzone.vn/wp-content/uploads/2024/08/Kina-Pickleball-3.jpg",
     ],
     amenities: ["Parking", "Pro Shop", "Drinks"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
   {
     name: "Biển Đông Pickleball Sport Club",
@@ -29,7 +29,7 @@ const venueData = [
       "https://lh3.googleusercontent.com/p/AF1QipOtisppeT2yV0UjrisbXnE3HYY93sFZJEIT4mUO=s1360-w1360-h1020",
     ],
     amenities: ["Parking", "Pro Shop", "Café"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
   {
     name: "Nana Pickleball",
@@ -42,7 +42,7 @@ const venueData = [
       "https://cdn.shopvnb.com/uploads/images/bai_viet/san-pickleball-nana-2-1727403145.webp",
     ],
     amenities: ["Parking", "Drinks", "Lockers"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
   {
     name: "Picklehead My Khe Beach",
@@ -55,7 +55,7 @@ const venueData = [
       "https://lh3.googleusercontent.com/p/AF1QipPZIayToFxMXw5GtCAZTgfKdkHNym5QcoqPBmpI=s1360-w1360-h1020",
     ],
     amenities: ["Parking", "Showers", "Wi-Fi"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Beach Sports"],
   },
   {
     name: "Thép Việt Pickleball",
@@ -68,7 +68,7 @@ const venueData = [
       "https://cdn.shopvnb.com/uploads/images/tin_tuc/san-pickleball-thep-viet-1-1720653499.webp",
     ],
     amenities: ["Parking", "Drinks", "Pro Shop"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
   {
     name: "Lemon Pickleball",
@@ -81,12 +81,41 @@ const venueData = [
       "https://cdn.shopvnb.com/uploads/images/bai_viet/san-lemon-pickleball-1-1733367806.webp",
     ],
     amenities: ["Parking", "Wi-Fi", "Café"],
-    categories: ["Pickleball"],
+    categories: ["Pickleball", "Tennis"],
   },
 ];
 
 const Home = () => {
   const navigate = useNavigate();
+  const [courts, setCourts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const fetchCourts = useCallback(async (params = {}) => {
+    setIsSearching(true);
+    try {
+      setLoading(true);
+      const response = await courtAPI.searchCourts({
+        page: page - 1,
+        size: 9,
+        ...params
+      });
+      setCourts(response.data.content);
+      setTotalPages(response.data.totalPages);
+    } catch (err) {
+      setError('Failed to fetch courts');
+    } finally {
+      setLoading(false);
+      setIsSearching(false);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    fetchCourts();
+  }, [fetchCourts]);
 
   const handleSearch = ({ sport, where, when }) => {
     const params = new URLSearchParams();
@@ -115,102 +144,34 @@ const Home = () => {
           <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
             Featured Venues
           </Typography>
-          <Grid container spacing={3}>
-            {venueData.map((venue, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Paper
-                  elevation={3}
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "450px", // Fixed height for the card
-                    overflow: "hidden",
-                    justifyContent: "space-between", // To ensure proper distribution of content
-                    width: "320px", // Set the width to 320px
-                    margin: "auto", // Centers the cards
-                  }}
-                >
-                  {/* Image */}
-                  <img
-                    src={venue.images[0]}
-                    alt={venue.name}
-                    style={{
-                      width: "100%",
-                      height: "200px", // Fixed height for images
-                      objectFit: "cover", // Ensures the image fits the box without distortion
-                      borderRadius: "8px",
-                    }}
-                  />
-                  {/* Venue Details */}
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      mt: 2,
-                      whiteSpace: "normal", // Allow text to break into multiple lines
-                      overflow: "hidden",
-                      textOverflow: "ellipsis", // Add ellipsis for overflowed text
-                    }}
-                  >
-                    {venue.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      whiteSpace: "normal", // Allow text to break into multiple lines
-                      overflow: "hidden",
-                      textOverflow: "ellipsis", // Add ellipsis for overflowed text
-                    }}
-                  >
-                    {venue.address}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", mt: 1 }}
-                  >
-                    {venue.price}
-                  </Typography>
 
-                  {/* Buttons */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mt: 2,
-                    }}
-                  >
-                    <Button
-                      variant="outlined"
-                      sx={{
-                        borderRadius: "50px",
-                        width: "48%",
-                        background: "#fff",
-                        color: "#4263eb",
-                        border: "2px solid #4263eb",
-                        "&:hover": { background: "#4263eb", color: "#fff" },
-                      }}
-                      onClick={() => handleViewCourtDetail(venue.name)} // Navigate to CourtDetail
-                    >
-                      View
-                    </Button>
-                    <Button
-                      variant="contained"
-                      sx={{
-                        borderRadius: "50px",
-                        width: "48%",
-                        backgroundColor: "#4263eb",
-                        color: "white",
-                        "&:hover": { backgroundColor: "#2541b2" },
-                      }}
-                    >
-                      Book Now
-                    </Button>
-                  </Box>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
+          {loading && !isSearching ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              {error && (
+                <Typography color="error" sx={{ mt: 2 }}>
+                  {error}
+                </Typography>
+              )}
+
+              {isSearching && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <CircularProgress />
+                  <Typography sx={{ ml: 1 }}>Đang tìm kiếm...</Typography>
+                </Box>
+              )}
+
+              <CourtList
+                courts={courts}
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
+            </>
+          )}
         </Box>
       </Container>
     </>

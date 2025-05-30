@@ -1,11 +1,9 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import {
-    Card, CardContent, Typography, Grid, CardActionArea,
-    CircularProgress, Box, Pagination
-} from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Typography, Box, CircularProgress } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { courtAPI } from '../services/api';
 import SearchBar from '../components/SearchBar';
+import CourtList from '../components/CourtList';
 
 function Explore() {
     const [courts, setCourts] = useState([]);
@@ -13,10 +11,9 @@ function Explore() {
     const [error, setError] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const searchTimeoutRef = useRef(null);
+    const [isSearching, setIsSearching] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const [isSearching, setIsSearching] = useState(false);
 
     const buildSearchParams = useCallback(() => {
         const params = new URLSearchParams(location.search);
@@ -58,14 +55,7 @@ function Explore() {
     }, []);
 
     useEffect(() => {
-        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-        searchTimeoutRef.current = setTimeout(() => {
-            searchCourts(buildSearchParams());
-        }, 300);
-
-        return () => {
-            if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-        };
+        searchCourts(buildSearchParams());
     }, [buildSearchParams, searchCourts]);
 
     const handleSearch = useCallback((searchParams) => {
@@ -78,11 +68,6 @@ function Explore() {
 
         setPage(1);
         navigate(`/explore?${params.toString()}`);
-    }, [navigate]);
-
-    const handleCourtClick = useCallback((courtId) => {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        navigate(user.id ? `/courts/${courtId}` : '/login');
     }, [navigate]);
 
     if (loading && !isSearching) {
@@ -106,34 +91,12 @@ function Explore() {
                 </Box>
             )}
 
-            <Grid container spacing={3}>
-                {courts.map((court) => (
-                    <Grid item xs={12} sm={6} md={4} key={court.id}>
-                        <Card>
-                            <CardActionArea onClick={() => handleCourtClick(court.id)}>
-                                <CardContent>
-                                    <Typography variant="h6">{court.name}</Typography>
-                                    <Typography color="text.secondary">Địa chỉ: {court.address}</Typography>
-                                    <Typography color="text.secondary">Giá: ${court.hourlyPrice}/giờ</Typography>
-                                    <Typography color="text.secondary">Loại sân: {court.courtType}</Typography>
-                                    <Typography color="text.secondary">Trạng thái: {court.status}</Typography>
-                                </CardContent>
-                            </CardActionArea>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
-
-            {totalPages > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                    <Pagination
-                        count={totalPages}
-                        page={page}
-                        onChange={(e, value) => setPage(value)}
-                        color="primary"
-                    />
-                </Box>
-            )}
+            <CourtList
+                courts={courts}
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+            />
         </div>
     );
 }
