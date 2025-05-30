@@ -100,20 +100,17 @@ const Home = () => {
     navigate(`/explore?${params.toString()}`);
   };
   const handleViewCourtDetail = (venueName) => {
-    // Encode tên sân để tránh lỗi với các ký tự đặc biệt trong URL
     const encodedName = encodeURIComponent(venueName);
     navigate(`/courts/${encodedName}`);
   };
 
   return (
     <>
-      {/* SearchBar Section */}
       <Box sx={{ pt: 0, pb: 4 }}>
         <SearchBar onSearch={handleSearch} />
       </Box>
 
       <Container maxWidth="lg">
-        {/* Featured Venues Section */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
             Featured Venues

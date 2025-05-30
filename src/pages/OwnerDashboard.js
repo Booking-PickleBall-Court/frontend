@@ -251,7 +251,6 @@ const OwnerDashboard = () => {
           </List>
         </Box>
       </Drawer>
-      {/* Main content area */}
       <Box
         component="main"
         sx={{
