@@ -17,6 +17,8 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 import CourtManagement from "./pages/CourtManagement";
 import OwnerDashboard from "./pages/OwnerDashboard";
 
+import { AuthProvider } from "./contexts/AuthContext"; // 👈 Import AuthProvider
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -32,26 +34,26 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/courts" element={<Courts />} />
-          <Route path="/courts/:id" element={<CourtDetail />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/bookings" element={<MyBookings />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/confirmBooking" element={<BookingConfirmation />} />
-
-          {/* Owner Routes */}
-          <Route path="/owner/dashboard" element={<OwnerDashboard />} />
-          <Route path="/owner/courts" element={<CourtManagement />} />
-        </Routes>
-        <Footer />
-      </Router>
+      <AuthProvider> {/* 👈 Wrap entire app */}
+        <Router>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/courts" element={<Courts />} />
+            <Route path="/courts/:id" element={<CourtDetail />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/bookings" element={<MyBookings />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/confirmBooking" element={<BookingConfirmation />} />
+            <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+            <Route path="/owner/courts" element={<CourtManagement />} />
+          </Routes>
+          <Footer />
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

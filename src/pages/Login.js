@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
-import { Container, Paper, TextField, Button, Typography, Box, Alert } from '@mui/material';
+import React, { useState, useContext } from 'react';
+import {
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Alert,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 
 function Login() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext); // 👈 dùng login từ context
 
   const handleChange = (e) => {
     setFormData({
@@ -27,16 +35,17 @@ function Login() {
     try {
       const response = await authAPI.login(formData);
       const { token, id, email, fullName, role } = response.data;
-      
-      // Save token and user info to localStorage
+
+      // Lưu vào localStorage và cập nhật context
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify({ id, email, fullName, role }));
-      
-      // Redirect based on role
+      const userData = { id, email, fullName, role };
+      login(userData); // 👈 gọi hàm login từ context
+
+      // Điều hướng dựa vào role
       if (role === 'ADMIN') {
         navigate('/admin');
       } else if (role === 'OWNER') {
-        navigate('/owner');
+        navigate('/owner/dashboard');
       } else {
         navigate('/');
       }
@@ -97,4 +106,4 @@ function Login() {
   );
 }
 
-export default Login; 
+export default Login;

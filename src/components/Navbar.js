@@ -1,30 +1,44 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import {
   AppBar,
   Toolbar,
-  Typography,
   Button,
   Box,
   IconButton,
   Menu,
   MenuItem,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import LanguageIcon from "@mui/icons-material/Language";
-import SportsTennisIcon from "@mui/icons-material/SportsTennis";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import BusinessIcon from "@mui/icons-material/Business";
+import { AuthContext } from "../contexts/AuthContext";
 
 function Navbar() {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleLangClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleLangClose = () => {
     setAnchorEl(null);
   };
+
+  const commonButtonStyle = {
+    fontFamily: "Inter, Arial, sans-serif",
+    fontSize: 18,
+    fontWeight: 500,
+    textTransform: "none",
+  };
+
+  const navLinkStyle = ({ isActive }) => ({
+    ...commonButtonStyle,
+    color: isActive ? "#2563eb" : "#222",
+    textDecoration: "none",
+  });
 
   return (
     <AppBar
@@ -42,7 +56,7 @@ function Navbar() {
           minHeight: { xs: 72, sm: 90, md: 150, lg: 105 },
         }}
       >
-        {/* Logo + Tên app */}
+        {/* Logo */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <img
             src="/logo.jpg"
@@ -51,117 +65,39 @@ function Navbar() {
           />
         </Box>
 
-        {/* Menu giữa */}
+        {/* Center menu */}
         <Box sx={{ display: "flex", gap: 3 }}>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/"
-            sx={{
-              fontFamily: "Inter, Arial, sans-serif",
-              fontSize: 18,
-              fontWeight: 500,
-              color: "#222",
-              textTransform: "none",
-            }}
-          >
-            Home
-          </Button>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/explore"
-            sx={{
-              fontFamily: "Inter, Arial, sans-serif",
-              fontSize: 18,
-              fontWeight: 500,
-              color: "#222",
-              textTransform: "none",
-            }}
-          >
-            Explore
-          </Button>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/games"
-            sx={{
-              fontFamily: "Inter, Arial, sans-serif",
-              fontSize: 18,
-              fontWeight: 500,
-              color: "#222",
-              textTransform: "none",
-            }}
-          >
-            Games
-          </Button>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/deals"
-            sx={{
-              fontFamily: "Inter, Arial, sans-serif",
-              fontSize: 18,
-              fontWeight: 500,
-              color: "#222",
-              textTransform: "none",
-            }}
-          >
-            Deals
-          </Button>
+          <NavLink to="/" style={navLinkStyle}>Home</NavLink>
+          <NavLink to="/explore" style={navLinkStyle}>Explore</NavLink>
+          <NavLink to="/games" style={navLinkStyle}>Games</NavLink>
+          <NavLink to="/deals" style={navLinkStyle}>Deals</NavLink>
         </Box>
 
-        {/* Bên phải */}
+        {/* Right side */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {/* Ngôn ngữ */}
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleLangClose}
-          >
+          {/* Language */}
+          <IconButton onClick={handleLangClick}>
+            <LanguageIcon sx={{ color: "#222" }} />
+          </IconButton>
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleLangClose}>
             <MenuItem onClick={handleLangClose}>EN</MenuItem>
             <MenuItem onClick={handleLangClose}>VI</MenuItem>
           </Menu>
-          <Button
-            color="inherit"
-            sx={{
-              fontFamily: "Inter, Arial, sans-serif",
-              fontSize: 18,
-              fontWeight: 500,
-              color: "#222",
-              textTransform: "none",
-            }}
-          >
-            Help
-          </Button>
-          {!user.id && (
+
+          <Button sx={{ ...commonButtonStyle, color: "#222" }}>Help</Button>
+
+          {!user && (
             <>
+              <NavLink to="/register" style={navLinkStyle}>Sign Up</NavLink>
               <Button
-                color="inherit"
-                component={RouterLink}
-                to="/register"
-                sx={{
-                  fontFamily: "Inter, Arial, sans-serif",
-                  fontSize: 18,
-                  fontWeight: 500,
-                  color: "#222",
-                  textTransform: "none",
-                }}
-              >
-                Sign Up
-              </Button>
-              <Button
-                component={RouterLink}
+                component={NavLink}
                 to="/login"
                 variant="contained"
                 sx={{
+                  ...commonButtonStyle,
                   background: "#2563eb",
                   color: "#fff",
                   borderRadius: 2,
-                  fontFamily: "Inter, Arial, sans-serif",
-                  fontSize: 18,
-                  fontWeight: 500,
-                  textTransform: "none",
                   boxShadow: "none",
                   ml: 1,
                   "&:hover": { background: "#1746a2" },
@@ -171,84 +107,28 @@ function Navbar() {
               </Button>
             </>
           )}
-          {user.id && (
+
+          {user && (
             <>
               {user.role === "owner" && (
                 <>
-                  <Button
-                    color="inherit"
-                    component={RouterLink}
-                    to="/owner/dashboard"
-                    startIcon={<DashboardIcon />}
-                    sx={{
-                      fontFamily: "Inter, Arial, sans-serif",
-                      fontSize: 18,
-                      fontWeight: 500,
-                      color: "#222",
-                      textTransform: "none",
-                    }}
-                  >
-                    Dashboard
-                  </Button>
-                  <Button
-                    color="inherit"
-                    component={RouterLink}
-                    to="/owner/courts"
-                    startIcon={<BusinessIcon />}
-                    sx={{
-                      fontFamily: "Inter, Arial, sans-serif",
-                      fontSize: 18,
-                      fontWeight: 500,
-                      color: "#222",
-                      textTransform: "none",
-                    }}
-                  >
-                    Manage Courts
-                  </Button>
+                  <NavLink to="/owner/dashboard" style={navLinkStyle}>
+                    <DashboardIcon sx={{ mr: 1 }} /> Dashboard
+                  </NavLink>
+                  <NavLink to="/owner/courts" style={navLinkStyle}>
+                    <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
+                  </NavLink>
                 </>
               )}
+
+              <NavLink to="/bookings" style={navLinkStyle}>My Bookings</NavLink>
+              <NavLink to="/profile" style={navLinkStyle}>Profile</NavLink>
               <Button
-                color="inherit"
-                component={RouterLink}
-                to="/bookings"
-                sx={{
-                  fontFamily: "Inter, Arial, sans-serif",
-                  fontSize: 18,
-                  fontWeight: 500,
-                  color: "#222",
-                  textTransform: "none",
-                }}
-              >
-                My Bookings
-              </Button>
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/profile"
-                sx={{
-                  fontFamily: "Inter, Arial, sans-serif",
-                  fontSize: 18,
-                  fontWeight: 500,
-                  color: "#222",
-                  textTransform: "none",
-                }}
-              >
-                Profile
-              </Button>
-              <Button
-                color="inherit"
                 onClick={() => {
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("user");
-                  window.location.href = "/login";
+                  logout();
+                  navigate("/login");
                 }}
-                sx={{
-                  fontFamily: "Inter, Arial, sans-serif",
-                  fontSize: 18,
-                  fontWeight: 500,
-                  color: "#222",
-                  textTransform: "none",
-                }}
+                sx={{ ...commonButtonStyle, color: "#222" }}
               >
                 Logout
               </Button>
