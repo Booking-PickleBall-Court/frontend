@@ -124,7 +124,6 @@ const CourtDetail = () => {
           marginBottom: 4,
         }}
       >
-        {/* Left side: Venue Name and Address */}
         <Box sx={{ flex: 1, paddingRight: 2 }}>
           <Typography variant="h4" sx={{ fontWeight: "600", marginBottom: 2 }}>
             {name}
@@ -140,7 +139,6 @@ const CourtDetail = () => {
           </Typography>
         </Box>
 
-        {/* Right side: Availability and Book Now buttons */}
         <Box sx={{ flex: 0.4 }}>
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
             <Button
@@ -162,7 +160,6 @@ const CourtDetail = () => {
         </Box>
       </Box>
 
-      {/* Calendar Section */}
       {showCalendar && (
         <Box sx={{ marginBottom: 4 }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
@@ -170,19 +167,16 @@ const CourtDetail = () => {
           </Typography>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              disablePast // Disable past dates
+              disablePast 
               onChange={(date) => {
-                // Handle date selection here
                 console.log("Selected Date:", date);
-                // You can add logic here to fetch available slots for the selected date
-                setShowCalendar(false); // Hide calendar after selection
+                setShowCalendar(false); 
               }}
             />
           </LocalizationProvider>
         </Box>
       )}
 
-      {/* Venue Images (Two Images in a Row) */}
       <Grid container spacing={3} sx={{ marginBottom: 4 }}>
         {images.map((image, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
@@ -191,11 +185,11 @@ const CourtDetail = () => {
                 src={image}
                 alt={`venue-image-${index}`}
                 style={{
-                  height: "330px", // Maintain aspect ratio
+                  height: "330px",
                   borderRadius: "8px",
-                  objectFit: "cover", // Ensures image covers the area without distortion
+                  objectFit: "cover", 
                   display: "block",
-                  margin: "0 auto", // Center the image within the grid item
+                  margin: "0 auto", 
                 }}
               />
             </Paper>
@@ -203,7 +197,6 @@ const CourtDetail = () => {
         ))}
       </Grid>
 
-      {/* Categories & Pricing Section */}
       <Box sx={{ marginBottom: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
           Categories & Pricing
@@ -214,7 +207,6 @@ const CourtDetail = () => {
         </Typography>
       </Box>
 
-      {/* Amenities Section */}
       <Box sx={{ marginBottom: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
           Amenities
@@ -226,7 +218,6 @@ const CourtDetail = () => {
         </Box>
       </Box>
 
-      {/* Directions Section */}
       <Box sx={{ marginTop: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
           Getting There

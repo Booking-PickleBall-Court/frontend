@@ -64,12 +64,7 @@ const CourtManagement = () => {
 
   const fetchCourts = async () => {
     try {
-      // TODO: Implement API call to fetch courts
-      // const response = await fetch("/api/courts/owner");
-      // const data = await response.json();
-      // setCourts(data);
 
-      // Mock data
       const mockCourts = [
         {
           id: 1,
@@ -145,7 +140,6 @@ const CourtManagement = () => {
     e.preventDefault();
     try {
       if (selectedCourt) {
-        // Update existing court
         await fetch(`/api/courts/${selectedCourt.id}`, {
           method: "PUT",
           headers: {
@@ -155,7 +149,6 @@ const CourtManagement = () => {
         });
         toast.success("Court updated successfully");
       } else {
-        // Create new court
         await fetch("/api/courts", {
           method: "POST",
           headers: {

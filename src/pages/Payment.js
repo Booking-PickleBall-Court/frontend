@@ -40,7 +40,7 @@ function Payment() {
     setPaying(true);
     try {
       const res = await paymentAPI.createCheckoutSession({
-        courtSlotId: slot.id, // slot phải có id hợp lệ
+        courtSlotId: slot.id, 
         paymentMethod: 'CARD',
         notes: '',
         amount: slot.price * 100,

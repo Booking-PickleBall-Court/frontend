@@ -18,7 +18,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext); // 👈 dùng login từ context
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormData({
@@ -36,12 +36,10 @@ function Login() {
       const response = await authAPI.login(formData);
       const { token, id, email, fullName, role } = response.data;
 
-      // Lưu vào localStorage và cập nhật context
       localStorage.setItem('token', token);
       const userData = { id, email, fullName, role };
-      login(userData); // 👈 gọi hàm login từ context
+      login(userData); 
 
-      // Điều hướng dựa vào role
       if (role === 'ADMIN') {
         navigate('/admin');
       } else if (role === 'OWNER') {

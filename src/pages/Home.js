@@ -125,32 +125,30 @@ const Home = () => {
                     borderRadius: 2,
                     display: "flex",
                     flexDirection: "column",
-                    height: "450px", // Fixed height for the card
+                    height: "450px", 
                     overflow: "hidden",
-                    justifyContent: "space-between", // To ensure proper distribution of content
-                    width: "320px", // Set the width to 320px
-                    margin: "auto", // Centers the cards
+                    justifyContent: "space-between", 
+                    width: "320px", 
+                    margin: "auto",
                   }}
                 >
-                  {/* Image */}
                   <img
                     src={venue.images[0]}
                     alt={venue.name}
                     style={{
                       width: "100%",
-                      height: "200px", // Fixed height for images
-                      objectFit: "cover", // Ensures the image fits the box without distortion
+                      height: "200px", 
+                      objectFit: "cover", 
                       borderRadius: "8px",
                     }}
                   />
-                  {/* Venue Details */}
                   <Typography
                     variant="h6"
                     sx={{
                       mt: 2,
-                      whiteSpace: "normal", // Allow text to break into multiple lines
+                      whiteSpace: "normal", 
                       overflow: "hidden",
-                      textOverflow: "ellipsis", // Add ellipsis for overflowed text
+                      textOverflow: "ellipsis", 
                     }}
                   >
                     {venue.name}
@@ -158,9 +156,9 @@ const Home = () => {
                   <Typography
                     variant="body2"
                     sx={{
-                      whiteSpace: "normal", // Allow text to break into multiple lines
+                      whiteSpace: "normal", 
                       overflow: "hidden",
-                      textOverflow: "ellipsis", // Add ellipsis for overflowed text
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {venue.address}
@@ -171,8 +169,6 @@ const Home = () => {
                   >
                     {venue.price}
                   </Typography>
-
-                  {/* Buttons */}
                   <Box
                     sx={{
                       display: "flex",
@@ -190,7 +186,7 @@ const Home = () => {
                         border: "2px solid #4263eb",
                         "&:hover": { background: "#4263eb", color: "#fff" },
                       }}
-                      onClick={() => handleViewCourtDetail(venue.name)} // Navigate to CourtDetail
+                      onClick={() => handleViewCourtDetail(venue.name)}
                     >
                       View
                     </Button>

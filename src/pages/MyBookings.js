@@ -173,7 +173,6 @@ function BookingPage() {
 
   const selectedVenue = venueData.find((venue) => venue.name === venueName);
 
-  // Dummy data - replace with actual data from your backend
   const availableTimes = [
     "09:00",
     "10:00",
@@ -196,7 +195,6 @@ function BookingPage() {
     { id: 3, name: "Court C", type: "Indoor" },
   ];
 
-  // Dummy cart data
   const dummyVenue = {
     category: "PICKLEBALL",
     name: "YMCA Pickleball Court",
@@ -218,8 +216,6 @@ function BookingPage() {
   );
 
   const handleCheckout = () => {
-    // In a real application, you would process the payment here.
-    // For now, we'll just navigate to the confirmation page.
     navigate("/confirmBooking", {
       state: {
         bookingDetails: {
@@ -228,7 +224,6 @@ function BookingPage() {
           selectedTime,
           selectedDuration,
           selectedCourts,
-          // Add other relevant details like price if calculated
         },
       },
     });
@@ -246,7 +241,6 @@ function BookingPage() {
             minHeight: "100%",
           }}
         >
-          {/* Left: Booking form wrapped in Paper */}
           <Paper
             sx={{
               p: 4,
@@ -257,7 +251,6 @@ function BookingPage() {
               flexDirection: "column",
             }}
           >
-            {/* Step 2 */}
             <Box sx={{ mb: 5 }}>
               <StepHeader
                 number={2}
@@ -291,7 +284,6 @@ function BookingPage() {
               />
             </Box>
 
-            {/* Step 3 */}
             <Box sx={{ mb: 5 }}>
               <StepHeader
                 number={3}
@@ -323,7 +315,6 @@ function BookingPage() {
               </Stack>
             </Box>
 
-            {/* Step 4 */}
             <Box sx={{ mb: 5 }}>
               <StepHeader
                 number={4}
@@ -361,7 +352,6 @@ function BookingPage() {
               </Stack>
             </Box>
 
-            {/* Step 5 */}
             <Box sx={{ mb: 4 }}>
               <StepHeader
                 number={5}
@@ -401,7 +391,6 @@ function BookingPage() {
             </Box>
           </Paper>
 
-          {/* Right: My Cart wrapped in Paper */}
           <Paper
             elevation={1}
             sx={{
@@ -413,7 +402,6 @@ function BookingPage() {
               flexDirection: "column",
             }}
           >
-            {/* Title */}
             <Typography
               variant="h5"
               sx={{ textAlign: "center", fontWeight: "700", mb: 4 }}
@@ -421,10 +409,8 @@ function BookingPage() {
               My Cart
             </Typography>
 
-            {/* Venue info */}
             {selectedVenue ? (
               <Box sx={{ mb: 3 }}>
-                {/* Venue info with image */}
                 <Box
                   sx={{
                     display: "flex",
@@ -433,7 +419,6 @@ function BookingPage() {
                     gap: 2,
                   }}
                 >
-                  {/* Text details */}
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography
                       variant="subtitle2"
@@ -449,7 +434,6 @@ function BookingPage() {
                     </Typography>
                   </Box>
 
-                  {/* Image */}
                   {selectedVenue.images && selectedVenue.images.length > 0 && (
                     <Box
                       component="img"
@@ -478,7 +462,6 @@ function BookingPage() {
 
             <Divider sx={{ mb: 3 }} />
 
-            {/* Booking Details header with Edit link */}
             <Box
               sx={{
                 display: "flex",
@@ -499,7 +482,6 @@ function BookingPage() {
               </Link>
             </Box>
 
-            {/* Subtotal and promo */}
             <Box
               sx={{
                 display: "flex",
@@ -530,7 +512,6 @@ function BookingPage() {
               <Typography variant="body2">RM 0.00</Typography>
             </Box>
 
-            {/* Total */}
             <Box
               sx={{
                 display: "flex",
@@ -544,7 +525,6 @@ function BookingPage() {
               <Typography>RM 0.00</Typography>
             </Box>
 
-            {/* Checkout Button */}
             <Button
               variant="contained"
               disabled={

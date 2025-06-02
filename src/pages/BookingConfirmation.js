@@ -13,9 +13,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 function BookingConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const bookingDetails = location.state?.bookingDetails; // Get booking details from router state
+  const bookingDetails = location.state?.bookingDetails;
 
-  // Handle case where booking details are not available (e.g., direct access)
   if (!bookingDetails) {
     return (
       <Container maxWidth="sm" sx={{ mt: 8, textAlign: "center" }}>
@@ -37,7 +36,6 @@ function BookingConfirmation() {
     selectedCourts,
   } = bookingDetails;
 
-  // Format date for display (optional, depending on date format)
   const formattedDate = selectedDate ? selectedDate.toDateString() : "N/A";
 
   return (

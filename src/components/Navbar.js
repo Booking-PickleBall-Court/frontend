@@ -7,6 +7,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Avatar,
 } from "@mui/material";
 import { NavLink, useNavigate } from "react-router-dom";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -15,16 +16,26 @@ import BusinessIcon from "@mui/icons-material/Business";
 import { AuthContext } from "../contexts/AuthContext";
 
 function Navbar() {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [langAnchorEl, setLangAnchorEl] = useState(null);
+  const [avatarAnchorEl, setAvatarAnchorEl] = useState(null);
+
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLangClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    setLangAnchorEl(event.currentTarget);
   };
 
   const handleLangClose = () => {
-    setAnchorEl(null);
+    setLangAnchorEl(null);
+  };
+
+  const handleAvatarClick = (event) => {
+    setAvatarAnchorEl(event.currentTarget);
+  };
+
+  const handleAvatarClose = () => {
+    setAvatarAnchorEl(null);
   };
 
   const commonButtonStyle = {
@@ -67,19 +78,29 @@ function Navbar() {
 
         {/* Center menu */}
         <Box sx={{ display: "flex", gap: 3 }}>
-          <NavLink to="/" style={navLinkStyle}>Home</NavLink>
-          <NavLink to="/explore" style={navLinkStyle}>Explore</NavLink>
-          <NavLink to="/games" style={navLinkStyle}>Games</NavLink>
-          <NavLink to="/deals" style={navLinkStyle}>Deals</NavLink>
+          <NavLink to="/" style={navLinkStyle}>
+            Home
+          </NavLink>
+          <NavLink to="/explore" style={navLinkStyle}>
+            Explore
+          </NavLink>
+          <NavLink to="/games" style={navLinkStyle}>
+            Games
+          </NavLink>
+          <NavLink to="/deals" style={navLinkStyle}>
+            Deals
+          </NavLink>
         </Box>
 
-        {/* Right side */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {/* Language */}
           <IconButton onClick={handleLangClick}>
             <LanguageIcon sx={{ color: "#222" }} />
           </IconButton>
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleLangClose}>
+          <Menu
+            anchorEl={langAnchorEl}
+            open={Boolean(langAnchorEl)}
+            onClose={handleLangClose}
+          >
             <MenuItem onClick={handleLangClose}>EN</MenuItem>
             <MenuItem onClick={handleLangClose}>VI</MenuItem>
           </Menu>
@@ -88,7 +109,9 @@ function Navbar() {
 
           {!user && (
             <>
-              <NavLink to="/register" style={navLinkStyle}>Sign Up</NavLink>
+              <NavLink to="/register" style={navLinkStyle}>
+                Sign Up
+              </NavLink>
               <Button
                 component={NavLink}
                 to="/login"
@@ -121,17 +144,33 @@ function Navbar() {
                 </>
               )}
 
-              <NavLink to="/bookings" style={navLinkStyle}>My Bookings</NavLink>
-              <NavLink to="/profile" style={navLinkStyle}>Profile</NavLink>
-              <Button
-                onClick={() => {
-                  logout();
-                  navigate("/login");
-                }}
-                sx={{ ...commonButtonStyle, color: "#222" }}
+              <IconButton onClick={handleAvatarClick}>
+                <Avatar src={user.avatarUrl}>
+                  {user.fullName?.charAt(0) || "U"}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={avatarAnchorEl}
+                open={Boolean(avatarAnchorEl)}
+                onClose={handleAvatarClose}
               >
-                Logout
-              </Button>
+                <MenuItem
+                  onClick={() => {
+                    navigate("/profile");
+                    handleAvatarClose();
+                  }}
+                >
+                  Profile
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    logout();
+                    navigate("/login");
+                  }}
+                >
+                  Logout
+                </MenuItem>
+              </Menu>
             </>
           )}
         </Box>

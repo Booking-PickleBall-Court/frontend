@@ -62,7 +62,6 @@ const OwnerDashboard = () => {
   });
 
   useEffect(() => {
-    // Mock data
     const mockRevenue = [
       { month: "Jan", revenue: 12600 },
       { month: "Feb", revenue: 9670 },
@@ -155,7 +154,6 @@ const OwnerDashboard = () => {
   return (
     <Box sx={{ display: "flex" }}>
       {" "}
-      {/* Main flex container */}
       <Drawer
         sx={{
           width: drawerWidth,
@@ -163,8 +161,8 @@ const OwnerDashboard = () => {
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             boxSizing: "border-box",
-            position: "relative", // Make the drawer part of the document flow
-            height: "auto", // Allow drawer to take height of content
+            position: "relative", 
+            height: "auto", 
           },
         }}
         variant="permanent"
@@ -266,7 +264,6 @@ const OwnerDashboard = () => {
             alignItems="stretch"
             sx={{ display: "flex", flexWrap: "wrap" }}
           >
-            {/* Row 1: 4 cards */}
             <Grid item xs={12} md={3} sx={{ width: "23%" }}>
               <Card
                 elevation={3}
@@ -340,7 +337,6 @@ const OwnerDashboard = () => {
               </Card>
             </Grid>
 
-            {/* Row 2: 2 charts + table */}
             <Grid item xs={12} md={3}>
               <Card elevation={3} sx={{ p: 2, height: 370 }}>
                 <CardContent>
