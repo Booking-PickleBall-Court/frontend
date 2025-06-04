@@ -120,7 +120,7 @@ const Home = () => {
                       variant="body2"
                       sx={{ fontWeight: "bold", mt: 1 }}
                     >
-                      {venue.priceRange || "Liên hệ để biết giá"}
+                      {venue.hourlyPrice || "Liên hệ để biết giá"}
                     </Typography>
 
                     <Box
