@@ -1,7 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { courtSlotAPI, paymentAPI } from '../services/api';
-import { Container, Typography, Box, Paper, Button, Alert, CircularProgress } from '@mui/material';
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { paymentAPI } from "../services/api";
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Button,
+  Alert,
+} from "@mui/material";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -9,91 +16,64 @@ function useQuery() {
 
 function Payment() {
   const query = useQuery();
-  const slotId = query.get('slotId');
-  const [slot, setSlot] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
+  const courtId = query.get("courtId");
+  const date = query.get("date");
+  const startTime = query.get("startTime");
+  const endTime = query.get("endTime");
+
+  const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
 
-  useEffect(() => {
-    if (slotId) fetchSlot();
-  }, [slotId]);
-
-  const fetchSlot = async () => {
-    try {
-      const res = await courtSlotAPI.getCourtSlot(slotId);
-      console.log('Slot data:', res.data);
-      setSlot(res.data);
-      if (res.data.available === false || res.data.status !== 'AVAILABLE') {
-        setError('Slot này đã được book hoặc không còn khả dụng.');
-      }
-    } catch (err) {
-      setError('Failed to load slot info');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCheckout = async () => {
-    if (!slot) return;
+    if (!courtId || !date || !startTime || !endTime) {
+      setError("Thiếu thông tin đặt sân.");
+      return;
+    }
+
+    const startDateTime = `${date}T${startTime}:00`;
+    const endDateTime = `${date}T${endTime}:00`;
 
     setPaying(true);
     try {
       const res = await paymentAPI.createCheckoutSession({
-        courtSlotId: slot.id, // slot phải có id hợp lệ
-        paymentMethod: 'CARD',
-        notes: '',
-        amount: slot.price * 100,
-        currency: 'usd',
-        productName: 'Court Slot Booking'
+        courtId,
+        date,
+        startTime: startDateTime,
+        endTime: endDateTime,
       });
 
       if (res.data.url) {
         window.location.href = res.data.url;
       } else {
-        setError('Invalid response from server');
+        setError("Phản hồi không hợp lệ từ máy chủ.");
       }
     } catch (err) {
-      setError('Failed to initiate payment');
+      setError("Không thể khởi tạo thanh toán.");
     } finally {
       setPaying(false);
     }
   };
 
-  if (loading) {
-    return (
-      <Container maxWidth="sm">
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
-          <CircularProgress />
-          <Typography sx={{ mt: 2 }}>Loading slot information...</Typography>
-        </Box>
-      </Container>
-    );
-  }
-
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 4 }}>
         <Paper sx={{ p: 3 }}>
-          <Typography variant="h4" gutterBottom>Payment</Typography>
+          <Typography variant="h4" gutterBottom>
+            Thanh toán
+          </Typography>
+
           {error && <Alert severity="error">{error}</Alert>}
-          {slot && (
-            <>
-              <Typography>Date: {slot.date || slot.startTime?.split('T')[0]}</Typography>
-              <Typography>Time: {slot.startTime?.split('T')[1]?.slice(0, 5)} - {slot.endTime?.split('T')[1]?.slice(0, 5)}</Typography>
-              <Typography>Price: ${slot.price}</Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ mt: 3 }}
-                onClick={handleCheckout}
-                disabled={paying || !slot || slot.available === false || slot.status !== 'AVAILABLE'}
-                fullWidth
-              >
-                {paying ? 'Redirecting...' : 'Pay with Stripe'}
-              </Button>
-            </>
-          )}
+
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3 }}
+            onClick={handleCheckout}
+            disabled={paying}
+            fullWidth
+          >
+            {paying ? "Đang chuyển hướng..." : "Thanh toán với Stripe"}
+          </Button>
         </Paper>
       </Box>
     </Container>

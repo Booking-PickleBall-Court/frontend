@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -6,39 +6,79 @@ import {
   Paper,
   Button,
   Divider,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { bookingAPI, courtAPI } from "../services/api";
+import dayjs from "dayjs";
 
 function BookingConfirmation() {
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const bookingDetails = location.state?.bookingDetails; // Get booking details from router state
+  const bookingId = searchParams.get("bookingId");
 
-  // Handle case where booking details are not available (e.g., direct access)
-  if (!bookingDetails) {
+  const [booking, setBooking] = useState(null);
+  const [court, setCourt] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!bookingId) {
+        setError("Không tìm thấy mã đặt sân.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const bookingRes = await bookingAPI.getBooking(bookingId);
+        setBooking(bookingRes.data);
+
+        console.log("Booking data:", bookingRes.data);
+
+        const courtRes = await courtAPI.getCourtById(bookingRes.data.court.id);
+        setCourt(courtRes.data);
+      } catch (err) {
+        setError("Không thể tải thông tin đặt sân hoặc sân bóng.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [bookingId]);
+
+  if (loading) {
     return (
       <Container maxWidth="sm" sx={{ mt: 8, textAlign: "center" }}>
-        <Typography variant="h5" color="error" sx={{ mb: 2 }}>
-          Booking details not found.
-        </Typography>
-        <Button variant="contained" onClick={() => navigate("/")}>
-          Go to Home
+        <CircularProgress />
+        <Typography sx={{ mt: 2 }}>Đang tải thông tin đặt sân...</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 8, textAlign: "center" }}>
+        <Alert severity="error">{error}</Alert>
+        <Button
+          variant="contained"
+          sx={{ mt: 2 }}
+          onClick={() => navigate("/")}
+        >
+          Về trang chủ
         </Button>
       </Container>
     );
   }
 
-  const {
-    selectedVenue,
-    selectedDate,
-    selectedTime,
-    selectedDuration,
-    selectedCourts,
-  } = bookingDetails;
+  if (!booking || !court) return null;
 
-  // Format date for display (optional, depending on date format)
-  const formattedDate = selectedDate ? selectedDate.toDateString() : "N/A";
+  const { startTime, endTime, notes } = booking;
+  const formattedDate = dayjs(startTime).format("YYYY-MM-DD");
+  const formattedStart = dayjs(startTime).format("HH:mm");
+  const formattedEnd = dayjs(endTime).format("HH:mm");
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -55,65 +95,41 @@ function BookingConfirmation() {
           sx={{ fontSize: 60, color: "success.main", mb: 3 }}
         />
         <Typography variant="h4" gutterBottom sx={{ fontWeight: "700", mb: 1 }}>
-          Booking Confirmed!
+          Đặt sân thành công!
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Thank you for your booking. Here are your booking details:
+          Cảm ơn bạn đã đặt sân. Thông tin chi tiết:
         </Typography>
 
-        {selectedVenue && (
-          <Box sx={{ textAlign: "left", mb: 3 }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-              Venue Details:
-            </Typography>
-            {selectedVenue.images && selectedVenue.images.length > 0 && (
-              <Box
-                component="img"
-                src={selectedVenue.images[0]}
-                alt={selectedVenue.name}
-                sx={{
-                  width: "100%",
-                  height: 200,
-                  borderRadius: 1,
-                  objectFit: "cover",
-                  boxShadow: "0 1px 3px rgb(0 0 0 / 0.2)",
-                  mb: 2,
-                }}
-              />
-            )}
-            <Typography variant="body2" sx={{ mb: 0.5 }}>
-              Name: {selectedVenue.name}
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 0.5 }}>
-              Address: {selectedVenue.address}
-            </Typography>
-            <Typography variant="body2">
-              Category: {selectedVenue.categories.join(", ")}
-            </Typography>
-          </Box>
-        )}
+        <Box sx={{ textAlign: "left", mb: 4 }}>
+          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+            Thông tin sân:
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            Tên sân: {court.name}
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            Địa chỉ: {court.address}
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            Loại sân: {court.courtType || "Không rõ"}
+          </Typography>
+        </Box>
 
         <Divider sx={{ mb: 3 }} />
 
         <Box sx={{ textAlign: "left", mb: 4 }}>
           <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-            Booking Information:
+            Thông tin đặt sân:
           </Typography>
           <Typography variant="body2" sx={{ mb: 1 }}>
-            Date: {formattedDate}
+            Ngày: {formattedDate}
           </Typography>
           <Typography variant="body2" sx={{ mb: 1 }}>
-            Start Time: {selectedTime || "N/A"}
+            Giờ: {formattedStart} - {formattedEnd}
           </Typography>
           <Typography variant="body2" sx={{ mb: 1 }}>
-            Duration: {selectedDuration ? `${selectedDuration} minutes` : "N/A"}
-          </Typography>
-
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Courts:{" "}
-            {selectedCourts && selectedCourts.length > 0
-              ? selectedCourts.join(", ")
-              : "No courts selected"}
+            Ghi chú: {notes || "Không có"}
           </Typography>
         </Box>
 
@@ -131,9 +147,9 @@ function BookingConfirmation() {
               bgcolor: "#3651d4",
             },
           }}
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/bookings")}
         >
-          Go to Home
+          Xem lịch sử đặt sân
         </Button>
       </Paper>
     </Container>

@@ -17,7 +17,7 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 import CourtManagement from "./pages/CourtManagement";
 import OwnerDashboard from "./pages/OwnerDashboard";
 
-import { AuthProvider } from "./contexts/AuthContext"; // 👈 Import AuthProvider
+import { AuthProvider } from "./contexts/AuthContext"; 
 
 const theme = createTheme({
   palette: {
@@ -34,7 +34,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthProvider> {/* 👈 Wrap entire app */}
+      <AuthProvider>
         <Router>
           <Navbar />
           <Routes>
