@@ -11,7 +11,7 @@ function Register() {
     confirmPassword: '',
     fullName: '',
     phoneNumber: '',
-    role: 'CLIENT', // Default role
+    role: 'CLIENT', 
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,6 @@ function Register() {
         role: formData.role,
       });
       
-      // Redirect to login page after successful registration
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred during registration');

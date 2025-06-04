@@ -9,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Add token to requests if it exists
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -18,14 +17,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auth APIs
 export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   register: (data) => api.post("/auth/register", data),
   getCurrentUser: () => api.get("/auth/me"),
 };
 
-// Court APIs
 export const courtAPI = {
   getAllCourts: () => api.get("/courts"),
   getCourtById: (id) => api.get(`/courts/${id}`),
@@ -66,7 +63,6 @@ export const courtAPI = {
   deleteCourt: (id) => api.delete(`/courts/${id}`),
 };
 
-// Booking APIs
 export const bookingAPI = {
   getAllBookings: () => api.get("/bookings"),
   getBooking: (id) => api.get(`/bookings/${id}`),
@@ -81,7 +77,6 @@ export const bookingAPI = {
   deleteBooking: (id) => api.delete(`/bookings/${id}`),
 };
 
-// Payment APIs
 export const paymentAPI = {
   createPaymentIntent: (bookingId) =>
     api.post(`/payments/create-payment-intent/${bookingId}`),

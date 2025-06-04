@@ -8,7 +8,6 @@ import {
   Button,
   Avatar,
   Grid,
-  Alert,
   CircularProgress,
   List,
   ListItemButton,
@@ -62,7 +61,6 @@ function Profile() {
     phoneNumber: "",
   });
 
-  // Sidebar state
   const [openAccount, setOpenAccount] = useState(true);
   const [selectedKey, setSelectedKey] = useState("profile");
   const [language, setLanguage] = useState("EN");
@@ -100,7 +98,6 @@ function Profile() {
     setLoading(true);
 
     try {
-      // await authAPI.updateProfile(formData);
       setEditMode(false);
       await fetchUserProfile();
     } catch (err) {
@@ -133,7 +130,6 @@ function Profile() {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f7f9ff" }}>
-      {/* Sidebar */}
       <Box
         sx={{
           width: 280,
@@ -146,7 +142,6 @@ function Profile() {
           gap: 3,
         }}
       >
-        {/* ME */}
         <Typography variant="subtitle1" fontWeight={600}>
           ME
         </Typography>
@@ -170,7 +165,6 @@ function Profile() {
 
         <Divider />
 
-        {/* ACCOUNT SETTINGS */}
         <Box sx={{}}>
           <Box
             onClick={handleToggleAccount}
@@ -215,7 +209,6 @@ function Profile() {
 
         <Divider />
 
-        {/* MORE ON COURTSITE */}
         <Typography
           variant="subtitle1"
           fontWeight={600}
@@ -226,7 +219,6 @@ function Profile() {
           MORE ON COURTSITE
         </Typography>
 
-        {/* FOR BUSINESS */}
         <Typography
           variant="subtitle1"
           fontWeight={600}
@@ -237,7 +229,6 @@ function Profile() {
           FOR BUSINESS
         </Typography>
 
-        {/* SUPPORT */}
         <Typography
           variant="subtitle1"
           fontWeight={600}
@@ -260,7 +251,6 @@ function Profile() {
           </ListItemButton>
         </List>
 
-        {/* LOG OUT */}
         <Button
           variant="text"
           color="primary"
@@ -272,10 +262,8 @@ function Profile() {
         </Button>
       </Box>
 
-      {/* Main Content */}
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
-          {/* Profile header */}
           <Box
             sx={{
               position: "relative",
@@ -289,7 +277,6 @@ function Profile() {
               textAlign: "center",
             }}
           >
-            {/* Phần nền xanh gradient cong ở trên */}
             <Box
               sx={{
                 position: "absolute",
@@ -306,7 +293,6 @@ function Profile() {
               }}
             />
 
-            {/* Avatar nằm nổi trên nền trắng, có viền trắng */}
             <Box
               sx={{
                 position: "absolute",
@@ -331,7 +317,6 @@ function Profile() {
                 {user?.fullName?.charAt(0) || "U"}
               </Avatar>
 
-              {/* Icon bút chỉnh sửa nhỏ */}
               <Box
                 sx={{
                   position: "absolute",
@@ -366,7 +351,6 @@ function Profile() {
               </Box>
             </Box>
 
-            {/* Nội dung tên, email */}
             <Box sx={{ position: "relative", zIndex: 1, mt: 16.5 }}>
               <Typography
                 variant="h5"
@@ -384,7 +368,6 @@ function Profile() {
                 {user?.email || "email@example.com"}
               </Typography>
 
-              {/* Dòng Joined với gạch ngang 2 bên */}
               <Box
                 sx={{
                   display: "flex",
@@ -463,9 +446,7 @@ function Profile() {
             </Box>
           </Box>
 
-          {/* Boxes like My Bookings, My Invoices, My Games, My Contact */}
           <Grid container spacing={3} sx={{ mt: 6 }}>
-            {/* My Bookings */}
             <Grid item xs={12} md={6} lg={3}>
               <Paper sx={{ p: 2, height: "100%" }}>
                 <Box
@@ -497,7 +478,6 @@ function Profile() {
               </Paper>
             </Grid>
 
-            {/* My Invoices */}
             <Grid item xs={12} md={6} lg={3}>
               <Paper sx={{ p: 2, height: "100%" }}>
                 <Box
@@ -537,7 +517,6 @@ function Profile() {
               </Paper>
             </Grid>
 
-            {/* My Games */}
             <Grid item xs={12} md={6} lg={3}>
               <Paper sx={{ p: 2, height: "100%" }}>
                 <Box
@@ -569,7 +548,6 @@ function Profile() {
               </Paper>
             </Grid>
 
-            {/* My Contact */}
             <Grid item xs={12} md={6} lg={3}>
               <Paper sx={{ p: 2, height: "100%" }}>
                 <Box

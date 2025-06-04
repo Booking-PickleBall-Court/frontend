@@ -12,14 +12,13 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
-import MusicNoteIcon from "@mui/icons-material/MusicNote"; // placeholder for TikTok
+import MusicNoteIcon from "@mui/icons-material/MusicNote"; 
 
 function Footer() {
   return (
     <Box
       sx={{ backgroundColor: "#f9fafb", pt: 8, pb: 4, px: { xs: 3, md: 10 } }}
     >
-      {/* Top: Logo + Links */}
       <Grid container spacing={4}>
         <Grid item xs={12} md={3}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -90,7 +89,6 @@ function Footer() {
 
       <Divider sx={{ my: 4 }} />
 
-      {/* Bottom: Copyright + Social */}
       <Box
         sx={{
           display: "flex",

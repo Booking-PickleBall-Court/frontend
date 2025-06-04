@@ -92,7 +92,6 @@ function SearchBar({ onSearch }) {
         justifyContent: "center",
       }}
     >
-      {/* Hero Content */}
       <Box className="hero-content" sx={{ maxWidth: 2000, margin: "0 auto" }}>
         <Typography
           variant="h4"
@@ -119,24 +118,22 @@ function SearchBar({ onSearch }) {
           frisbee, play all kinds of sports nationwide!
         </Typography>
 
-        {/* Search Box */}
         <Box
           className="search-container"
           sx={{
             backgroundColor: "white",
             borderRadius: "48px",
             padding: "40px 32px",
-            maxWidth: "1200px", // Increased width of the container for better spacing
+            maxWidth: "1200px", 
             boxShadow: "0 4px 32px rgba(0, 0, 0, 0.1)",
             display: "flex",
-            flexDirection: "row", // Changed to row for horizontal layout
+            flexDirection: "row", 
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto",
-            gap: "16px", // Reduced gap for a more compact design
+            gap: "16px", 
           }}
         >
-          {/* Sport Selection */}
           <Box className="search-item" sx={{ flex: 1 }}>
             <Typography
               variant="body2"
@@ -157,25 +154,24 @@ function SearchBar({ onSearch }) {
               sx={{
                 width: "100%",
                 padding: "12px",
-                borderRadius: "50px", // Rounded corners
+                borderRadius: "50px", 
                 fontSize: "1.15rem",
                 background: "#fafbfc",
                 boxShadow: "none",
                 "& .MuiInputBase-root": {
                   backgroundColor: "#fafbfc",
-                  textAlign: "center", // Center text
+                  textAlign: "center", 
                 },
                 "& .MuiFilledInput-root": {
                   backgroundColor: "#fafbfc",
                 },
               }}
               InputProps={{
-                disableUnderline: true, // Disable underline
+                disableUnderline: true, 
               }}
             />
           </Box>
 
-          {/* Venue Search */}
           <Box className="search-item" sx={{ flex: 1 }}>
             <Typography
               variant="body2"
@@ -209,12 +205,10 @@ function SearchBar({ onSearch }) {
                 },
               }}
               InputProps={{
-                disableUnderline: true, // Disable underline
+                disableUnderline: true, 
               }}
             />
           </Box>
-
-          {/* Date Picker */}
           <Box className="search-item" sx={{ flex: 1 }}>
             <Typography
               variant="body2"
@@ -236,10 +230,10 @@ function SearchBar({ onSearch }) {
                     size: "small",
                     error: !!errors.date,
                     helperText: errors.date,
-                    variant: "filled", // Using filled variant for the date picker
+                    variant: "filled", 
                     sx: {
                       padding: "12px",
-                      borderRadius: "50px", // Rounded corners
+                      borderRadius: "50px",
                       backgroundColor: "#fafbfc",
                       textAlign: "center",
                       "& .MuiInputBase-root": {
@@ -254,7 +248,6 @@ function SearchBar({ onSearch }) {
             </LocalizationProvider>
           </Box>
 
-          {/* Search Button */}
           <Button
             type="submit"
             variant="contained"
@@ -264,9 +257,9 @@ function SearchBar({ onSearch }) {
               background: "#4263eb",
               color: "white",
               borderRadius: "50px",
-              padding: "12px 40px", // Reduced padding
+              padding: "12px 40px", 
               fontWeight: 700,
-              fontSize: "1.15rem", // Reduced font size
+              fontSize: "1.15rem", 
               display: "flex",
               alignItems: "center",
               gap: "12px",
@@ -274,7 +267,7 @@ function SearchBar({ onSearch }) {
               "&:hover": { background: "#2541b2" },
               width: "100%",
               maxWidth: "240px",
-              marginTop: "22px", // Reduced margin-top
+              marginTop: "22px", 
             }}
           >
             Search

@@ -18,7 +18,6 @@ import CourtManagement from "./pages/CourtManagement";
 import OwnerDashboard from "./pages/OwnerDashboard";
 
 import { AuthProvider } from "./contexts/AuthContext"; 
-
 const theme = createTheme({
   palette: {
     primary: {
