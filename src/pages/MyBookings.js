@@ -20,7 +20,7 @@ function MyBooking() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await bookingAPI.getUserBookings(); // API lấy danh sách booking của người dùng
+        const res = await bookingAPI.getUserBookings(); 
         setBookings(res.data);
       } catch (err) {
         setError("Không thể tải danh sách đặt sân.");

@@ -143,7 +143,7 @@ function Explore() {
               }}
             >
               <img
-                src={court.imageUrls?.[0] || "/placeholder.jpg"} // fallback nếu không có ảnh
+                src={court.imageUrls?.[0] || "/placeholder.jpg"} 
                 alt={court.name}
                 style={{
                   width: "100%",

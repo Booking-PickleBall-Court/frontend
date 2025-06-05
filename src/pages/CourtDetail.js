@@ -1,4 +1,3 @@
-// Cập nhật phiên bản CourtDetail để mở popup đặt sân nhanh chóng tại chỗ
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -20,6 +19,12 @@ import {
 import { useParams } from "react-router-dom";
 import ExploreIcon from "@mui/icons-material/Explore";
 import { courtAPI, paymentAPI } from "../services/api";
+import {
+  LocalizationProvider,
+  DatePicker,
+  TimePicker,
+} from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
 const CourtDetail = () => {
@@ -190,32 +195,56 @@ const CourtDetail = () => {
         ))}
       </Grid>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Thông tin đặt sân</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Chọn ngày"
-            type="date"
-            fullWidth
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            sx={{ my: 2 }}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            select
-            label="Chọn giờ bắt đầu"
-            fullWidth
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            sx={{ my: 2 }}
-          >
-            {availableTimes.map((time) => (
-              <MenuItem key={time} value={time}>
-                {time}
-              </MenuItem>
-            ))}
-          </TextField>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: "bold",
+            color: "#1A3C34",
+            fontSize: 22,
+            textAlign: "center",
+            py: 2,
+          }}
+        >
+          Thông tin đặt sân
+        </DialogTitle>
+
+        <DialogContent dividers>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Chọn ngày"
+              value={selectedDate ? dayjs(selectedDate) : null}
+              onChange={(value) => {
+                if (value) setSelectedDate(value.format("YYYY-MM-DD"));
+              }}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  sx: { my: 2 },
+                },
+              }}
+            />
+
+            <TextField
+              select
+              label="Chọn giờ bắt đầu"
+              fullWidth
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+              sx={{ my: 2 }}
+            >
+              {availableTimes.map((time) => (
+                <MenuItem key={time} value={time}>
+                  {time}
+                </MenuItem>
+              ))}
+            </TextField>
+          </LocalizationProvider>
+
           <TextField
             select
             label="Thời lượng (phút)"
@@ -230,10 +259,18 @@ const CourtDetail = () => {
               </MenuItem>
             ))}
           </TextField>
+
           {payError && <Alert severity="error">{payError}</Alert>}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Huỷ</Button>
+
+        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
+          <Button
+            onClick={handleCloseDialog}
+            variant="outlined"
+            color="inherit"
+          >
+            Huỷ
+          </Button>
           <Button
             variant="contained"
             onClick={handleConfirmBooking}

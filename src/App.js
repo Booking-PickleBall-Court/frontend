@@ -1,8 +1,17 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import { AnimatePresence, motion } from "framer-motion";
+
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -12,12 +21,12 @@ import Payment from "./pages/Payment";
 import MyBookings from "./pages/MyBookings";
 import Explore from "./pages/Explore";
 import Profile from "./pages/Profile";
-import Footer from "./components/Footer";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import CourtManagement from "./pages/CourtManagement";
 import OwnerDashboard from "./pages/OwnerDashboard";
 
-import { AuthProvider } from "./contexts/AuthContext"; 
+import { AuthProvider } from "./contexts/AuthContext";
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -29,28 +38,141 @@ const theme = createTheme({
   },
 });
 
+const PageWrapper = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40, scale: 0.98, filter: "blur(4px)" }}
+    animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+    exit={{ opacity: 0, y: -30, scale: 0.98, filter: "blur(4px)" }}
+    transition={{
+      duration: 0.5,
+      ease: [0.43, 0.13, 0.23, 0.96],
+    }}
+    style={{ willChange: "transform, opacity, filter" }}
+  >
+    {children}
+  </motion.div>
+);
+
+function AppContent() {
+  const location = useLocation();
+  const hideLayout =
+    location.pathname === "/register" || location.pathname === "/login";
+
+  return (
+    <>
+      {!hideLayout && <Navbar />}
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route
+            path="/"
+            element={
+              <PageWrapper>
+                <Home />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PageWrapper>
+                <Login />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PageWrapper>
+                <Register />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/courts"
+            element={
+              <PageWrapper>
+                <Courts />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/courts/:id"
+            element={
+              <PageWrapper>
+                <CourtDetail />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/payment"
+            element={
+              <PageWrapper>
+                <Payment />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/bookings"
+            element={
+              <PageWrapper>
+                <MyBookings />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/explore"
+            element={
+              <PageWrapper>
+                <Explore />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PageWrapper>
+                <Profile />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/confirmBooking"
+            element={
+              <PageWrapper>
+                <BookingConfirmation />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/owner/dashboard"
+            element={
+              <PageWrapper>
+                <OwnerDashboard />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/owner/courts"
+            element={
+              <PageWrapper>
+                <CourtManagement />
+              </PageWrapper>
+            }
+          />
+        </Routes>
+      </AnimatePresence>
+      {!hideLayout && <Footer />}
+    </>
+  );
+}
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
         <Router>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/courts" element={<Courts />} />
-            <Route path="/courts/:id" element={<CourtDetail />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/bookings" element={<MyBookings />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/confirmBooking" element={<BookingConfirmation />} />
-            <Route path="/owner/dashboard" element={<OwnerDashboard />} />
-            <Route path="/owner/courts" element={<CourtManagement />} />
-          </Routes>
-          <Footer />
+          <AppContent />
         </Router>
       </AuthProvider>
     </ThemeProvider>

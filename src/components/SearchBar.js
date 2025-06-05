@@ -16,26 +16,20 @@ function SearchBar({ onSearch }) {
 
   const validateParams = useCallback((params) => {
     const newErrors = {};
-
     if (params.date) {
       const today = startOfDay(new Date());
       const selectedDate = startOfDay(new Date(params.date));
-
       if (selectedDate < today) {
         newErrors.date = "Không thể chọn ngày trong quá khứ";
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
-
-    if (!validateParams(searchParams)) {
-      return;
-    }
+    if (!validateParams(searchParams)) return;
 
     if (onSearch) {
       const filteredParams = Object.entries(searchParams).reduce(
@@ -72,6 +66,32 @@ function SearchBar({ onSearch }) {
     });
   };
 
+  const inputStyle = {
+    width: "100%",
+    fontSize: "1.15rem",
+    borderRadius: "50px",
+    "& .MuiInputBase-root": {
+      borderRadius: "50px",
+      backgroundColor: "#fafbfc",
+      height: "48px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingX: 2,
+      transition: "background-color 0.3s",
+      "&:hover": {
+        backgroundColor: "#e0e0e0",
+      },
+    },
+    "& .MuiFilledInput-root": {
+      borderRadius: "50px",
+    },
+    "& .MuiInputBase-input": {
+      padding: 0,
+      textAlign: "center",
+    },
+  };
+
   return (
     <Box
       className="hero-section"
@@ -79,6 +99,7 @@ function SearchBar({ onSearch }) {
         position: "relative",
         width: "100%",
         background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/bg-home.avif")`,
+
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -124,14 +145,14 @@ function SearchBar({ onSearch }) {
             backgroundColor: "white",
             borderRadius: "48px",
             padding: "40px 32px",
-            maxWidth: "1200px", 
+            maxWidth: "1200px",
             boxShadow: "0 4px 32px rgba(0, 0, 0, 0.1)",
             display: "flex",
-            flexDirection: "row", 
+            flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto",
-            gap: "16px", 
+            gap: "16px",
           }}
         >
           <Box className="search-item" sx={{ flex: 1 }}>
@@ -152,22 +173,19 @@ function SearchBar({ onSearch }) {
               size="small"
               variant="filled"
               sx={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "50px", 
-                fontSize: "1.15rem",
-                background: "#fafbfc",
-                boxShadow: "none",
-                "& .MuiInputBase-root": {
-                  backgroundColor: "#fafbfc",
-                  textAlign: "center", 
-                },
-                "& .MuiFilledInput-root": {
-                  backgroundColor: "#fafbfc",
+                ...inputStyle,
+                "& .MuiInputBase-input": {
+                  textAlign: "left",
+                  paddingLeft: "12px",
                 },
               }}
               InputProps={{
-                disableUnderline: true, 
+                disableUnderline: true,
+              }}
+              inputProps={{
+                style: {
+                  textAlign: "left",
+                },
               }}
             />
           </Box>
@@ -190,25 +208,23 @@ function SearchBar({ onSearch }) {
               size="small"
               variant="filled"
               sx={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "50px",
-                fontSize: "1.15rem",
-                background: "#fafbfc",
-                boxShadow: "none",
-                "& .MuiInputBase-root": {
-                  backgroundColor: "#fafbfc",
-                  textAlign: "center",
-                },
-                "& .MuiFilledInput-root": {
-                  backgroundColor: "#fafbfc",
+                ...inputStyle,
+                "& .MuiInputBase-input": {
+                  textAlign: "left",
+                  paddingLeft: "12px",
                 },
               }}
               InputProps={{
-                disableUnderline: true, 
+                disableUnderline: true,
+              }}
+              inputProps={{
+                style: {
+                  textAlign: "left",
+                },
               }}
             />
           </Box>
+
           <Box className="search-item" sx={{ flex: 1 }}>
             <Typography
               variant="body2"
@@ -230,17 +246,9 @@ function SearchBar({ onSearch }) {
                     size: "small",
                     error: !!errors.date,
                     helperText: errors.date,
-                    variant: "filled", 
-                    sx: {
-                      padding: "12px",
-                      borderRadius: "50px",
-                      backgroundColor: "#fafbfc",
-                      textAlign: "center",
-                      "& .MuiInputBase-root": {
-                        backgroundColor: "#fafbfc",
-                        border: "none",
-                      },
-                    },
+                    variant: "filled",
+                    InputProps: { disableUnderline: true },
+                    sx: inputStyle,
                   },
                 }}
                 minDate={startOfDay(new Date())}
@@ -257,18 +265,19 @@ function SearchBar({ onSearch }) {
               background: "#4263eb",
               color: "white",
               borderRadius: "50px",
-              padding: "12px 40px", 
-              fontWeight: 700,
-              fontSize: "1.15rem", 
+              padding: "10px 26px",
+              fontWeight: 600,
+              fontSize: "1rem",
               display: "flex",
               alignItems: "center",
-              gap: "12px",
+              gap: "8px",
               transition: "background 0.2s",
               "&:hover": { background: "#2541b2" },
-              width: "100%",
-              maxWidth: "240px",
-              marginTop: "22px", 
+              width: "auto",
+              minWidth: "120px",
+              marginTop: "22px",
             }}
+            onClick={handleSearch}
           >
             Search
           </Button>

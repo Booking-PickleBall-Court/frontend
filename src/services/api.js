@@ -28,7 +28,6 @@ export const courtAPI = {
   getCourtsByMaxPrice: (maxPrice) =>
     api.get("/courts/search", { params: { maxPrice } }),
 
-  // Search Courts With Filters
   searchCourts: ({
     minPrice,
     maxPrice,

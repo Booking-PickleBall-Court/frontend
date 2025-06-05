@@ -397,7 +397,6 @@ function Profile() {
                 />
               </Box>
 
-              {/* Stats: 3 cột ngang, có đường dọc phân cách */}
               <Box
                 sx={{
                   display: "flex",

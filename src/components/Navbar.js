@@ -67,7 +67,6 @@ function Navbar() {
           minHeight: { xs: 72, sm: 90, md: 150, lg: 105 },
         }}
       >
-        {/* Logo */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <img
             src="/logo.jpg"
@@ -76,7 +75,6 @@ function Navbar() {
           />
         </Box>
 
-        {/* Center menu */}
         <Box sx={{ display: "flex", gap: 3 }}>
           <NavLink to="/" style={navLinkStyle}>
             Home
