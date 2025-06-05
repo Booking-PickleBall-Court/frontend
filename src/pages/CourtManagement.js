@@ -48,7 +48,16 @@ const CourtManagement = () => {
     <Box sx={{ display: "flex" }}>
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          minHeight: "50vh",
+          backgroundImage: 'url("/bg-home.avif")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
       >
         <Container maxWidth="xl" sx={{ mt: 12, mb: 12 }}>
           <Grid container spacing={3} sx={{ justifyContent: "center" }}>

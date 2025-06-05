@@ -3,11 +3,11 @@ import {
   AppBar,
   Toolbar,
   Button,
-  Box,
   IconButton,
+  Avatar,
   Menu,
   MenuItem,
-  Avatar,
+  Box,
 } from "@mui/material";
 import { NavLink, useNavigate } from "react-router-dom";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -76,18 +76,29 @@ function Navbar() {
         </Box>
 
         <Box sx={{ display: "flex", gap: 3 }}>
-          <NavLink to="/" style={navLinkStyle}>
-            Home
-          </NavLink>
-          <NavLink to="/explore" style={navLinkStyle}>
-            Explore
-          </NavLink>
-          <NavLink to="/games" style={navLinkStyle}>
-            Games
-          </NavLink>
-          <NavLink to="/deals" style={navLinkStyle}>
-            Deals
-          </NavLink>
+          {user && user.role === "CLIENT" && (
+            <>
+              <NavLink to="/" style={navLinkStyle}>
+                Home
+              </NavLink>
+              <NavLink to="/games" style={navLinkStyle}>
+                Games
+              </NavLink>
+              <NavLink to="/deals" style={navLinkStyle}>
+                Deals
+              </NavLink>
+            </>
+          )}
+          {user && user.role === "OWNER" && (
+            <>
+              <NavLink to="/owner/dashboard" style={navLinkStyle}>
+                <DashboardIcon sx={{ mr: 1 }} /> Dashboard
+              </NavLink>
+              <NavLink to="/owner/courts" style={navLinkStyle}>
+                <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
+              </NavLink>
+            </>
+          )}
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -131,17 +142,6 @@ function Navbar() {
 
           {user && (
             <>
-              {user.role === "owner" && (
-                <>
-                  <NavLink to="/owner/dashboard" style={navLinkStyle}>
-                    <DashboardIcon sx={{ mr: 1 }} /> Dashboard
-                  </NavLink>
-                  <NavLink to="/owner/courts" style={navLinkStyle}>
-                    <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
-                  </NavLink>
-                </>
-              )}
-
               <IconButton onClick={handleAvatarClick}>
                 <Avatar src={user.avatarUrl}>
                   {user.fullName?.charAt(0) || "U"}

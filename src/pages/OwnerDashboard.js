@@ -14,12 +14,6 @@ import {
   Paper,
   CircularProgress,
   Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
 } from "@mui/material";
 import {
   Tooltip as MuiTooltip,
@@ -27,14 +21,8 @@ import {
   AccessTime as AccessTimeIcon,
   Event as EventIcon,
   BarChart as BarChartIcon,
-  Person as PersonIcon,
-  Folder as FolderIcon,
-  Group as GroupIcon,
-  Description as DescriptionIcon,
-  Edit as EditIcon,
-  Link as LinkIcon,
-  Lock as LockIcon,
-  Help as HelpIcon,
+  HelpOutline,
+  WhatsApp,
 } from "@mui/icons-material";
 import {
   ResponsiveContainer,
@@ -46,10 +34,22 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import Sidebar from "../components/Sidebar";
+import { useNavigate } from "react-router-dom";
 
-const drawerWidth = 240;
+const sidebarItems = [
+  { label: "Dashboard", key: "dashboard", icon: <BarChartIcon /> },
+  { label: "Courts", key: "courts", icon: <EventIcon /> },
+  { label: "Customers", key: "customers", icon: <AccessTimeIcon /> },
+  { label: "Revenue", key: "revenue", icon: <AttachMoneyIcon /> },
+];
 
-const OwnerDashboard = () => {
+const accountSettings = [
+  { label: "Help Centre", key: "help", icon: <HelpOutline /> },
+  { label: "WhatsApp Us", key: "whatsapp", icon: <WhatsApp /> },
+];
+
+function OwnerDashboard() {
   const [loading, setLoading] = useState(true);
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
   const [monthlyHours, setMonthlyHours] = useState([]);
@@ -60,6 +60,8 @@ const OwnerDashboard = () => {
     totalBookings: 0,
     monthlyRevenueSum: 0,
   });
+  const [selectedKey, setSelectedKey] = useState("dashboard");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const mockRevenue = [
@@ -143,6 +145,15 @@ const OwnerDashboard = () => {
     }, 1000);
   }, []);
 
+  const handleSelect = (key) => {
+    setSelectedKey(key);
+  };
+
+  const handleLogout = () => {
+    // Handle logout logic here
+    navigate("/login");
+  };
+
   if (loading) {
     return (
       <Container sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -153,108 +164,19 @@ const OwnerDashboard = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      {" "}
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            position: "relative", 
-            height: "auto", 
-          },
-        }}
-        variant="permanent"
-        anchor="left"
-      >
-        <Box sx={{ overflow: "auto", p: 2 }}>
-          <Typography variant="overline" sx={{ mb: 1 }}>
-            ME
-          </Typography>
-          <List>
-            <ListItem button>
-              <ListItemIcon>
-                <PersonIcon />
-              </ListItemIcon>
-              <ListItemText primary="My Profile" />
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <FolderIcon />
-              </ListItemIcon>
-              <ListItemText primary="My Bookings" />
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <GroupIcon />
-              </ListItemIcon>
-              <ListItemText primary="My Games" />
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <DescriptionIcon />
-              </ListItemIcon>
-              <ListItemText primary="My Invoices" />
-            </ListItem>
-          </List>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Typography variant="overline" sx={{ mb: 1 }}>
-            ACCOUNT SETTINGS
-          </Typography>
-          <List>
-            <ListItem button>
-              <ListItemIcon>
-                <EditIcon />
-              </ListItemIcon>
-              <ListItemText primary="Edit Profile" />
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <LinkIcon />
-              </ListItemIcon>
-              <ListItemText primary="Link Social Accounts" />
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <LockIcon />
-              </ListItemIcon>
-              <ListItemText primary="Create Password" />
-            </ListItem>
-          </List>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Typography variant="overline" sx={{ mb: 1, display: "block" }}>
-            MORE ON COURTSITE
-          </Typography>
-          <Typography variant="overline" sx={{ mb: 1, display: "block" }}>
-            FOR BUSINESS
-          </Typography>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Typography variant="overline" sx={{ mb: 1 }}>
-            SUPPORT
-          </Typography>
-          <List>
-            <ListItem button>
-              <ListItemIcon>
-                <HelpIcon />
-              </ListItemIcon>
-              <ListItemText primary="Help Centre" />
-            </ListItem>
-          </List>
-        </Box>
-      </Drawer>
+      <Sidebar
+        sidebarItems={sidebarItems}
+        accountSettings={accountSettings}
+        selectedKey={selectedKey}
+        onSelect={handleSelect}
+        onLogout={handleLogout}
+      />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: { sm: `calc(100% - 280px)` },
         }}
       >
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -425,6 +347,6 @@ const OwnerDashboard = () => {
       </Box>
     </Box>
   );
-};
+}
 
 export default OwnerDashboard;

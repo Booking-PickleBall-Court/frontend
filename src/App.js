@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import PrivateRoute from "./components/PrivateRoute";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -146,9 +147,11 @@ function AppContent() {
           <Route
             path="/owner/dashboard"
             element={
-              <PageWrapper>
-                <OwnerDashboard />
-              </PageWrapper>
+              <PrivateRoute requiredRole="OWNER">
+                <PageWrapper>
+                  <OwnerDashboard />
+                </PageWrapper>
+              </PrivateRoute>
             }
           />
           <Route

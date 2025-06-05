@@ -9,15 +9,14 @@ import {
   Avatar,
   Grid,
   CircularProgress,
+  Link,
   List,
   ListItemButton,
-  ListItemText,
   ListItemIcon,
+  ListItemText,
   Divider,
   Collapse,
-  Link,
 } from "@mui/material";
-
 import {
   Person,
   Folder,
@@ -33,14 +32,13 @@ import {
   ExpandMore,
   Logout,
 } from "@mui/icons-material";
-
 import { authAPI } from "../services/api";
+import Sidebar from "../components/Sidebar";
+import { useNavigate } from "react-router-dom";
 
 const sidebarItems = [
   { label: "My Profile", key: "profile", icon: <Person /> },
   { label: "My Bookings", key: "bookings", icon: <Folder /> },
-  { label: "My Games", key: "games", icon: <Group /> },
-  { label: "My Invoices", key: "invoices", icon: <Receipt /> },
 ];
 
 const accountSettings = [
@@ -61,9 +59,8 @@ function Profile() {
     phoneNumber: "",
   });
 
-  const [openAccount, setOpenAccount] = useState(true);
   const [selectedKey, setSelectedKey] = useState("profile");
-  const [language, setLanguage] = useState("EN");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
@@ -107,12 +104,13 @@ function Profile() {
     }
   };
 
-  const handleToggleAccount = () => {
-    setOpenAccount(!openAccount);
-  };
-
   const handleSelect = (key) => {
     setSelectedKey(key);
+  };
+
+  const handleLogout = () => {
+    // Handle logout logic here
+    navigate("/login");
   };
 
   if (loading) {
@@ -129,138 +127,14 @@ function Profile() {
   }
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f7f9ff" }}>
-      <Box
-        sx={{
-          width: 280,
-          bgcolor: "white",
-          borderRight: "1px solid #ddd",
-          px: 2,
-          py: 3,
-          display: "flex",
-          flexDirection: "column",
-          gap: 3,
-        }}
-      >
-        <Typography variant="subtitle1" fontWeight={600}>
-          ME
-        </Typography>
-        <List disablePadding>
-          {sidebarItems.map((item) => (
-            <ListItemButton
-              key={item.key}
-              selected={selectedKey === item.key}
-              onClick={() => handleSelect(item.key)}
-              sx={{ borderRadius: 1 }}
-            >
-              <ListItemIcon
-                sx={{ color: selectedKey === item.key ? "#5372F0" : "inherit" }}
-              >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          ))}
-        </List>
-
-        <Divider />
-
-        <Box sx={{}}>
-          <Box
-            onClick={handleToggleAccount}
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              cursor: "pointer",
-              mb: 1,
-            }}
-          >
-            <Typography variant="subtitle1" fontWeight={600}>
-              ACCOUNT SETTINGS
-            </Typography>
-            {openAccount ? <ExpandLess /> : <ExpandMore />}
-          </Box>
-
-          <Collapse in={openAccount} timeout="auto" unmountOnExit>
-            <List disablePadding>
-              {accountSettings.map((item) =>
-                item.key !== "language" ? (
-                  <ListItemButton
-                    key={item.key}
-                    selected={selectedKey === item.key}
-                    onClick={() => handleSelect(item.key)}
-                    sx={{ borderRadius: 1 }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        color: selectedKey === item.key ? "#5372F0" : "inherit",
-                      }}
-                    >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText primary={item.label} />
-                  </ListItemButton>
-                ) : null
-              )}
-            </List>
-          </Collapse>
-        </Box>
-
-        <Divider />
-
-        <Typography
-          variant="subtitle1"
-          fontWeight={600}
-          color="primary"
-          sx={{ cursor: "pointer" }}
-          onClick={() => alert("More on Courtsite clicked")}
-        >
-          MORE ON COURTSITE
-        </Typography>
-
-        <Typography
-          variant="subtitle1"
-          fontWeight={600}
-          color="primary"
-          sx={{ cursor: "pointer" }}
-          onClick={() => alert("For Business clicked")}
-        >
-          FOR BUSINESS
-        </Typography>
-
-        <Typography
-          variant="subtitle1"
-          fontWeight={600}
-          sx={{ cursor: "pointer" }}
-        >
-          SUPPORT
-        </Typography>
-        <List disablePadding>
-          <ListItemButton onClick={() => alert("Help Centre clicked")}>
-            <ListItemIcon>
-              <HelpOutline />
-            </ListItemIcon>
-            <ListItemText primary="Help Centre" />
-          </ListItemButton>
-          <ListItemButton onClick={() => alert("WhatsApp Us clicked")}>
-            <ListItemIcon>
-              <WhatsApp />
-            </ListItemIcon>
-            <ListItemText primary="WhatsApp Us" />
-          </ListItemButton>
-        </List>
-
-        <Button
-          variant="text"
-          color="primary"
-          startIcon={<Logout />}
-          sx={{ mt: "auto", justifyContent: "flex-start" }}
-          onClick={() => alert("Log out clicked")}
-        >
-          LOG OUT
-        </Button>
-      </Box>
+    <Box sx={{ display: "flex" }}>
+      <Sidebar
+        sidebarItems={sidebarItems}
+        accountSettings={accountSettings}
+        selectedKey={selectedKey}
+        onSelect={handleSelect}
+        onLogout={handleLogout}
+      />
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
@@ -473,76 +347,6 @@ function Profile() {
                   fontSize="0.9rem"
                 >
                   Book Now
-                </Link>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ p: 2, height: "100%" }}>
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  mb={1}
-                >
-                  <Typography fontWeight={600}>My Invoices</Typography>
-                  <Link href="#" underline="hover" fontSize="0.9rem">
-                    See all
-                  </Link>
-                </Box>
-                <Typography
-                  variant="h5"
-                  fontWeight={600}
-                  color="primary"
-                  sx={{ mb: 1 }}
-                >
-                  RM 0
-                </Typography>
-                <Typography variant="caption" sx={{ mb: 1, display: "block" }}>
-                  spent on sports this year
-                </Typography>
-                <Typography variant="caption" sx={{ display: "block", mb: 1 }}>
-                  Claim up to RM1,000 in tax relief while staying active and
-                  healthy!
-                </Typography>
-                <Link
-                  href="#"
-                  underline="hover"
-                  fontWeight={600}
-                  fontSize="0.9rem"
-                >
-                  See last year's amount
-                </Link>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ p: 2, height: "100%" }}>
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  mb={1}
-                >
-                  <Typography fontWeight={600}>My Games</Typography>
-                  <Link href="#" underline="hover" fontSize="0.9rem">
-                    See all
-                  </Link>
-                </Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  No games have been joined
-                </Typography>
-                <Typography variant="caption" sx={{ mb: 1, display: "block" }}>
-                  Join our social game and meet new friends. Let's get the fun
-                  rolling!
-                </Typography>
-                <Link
-                  href="#"
-                  underline="hover"
-                  fontWeight={600}
-                  fontSize="0.9rem"
-                >
-                  How to join a game?
                 </Link>
               </Paper>
             </Grid>
