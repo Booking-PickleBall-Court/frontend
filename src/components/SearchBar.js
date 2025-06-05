@@ -1,287 +1,132 @@
-import React, { useState, useCallback } from "react";
-import { TextField, Button, Typography, Box } from "@mui/material";
+import React, { useState } from "react";
+import {
+  TextField,
+  Button,
+  Typography,
+  Box,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { format, startOfDay } from "date-fns";
+import ClearIcon from "@mui/icons-material/Clear";
 
 function SearchBar({ onSearch }) {
-  const [searchParams, setSearchParams] = useState({
-    sport: "",
-    address: "",
-    date: null,
-  });
-
-  const [errors, setErrors] = useState({});
-
-  const validateParams = useCallback((params) => {
-    const newErrors = {};
-    if (params.date) {
-      const today = startOfDay(new Date());
-      const selectedDate = startOfDay(new Date(params.date));
-      if (selectedDate < today) {
-        newErrors.date = "Không thể chọn ngày trong quá khứ";
-      }
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }, []);
+  const [query, setQuery] = useState("");
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!validateParams(searchParams)) return;
-
-    if (onSearch) {
-      const filteredParams = Object.entries(searchParams).reduce(
-        (acc, [key, value]) => {
-          if (value !== null && value !== "" && value !== undefined) {
-            if (key === "date" && value) {
-              const date = startOfDay(new Date(value));
-              acc[key] = format(date, "yyyy-MM-dd");
-            } else {
-              acc[key] = value;
-            }
-          }
-          return acc;
-        },
-        {}
-      );
-      onSearch(filteredParams);
-    }
+    onSearch({ query: query.trim() });
   };
 
-  const handleChange = (field) => (event) => {
-    setSearchParams((prev) => {
-      const newParams = { ...prev, [field]: event.target.value };
-      validateParams(newParams);
-      return newParams;
-    });
-  };
-
-  const handleDateChange = (newValue) => {
-    setSearchParams((prev) => {
-      const newParams = { ...prev, date: newValue };
-      validateParams(newParams);
-      return newParams;
-    });
-  };
-
-  const inputStyle = {
-    width: "100%",
-    fontSize: "1.15rem",
-    borderRadius: "50px",
-    "& .MuiInputBase-root": {
-      borderRadius: "50px",
-      backgroundColor: "#fafbfc",
-      height: "48px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      paddingX: 2,
-      transition: "background-color 0.3s",
-      "&:hover": {
-        backgroundColor: "#e0e0e0",
-      },
-    },
-    "& .MuiFilledInput-root": {
-      borderRadius: "50px",
-    },
-    "& .MuiInputBase-input": {
-      padding: 0,
-      textAlign: "center",
-    },
+  const handleClear = () => {
+    setQuery("");
+    onSearch({ query: "" }); // reset kết quả khi xoá input
   };
 
   return (
     <Box
-      className="hero-section"
       sx={{
-        position: "relative",
         width: "100%",
-        background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/bg-home.avif")`,
-
+        background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/bg-home.avif")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
         backgroundAttachment: "fixed",
-        color: "white",
-        padding: "90px 10px 70px 10px",
-        textAlign: "center",
+        color: "#fff",
+        py: 10,
         minHeight: "500px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center",
+        px: 2,
       }}
     >
-      <Box className="hero-content" sx={{ maxWidth: 2000, margin: "0 auto" }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontSize: "2.8rem",
-            fontWeight: "600",
-            marginBottom: "18px",
-            textShadow: "0 2px 12px rgba(0, 0, 0, 0.18)",
-          }}
-        >
-          Get Active, Book Your Games Now
-        </Typography>
-        <Typography
-          sx={{
-            fontFamily: "Inter, Arial, sans-serif",
-            fontSize: "1.5rem",
-            fontWeight: "600",
-            marginBottom: "38px",
-            textShadow: "0 2px 8px rgba(0, 0, 0, 0.13)",
-            color: "#fff",
-          }}
-        >
-          From favorites like badminton and futsal to trendy pickleball and
-          frisbee, play all kinds of sports nationwide!
-        </Typography>
+      <Typography
+        variant="h3"
+        sx={{
+          fontWeight: 700,
+          mb: 2,
+          textShadow: "0 2px 12px rgba(0, 0, 0, 0.2)",
+        }}
+      >
+        Get Active, Book Your Games Now
+      </Typography>
 
-        <Box
-          className="search-container"
-          sx={{
-            backgroundColor: "white",
-            borderRadius: "48px",
-            padding: "40px 32px",
-            maxWidth: "1200px",
-            boxShadow: "0 4px 32px rgba(0, 0, 0, 0.1)",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto",
-            gap: "16px",
-          }}
-        >
-          <Box className="search-item" sx={{ flex: 1 }}>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 700,
-                fontSize: "1.18rem",
-                marginBottom: "8px",
-              }}
-            >
-              Sport
-            </Typography>
-            <TextField
-              label="Select a sport"
-              value={searchParams.sport}
-              onChange={handleChange("sport")}
-              size="small"
-              variant="filled"
-              sx={{
-                ...inputStyle,
-                "& .MuiInputBase-input": {
-                  textAlign: "left",
-                  paddingLeft: "12px",
-                },
-              }}
-              InputProps={{
-                disableUnderline: true,
-              }}
-              inputProps={{
-                style: {
-                  textAlign: "left",
-                },
-              }}
-            />
-          </Box>
+      <Typography
+        sx={{
+          fontSize: "1.25rem",
+          maxWidth: "800px",
+          mb: 5,
+          color: "#e2e8f0",
+          textShadow: "0 1px 8px rgba(0, 0, 0, 0.2)",
+        }}
+      >
+        Search for sports venues across Vietnam by court name or address.
+      </Typography>
 
-          <Box className="search-item" sx={{ flex: 1 }}>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 700,
-                fontSize: "1.18rem",
-                marginBottom: "8px",
-              }}
-            >
-              Where
-            </Typography>
-            <TextField
-              label="Search district, city"
-              value={searchParams.address}
-              onChange={handleChange("address")}
-              size="small"
-              variant="filled"
-              sx={{
-                ...inputStyle,
-                "& .MuiInputBase-input": {
-                  textAlign: "left",
-                  paddingLeft: "12px",
-                },
-              }}
-              InputProps={{
-                disableUnderline: true,
-              }}
-              inputProps={{
-                style: {
-                  textAlign: "left",
-                },
-              }}
-            />
-          </Box>
-
-          <Box className="search-item" sx={{ flex: 1 }}>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 700,
-                fontSize: "1.18rem",
-                marginBottom: "8px",
-              }}
-            >
-              When
-            </Typography>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
-                label="Pick a date"
-                value={searchParams.date}
-                onChange={handleDateChange}
-                slotProps={{
-                  textField: {
-                    size: "small",
-                    error: !!errors.date,
-                    helperText: errors.date,
-                    variant: "filled",
-                    InputProps: { disableUnderline: true },
-                    sx: inputStyle,
-                  },
-                }}
-                minDate={startOfDay(new Date())}
-              />
-            </LocalizationProvider>
-          </Box>
-
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            startIcon={<SearchIcon />}
-            sx={{
-              background: "#4263eb",
-              color: "white",
-              borderRadius: "50px",
-              padding: "10px 26px",
-              fontWeight: 600,
+      <Box
+        component="form"
+        onSubmit={handleSearch}
+        sx={{
+          display: "flex",
+          gap: 2,
+          flexDirection: { xs: "column", sm: "row" },
+          backgroundColor: "rgba(255,255,255,0.95)",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+          backdropFilter: "blur(6px)",
+          borderRadius: "48px",
+          px: 3,
+          py: 1.5,
+          width: "100%",
+          maxWidth: "700px",
+        }}
+      >
+        <TextField
+          fullWidth
+          variant="standard"
+          placeholder="Enter court name or address"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          InputProps={{
+            disableUnderline: true,
+            sx: {
+              px: 2,
+              py: 1,
               fontSize: "1rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              transition: "background 0.2s",
-              "&:hover": { background: "#2541b2" },
-              width: "auto",
-              minWidth: "120px",
-              marginTop: "22px",
-            }}
-            onClick={handleSearch}
-          >
-            Search
-          </Button>
-        </Box>
+              backgroundColor: "#f7fafc",
+              borderRadius: "32px",
+              height: "48px",
+            },
+            endAdornment: query && (
+              <InputAdornment position="end">
+                <IconButton onClick={handleClear}>
+                  <ClearIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          startIcon={<SearchIcon />}
+          sx={{
+            px: 4,
+            borderRadius: "32px",
+            fontWeight: 600,
+            fontSize: "1rem",
+            background: "linear-gradient(to right, #4f46e5, #3b82f6)",
+            height: "48px",
+            "&:hover": {
+              background: "linear-gradient(to right, #4338ca, #2563eb)",
+            },
+          }}
+        >
+          Search
+        </Button>
       </Box>
     </Box>
   );

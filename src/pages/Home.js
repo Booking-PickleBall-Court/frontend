@@ -14,14 +14,16 @@ import { courtAPI } from "../services/api";
 
 const Home = () => {
   const navigate = useNavigate();
-  const [venueData, setVenueData] = useState([]);
+  const [allVenues, setAllVenues] = useState([]);
+  const [filteredVenues, setFilteredVenues] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCourts = async () => {
       try {
         const response = await courtAPI.getAllCourts();
-        setVenueData(response.data);
+        setAllVenues(response.data);
+        setFilteredVenues(response.data);
       } catch (error) {
         console.error("Error fetching court data:", error);
       } finally {
@@ -31,17 +33,32 @@ const Home = () => {
     fetchCourts();
   }, []);
 
-  const handleSearch = ({ sport, where, when }) => {
-    const params = new URLSearchParams();
-    if (sport) params.append("sport", sport);
-    if (where) params.append("where", where);
-    if (when)
-      params.append(
-        "when",
-        when instanceof Date ? when.toISOString().slice(0, 10) : when
-      );
-    navigate(`/explore?${params.toString()}`);
-  };
+  const normalize = (str) =>
+  (str || "")
+    .toLowerCase()
+    .normalize("NFD")                  
+    .replace(/[\u0300-\u036f]/g, "")  
+    .replace(/đ/g, "d")                
+    .replace(/[^a-z0-9\s]/g, "");      
+
+
+  const handleSearch = ({ query }) => {
+  const searchTerm = normalize(query || "");
+
+  if (!searchTerm) {
+    setFilteredVenues(allVenues);
+    return;
+  }
+
+  const filtered = allVenues.filter((venue) => {
+    const name = normalize(venue.name);
+    const address = normalize(venue.address);
+    return name.includes(searchTerm) || address.includes(searchTerm);
+  });
+
+  setFilteredVenues(filtered);
+};
+
 
   const handleViewCourtDetail = useCallback(
     (courtId) => {
@@ -67,9 +84,13 @@ const Home = () => {
             <Box sx={{ textAlign: "center", mt: 4 }}>
               <CircularProgress />
             </Box>
+          ) : filteredVenues.length === 0 ? (
+            <Typography variant="body1" sx={{ mt: 3 }}>
+              Không tìm thấy sân phù hợp.
+            </Typography>
           ) : (
             <Grid container spacing={3}>
-              {venueData.map((venue, index) => (
+              {filteredVenues.map((venue, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
                   <Paper
                     elevation={3}
@@ -95,27 +116,10 @@ const Home = () => {
                         borderRadius: "8px",
                       }}
                     />
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        mt: 2,
-                        whiteSpace: "normal",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
+                    <Typography variant="h6" sx={{ mt: 2 }}>
                       {venue.name}
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        whiteSpace: "normal",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {venue.address}
-                    </Typography>
+                    <Typography variant="body2">{venue.address}</Typography>
                     <Typography
                       variant="body2"
                       sx={{ fontWeight: "bold", mt: 1 }}
