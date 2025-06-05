@@ -25,6 +25,8 @@ import Profile from "./pages/Profile";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import CourtManagement from "./pages/CourtManagement";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import OwnerBookingHistory from "./pages/OwnerBookingHistory";
 
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -160,6 +162,26 @@ function AppContent() {
               <PageWrapper>
                 <CourtManagement />
               </PageWrapper>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute requiredRole="ADMIN">
+                <PageWrapper>
+                  <AdminDashboard />
+                </PageWrapper>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/owner/booking-history"
+            element={
+              <PrivateRoute requiredRole="OWNER">
+                <PageWrapper>
+                  <OwnerBookingHistory />
+                </PageWrapper>
+              </PrivateRoute>
             }
           />
         </Routes>

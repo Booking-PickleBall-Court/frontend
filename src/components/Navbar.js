@@ -97,6 +97,16 @@ function Navbar() {
               <NavLink to="/owner/courts" style={navLinkStyle}>
                 <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
               </NavLink>
+              <NavLink to="/owner/booking-history" style={navLinkStyle}>
+                Booking History
+              </NavLink>
+            </>
+          )}
+          {user && user.role === "ADMIN" && (
+            <>
+              <NavLink to="/admin" style={navLinkStyle}>
+                <DashboardIcon sx={{ mr: 1 }} /> Admin Dashboard
+              </NavLink>
             </>
           )}
         </Box>

@@ -1,0 +1,52 @@
+/* Basic styles for OwnerBookingHistory page */
+.container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 20px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.container p {
+  text-align: center;
+  color: #666;
+}
+
+.container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.container th,
+.container td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.container th {
+  background-color: #f2f2f2;
+  color: #333;
+  font-weight: bold;
+}
+
+.container tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.container tr:hover {
+  background-color: #f1f1f1;
+}
+
+.container .error {
+  color: #f00;
+  text-align: center;
+}
