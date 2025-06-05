@@ -7,10 +7,10 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Typography,
   Box,
 } from "@mui/material";
 import { NavLink, useNavigate } from "react-router-dom";
-import LanguageIcon from "@mui/icons-material/Language";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import BusinessIcon from "@mui/icons-material/Business";
 import { AuthContext } from "../contexts/AuthContext";
@@ -81,11 +81,8 @@ function Navbar() {
               <NavLink to="/" style={navLinkStyle}>
                 Home
               </NavLink>
-              <NavLink to="/games" style={navLinkStyle}>
-                Games
-              </NavLink>
-              <NavLink to="/deals" style={navLinkStyle}>
-                Deals
+              <NavLink to="/bookings" style={navLinkStyle}>
+                Booking history
               </NavLink>
             </>
           )}
@@ -112,20 +109,6 @@ function Navbar() {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton onClick={handleLangClick}>
-            <LanguageIcon sx={{ color: "#222" }} />
-          </IconButton>
-          <Menu
-            anchorEl={langAnchorEl}
-            open={Boolean(langAnchorEl)}
-            onClose={handleLangClose}
-          >
-            <MenuItem onClick={handleLangClose}>EN</MenuItem>
-            <MenuItem onClick={handleLangClose}>VI</MenuItem>
-          </Menu>
-
-          <Button sx={{ ...commonButtonStyle, color: "#222" }}>Help</Button>
-
           {!user && (
             <>
               <NavLink to="/register" style={navLinkStyle}>
@@ -152,11 +135,17 @@ function Navbar() {
 
           {user && (
             <>
-              <IconButton onClick={handleAvatarClick}>
-                <Avatar src={user.avatarUrl}>
-                  {user.fullName?.charAt(0) || "U"}
-                </Avatar>
-              </IconButton>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography sx={{ color: "#333", fontWeight: 500 }}>
+                  {user.fullName}
+                </Typography>
+
+                <IconButton onClick={handleAvatarClick}>
+                  <Avatar src={user.avatarUrl}>
+                    {user.fullName?.charAt(0) || "U"}
+                  </Avatar>
+                </IconButton>
+              </Box>
               <Menu
                 anchorEl={avatarAnchorEl}
                 open={Boolean(avatarAnchorEl)}
