@@ -8,6 +8,7 @@ import {
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { AnimatePresence, motion } from "framer-motion";
+import { Box } from "@mui/material";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -41,7 +42,7 @@ const theme = createTheme({
   },
 });
 
-const PageWrapper = ({ children }) => (
+const PageWrapper = ({ children, style }) => (
   <motion.div
     initial={{ opacity: 0, y: 40, scale: 0.98, filter: "blur(4px)" }}
     animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
@@ -50,7 +51,7 @@ const PageWrapper = ({ children }) => (
       duration: 0.5,
       ease: [0.43, 0.13, 0.23, 0.96],
     }}
-    style={{ willChange: "transform, opacity, filter" }}
+    style={{ willChange: "transform, opacity, filter", ...style }}
   >
     {children}
   </motion.div>
@@ -64,6 +65,21 @@ function AppContent() {
   return (
     <>
       {!hideLayout && <Navbar />}
+      {location.pathname === "/bookings" && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: -1,
+            backgroundImage: `url(${process.env.PUBLIC_URL}/bg-home.avif)`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+      )}
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route

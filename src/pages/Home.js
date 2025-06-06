@@ -7,6 +7,7 @@ import {
   Grid,
   Button,
   CircularProgress,
+  Pagination,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
@@ -17,6 +18,8 @@ const Home = () => {
   const [allVenues, setAllVenues] = useState([]);
   const [filteredVenues, setFilteredVenues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [venuesPerPage] = useState(6);
 
   useEffect(() => {
     const fetchCourts = async () => {
@@ -34,31 +37,28 @@ const Home = () => {
   }, []);
 
   const normalize = (str) =>
-  (str || "")
-    .toLowerCase()
-    .normalize("NFD")                  
-    .replace(/[\u0300-\u036f]/g, "")  
-    .replace(/đ/g, "d")                
-    .replace(/[^a-z0-9\s]/g, "");      
-
+    (str || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/[^a-z0-9\s]/g, "");
 
   const handleSearch = ({ query }) => {
-  const searchTerm = normalize(query || "");
+    const searchTerm = normalize(query || "");
 
-  if (!searchTerm) {
-    setFilteredVenues(allVenues);
-    return;
-  }
-
-  const filtered = allVenues.filter((venue) => {
-    const name = normalize(venue.name);
-    const address = normalize(venue.address);
-    return name.includes(searchTerm) || address.includes(searchTerm);
-  });
-
-  setFilteredVenues(filtered);
-};
-
+    if (!searchTerm) {
+      setFilteredVenues(allVenues);
+    } else {
+      const filtered = allVenues.filter((venue) => {
+        const name = normalize(venue.name);
+        const address = normalize(venue.address);
+        return name.includes(searchTerm) || address.includes(searchTerm);
+      });
+      setFilteredVenues(filtered);
+    }
+    setCurrentPage(1);
+  };
 
   const handleViewCourtDetail = useCallback(
     (courtId) => {
@@ -67,6 +67,19 @@ const Home = () => {
     },
     [navigate]
   );
+
+  const indexOfLastVenue = currentPage * venuesPerPage;
+  const indexOfFirstVenue = indexOfLastVenue - venuesPerPage;
+  const currentVenues = filteredVenues.slice(
+    indexOfFirstVenue,
+    indexOfLastVenue
+  );
+
+  const totalPages = Math.ceil(filteredVenues.length / venuesPerPage);
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
 
   return (
     <>
@@ -90,7 +103,7 @@ const Home = () => {
             </Typography>
           ) : (
             <Grid container spacing={3}>
-              {filteredVenues.map((venue, index) => (
+              {currentVenues.map((venue, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
                   <Paper
                     elevation={3}
@@ -102,7 +115,7 @@ const Home = () => {
                       height: "450px",
                       overflow: "hidden",
                       justifyContent: "space-between",
-                      width: "320px",
+                      width: "366px",
                       margin: "auto",
                     }}
                   >
@@ -165,6 +178,17 @@ const Home = () => {
                 </Grid>
               ))}
             </Grid>
+          )}
+
+          {filteredVenues.length > venuesPerPage && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </Box>
           )}
         </Box>
       </Container>

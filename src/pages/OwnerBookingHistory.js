@@ -7,10 +7,8 @@ function OwnerBookingHistory() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // TODO: Fetch owner booking history data from API (bookings made by customers)
     const fetchBookings = async () => {
       try {
-        // Replace with actual API call, possibly including owner ID
         const response = await fetch("/api/owner/bookings");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -49,7 +47,6 @@ function OwnerBookingHistory() {
               <th>Thời gian</th>
               <th>Khách hàng</th>
               <th>Trạng thái</th>
-              {/* Add more table headers based on your booking data structure */}
             </tr>
           </thead>
           <tbody>
@@ -59,7 +56,6 @@ function OwnerBookingHistory() {
                 <td>{booking.timeSlot}</td>
                 <td>{booking.customerName}</td>
                 <td>{booking.status}</td>
-                {/* Add more table data based on your booking data structure */}
               </tr>
             ))}
           </tbody>
