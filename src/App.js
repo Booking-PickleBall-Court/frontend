@@ -28,6 +28,7 @@ import CourtManagement from "./pages/CourtManagement";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerBookingHistory from "./pages/OwnerBookingHistory";
+import ScheduleCalendar from "./pages/ScheduleCalendar";
 
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -41,6 +42,18 @@ const theme = createTheme({
     },
   },
 });
+
+theme.hero = {
+  height: 200,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  color: "white",
+  backgroundImage: `url(${process.env.PUBLIC_URL}/bg-home.avif)`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+};
 
 const PageWrapper = ({ children, style }) => (
   <motion.div
@@ -198,6 +211,14 @@ function AppContent() {
                   <OwnerBookingHistory />
                 </PageWrapper>
               </PrivateRoute>
+            }
+          />
+          <Route
+            path="/schedule-calendar"
+            element={
+              <PageWrapper>
+                <ScheduleCalendar />
+              </PageWrapper>
             }
           />
         </Routes>

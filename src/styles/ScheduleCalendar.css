@@ -1,0 +1,145 @@
+.schedule-container {
+  background-size: cover;
+  background-position: center;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 90vh;
+}
+
+.calendar-wrapper {
+  width: 98%;
+  max-width: 1600px;
+  padding: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.calendar-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.calendar-container {
+  display: flex;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.fixed-column {
+  flex: 0 0 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 45px;
+}
+
+.court-label {
+  font-weight: bold;
+  font-size: 14px;
+  padding: 5px;
+  text-align: center;
+  min-width: 120px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  flex-shrink: 0;
+  margin-left: 20px;
+}
+
+.scrollable-section {
+  overflow-x: auto;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.header-row {
+  display: flex;
+}
+
+.time-cell {
+  width: 56px !important;
+  height: 45px !important;
+  padding-left: 5px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+  border: 1px solid #ddd;
+  background: #e8e8e8;
+}
+
+.court-row {
+  display: flex;
+  align-items: center;
+}
+
+.slot {
+  width: 150px;
+  height: 40px;
+  flex: 1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.selected {
+  background-color: green;
+  color: white;
+}
+
+.booked {
+  background-color: rgb(213, 20, 20);
+  color: white;
+}
+
+.locked {
+  background-color: darkgray;
+  color: white;
+}
+
+.summary {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.next-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  background: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+}
+
+.date-picker-custom {
+  padding: 12px 15px;
+  font-size: 18px;
+  height: 20px;
+  border-radius: 8px;
+  border: 2px solid #007bff;
+  margin-left: 45px;
+}

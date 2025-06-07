@@ -24,11 +24,20 @@ const Sidebar = ({
   selectedKey,
   onSelect,
   onLogout,
+  onEditProfile,
 }) => {
   const [openAccount, setOpenAccount] = useState(false);
 
   const handleToggleAccount = () => {
     setOpenAccount(!openAccount);
+  };
+
+  const handleAccountSettingClick = (key) => {
+    if (key === "editProfile") {
+      onEditProfile();
+    } else {
+      onSelect(key);
+    }
   };
 
   return (
@@ -91,7 +100,7 @@ const Sidebar = ({
                 <ListItemButton
                   key={item.key}
                   selected={selectedKey === item.key}
-                  onClick={() => onSelect(item.key)}
+                  onClick={() => handleAccountSettingClick(item.key)}
                   sx={{ borderRadius: 1 }}
                 >
                   <ListItemIcon

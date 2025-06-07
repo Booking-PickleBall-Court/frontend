@@ -68,10 +68,10 @@ function Register() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
         display: "flex",
-        alignItems: "center",
         justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
         backgroundImage: "url('/bg-home.avif')",
         backgroundSize: "cover",
         backgroundPosition: "center",

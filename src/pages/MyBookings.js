@@ -15,6 +15,7 @@ import {
   TableHead,
   TableRow,
   TablePagination,
+  Link,
 } from "@mui/material";
 import { bookingAPI } from "../services/api";
 import dayjs from "dayjs";
@@ -23,6 +24,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotesIcon from "@mui/icons-material/Notes";
+import { useNavigate } from "react-router-dom";
 
 function MyBooking() {
   const [bookings, setBookings] = useState([]);
@@ -30,6 +32,7 @@ function MyBooking() {
   const [error, setError] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -75,6 +78,10 @@ function MyBooking() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  const handleCourtClick = (courtId) => {
+    navigate(`/courts/${courtId}`);
+  };
 
   if (loading) {
     return (
@@ -153,7 +160,22 @@ function MyBooking() {
 
               return (
                 <TableRow key={booking.id} className="table-row">
-                  <TableCell>{booking.court.name}</TableCell>
+                  <TableCell>
+                    <Link
+                      component="button"
+                      onClick={() => handleCourtClick(booking.court.id)}
+                      sx={{
+                        color: "#5372F0",
+                        textDecoration: "none",
+                        "&:hover": {
+                          textDecoration: "underline",
+                        },
+                        fontWeight: 500,
+                      }}
+                    >
+                      {booking.court.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>{booking.court.address}</TableCell>
                   <TableCell>{start.format("YYYY-MM-DD")}</TableCell>
                   <TableCell>

@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import CourtTable from "./CourtTable";
 import CourtFormDialog from "./CourtFormDialog";
 import { courtAPI } from "../services/api";
+import { useTheme } from "@mui/material/styles";
 
 const drawerWidth = 240;
 
@@ -20,6 +21,7 @@ const CourtManagement = () => {
   const [courts, setCourts] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCourt, setSelectedCourt] = useState(null);
+  const theme = useTheme();
 
   useEffect(() => {
     fetchCourts();
@@ -57,6 +59,18 @@ const CourtManagement = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
+          hero: {
+            height: 200,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "white",
+            backgroundImage: 'url("/bg-home.avif")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            marginBottom: theme.spacing(4),
+          },
         }}
       >
         <Container maxWidth="xl" sx={{ mt: 12, mb: 12 }}>

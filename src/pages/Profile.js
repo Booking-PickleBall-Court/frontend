@@ -16,6 +16,10 @@ import {
   ListItemText,
   Divider,
   Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   Person,
@@ -31,20 +35,20 @@ import {
   ExpandLess,
   ExpandMore,
   Logout,
+  Home,
 } from "@mui/icons-material";
 import { authAPI } from "../services/api";
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 
 const sidebarItems = [
-  { label: "My Profile", key: "profile", icon: <Person /> },
+  { label: "Home", key: "home", icon: <Home /> },
   { label: "My Bookings", key: "bookings", icon: <Folder /> },
 ];
 
 const accountSettings = [
   { label: "Edit Profile", key: "editProfile", icon: <Edit /> },
-  { label: "Link Social Accounts", key: "linkSocial", icon: <LinkIcon /> },
-  { label: "Create Password", key: "createPassword", icon: <Lock /> },
+  { label: "Change Password", key: "changePassword", icon: <Lock /> },
   { label: "Language", key: "language", icon: <Language /> },
 ];
 
@@ -53,6 +57,7 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -106,11 +111,41 @@ function Profile() {
 
   const handleSelect = (key) => {
     setSelectedKey(key);
+    if (key === "home") {
+      navigate("/");
+    } else if (key === "bookings") {
+      navigate("/bookings");
+    }
   };
 
   const handleLogout = () => {
     // Handle logout logic here
     navigate("/login");
+  };
+
+  const handleOpenEditModal = () => {
+    setOpenEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setOpenEditModal(false);
+  };
+
+  const handleEditProfile = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await authAPI.updateProfile(formData);
+      await fetchUserProfile();
+      handleCloseEditModal();
+      setEditMode(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -134,7 +169,190 @@ function Profile() {
         selectedKey={selectedKey}
         onSelect={handleSelect}
         onLogout={handleLogout}
+        onEditProfile={handleOpenEditModal}
       />
+
+      {/* Edit Profile Modal */}
+      <Dialog
+        open={openEditModal}
+        onClose={handleCloseEditModal}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            borderBottom: "1px solid #eee",
+            pb: 2,
+            "& .MuiTypography-root": {
+              fontSize: "1.5rem",
+              fontWeight: 600,
+              color: "#1a1a1a",
+            },
+          }}
+        >
+          Edit Profile
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Box component="form" onSubmit={handleEditProfile}>
+            <Box sx={{ mb: 3 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  mb: 3,
+                  position: "relative",
+                  width: "fit-content",
+                  margin: "0 auto",
+                }}
+              >
+                <Avatar
+                  src={user?.avatarUrl}
+                  alt={user?.fullName || "U"}
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    border: "4px solid #fff",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  {user?.fullName?.charAt(0) || "U"}
+                </Avatar>
+                <Button
+                  variant="contained"
+                  component="label"
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    minWidth: "auto",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    p: 0,
+                    bgcolor: "#5372F0",
+                    "&:hover": {
+                      bgcolor: "#4263eb",
+                    },
+                  }}
+                >
+                  <Edit sx={{ fontSize: 20 }} />
+                  <input type="file" hidden accept="image/*" />
+                </Button>
+              </Box>
+            </Box>
+
+            <TextField
+              fullWidth
+              label="Full Name"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              margin="normal"
+              required
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  "&:hover fieldset": {
+                    borderColor: "#5372F0",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#666",
+                },
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              margin="normal"
+              required
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  "&:hover fieldset": {
+                    borderColor: "#5372F0",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#666",
+                },
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Phone Number"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              margin="normal"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  "&:hover fieldset": {
+                    borderColor: "#5372F0",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#666",
+                },
+              }}
+            />
+            {error && (
+              <Typography color="error" sx={{ mt: 2, textAlign: "center" }}>
+                {error}
+              </Typography>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2,
+            borderTop: "1px solid #eee",
+          }}
+        >
+          <Button
+            onClick={handleCloseEditModal}
+            sx={{
+              color: "#666",
+              "&:hover": {
+                bgcolor: "rgba(0,0,0,0.04)",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEditProfile}
+            variant="contained"
+            disabled={loading}
+            sx={{
+              bgcolor: "#5372F0",
+              color: "white",
+              px: 3,
+              "&:hover": {
+                bgcolor: "#4263eb",
+              },
+              "&.Mui-disabled": {
+                bgcolor: "#e0e0e0",
+                color: "#9e9e9e",
+              },
+            }}
+          >
+            {loading ? <CircularProgress size={24} /> : "Save Changes"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>

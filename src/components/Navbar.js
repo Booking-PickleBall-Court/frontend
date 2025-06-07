@@ -10,7 +10,7 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import BusinessIcon from "@mui/icons-material/Business";
 import { AuthContext } from "../contexts/AuthContext";
@@ -18,6 +18,7 @@ import { AuthContext } from "../contexts/AuthContext";
 function Navbar() {
   const [langAnchorEl, setLangAnchorEl] = useState(null);
   const [avatarAnchorEl, setAvatarAnchorEl] = useState(null);
+  const location = useLocation();
 
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -76,16 +77,18 @@ function Navbar() {
         </Box>
 
         <Box sx={{ display: "flex", gap: 3 }}>
-          {user && user.role === "CLIENT" && (
-            <>
-              <NavLink to="/" style={navLinkStyle}>
-                Home
-              </NavLink>
-              <NavLink to="/bookings" style={navLinkStyle}>
-                Booking history
-              </NavLink>
-            </>
-          )}
+          {user &&
+            user.role === "CLIENT" &&
+            location.pathname !== "/profile" && (
+              <>
+                <NavLink to="/" style={navLinkStyle}>
+                  Home
+                </NavLink>
+                <NavLink to="/bookings" style={navLinkStyle}>
+                  Booking history
+                </NavLink>
+              </>
+            )}
           {user && user.role === "OWNER" && (
             <>
               <NavLink to="/owner/dashboard" style={navLinkStyle}>
