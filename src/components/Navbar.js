@@ -107,13 +107,7 @@ function Navbar() {
                 </NavLink>
               </>
             )}
-          {user && user.role === "ADMIN" && (
-            <>
-              <NavLink to="/admin" style={navLinkStyle}>
-                <DashboardIcon sx={{ mr: 1 }} /> Admin Dashboard
-              </NavLink>
-            </>
-          )}
+          {user && user.role === "ADMIN" && <></>}
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>

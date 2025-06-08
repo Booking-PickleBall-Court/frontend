@@ -151,7 +151,6 @@ function OwnerDashboard() {
   };
 
   const handleLogout = () => {
-    // Handle logout logic here
     navigate("/login");
   };
 

@@ -22,7 +22,6 @@ import { courtAPI, paymentAPI } from "../services/api";
 import {
   LocalizationProvider,
   DatePicker,
-  TimePicker,
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -130,8 +129,6 @@ const CourtDetail = () => {
     description,
     hourlyPrice,
     imageUrls = [],
-    amenities = [],
-    categories = [],
   } = court;
 
   return (

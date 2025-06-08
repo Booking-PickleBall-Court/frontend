@@ -22,7 +22,7 @@ function SearchBar({ onSearch }) {
 
   const handleClear = () => {
     setQuery("");
-    onSearch({ query: "" }); // reset kết quả khi xoá input
+    onSearch({ query: "" }); 
   };
 
   return (
