@@ -13,6 +13,7 @@ import {
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import BusinessIcon from "@mui/icons-material/Business";
+import HistoryIcon from "@mui/icons-material/History";
 import { AuthContext } from "../contexts/AuthContext";
 
 function Navbar() {
@@ -50,6 +51,8 @@ function Navbar() {
     ...commonButtonStyle,
     color: isActive ? "#2563eb" : "#222",
     textDecoration: "none",
+    display: "flex",
+    alignItems: "center",
   });
 
   return (
@@ -89,19 +92,21 @@ function Navbar() {
                 </NavLink>
               </>
             )}
-          {user && user.role === "OWNER" && (
-            <>
-              <NavLink to="/owner/dashboard" style={navLinkStyle}>
-                <DashboardIcon sx={{ mr: 1 }} /> Dashboard
-              </NavLink>
-              <NavLink to="/owner/courts" style={navLinkStyle}>
-                <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
-              </NavLink>
-              <NavLink to="/owner/booking-history" style={navLinkStyle}>
-                Booking History
-              </NavLink>
-            </>
-          )}
+          {user &&
+            user.role === "OWNER" &&
+            location.pathname !== "/profile" && (
+              <>
+                <NavLink to="/owner/dashboard" style={navLinkStyle}>
+                  <DashboardIcon sx={{ mr: 1 }} /> Dashboard
+                </NavLink>
+                <NavLink to="/owner/courts" style={navLinkStyle}>
+                  <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
+                </NavLink>
+                <NavLink to="/owner/booking-history" style={navLinkStyle}>
+                  <HistoryIcon sx={{ mr: 1 }} /> Booking History
+                </NavLink>
+              </>
+            )}
           {user && user.role === "ADMIN" && (
             <>
               <NavLink to="/admin" style={navLinkStyle}>

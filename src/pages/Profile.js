@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Container,
   Paper,
@@ -36,15 +36,14 @@ import {
   ExpandMore,
   Logout,
   Home,
+  Dashboard as DashboardIcon,
+  Business as BusinessIcon,
+  History as HistoryIcon,
 } from "@mui/icons-material";
 import { authAPI } from "../services/api";
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
-
-const sidebarItems = [
-  { label: "Home", key: "home", icon: <Home /> },
-  { label: "My Bookings", key: "bookings", icon: <Folder /> },
-];
+import { AuthContext } from "../contexts/AuthContext";
 
 const accountSettings = [
   { label: "Edit Profile", key: "editProfile", icon: <Edit /> },
@@ -53,6 +52,7 @@ const accountSettings = [
 ];
 
 function Profile() {
+  const { user: authUser, login } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -67,14 +67,45 @@ function Profile() {
   const [selectedKey, setSelectedKey] = useState("profile");
   const navigate = useNavigate();
 
+  const ownerSidebarItems = [
+    { label: "Dashboard", key: "ownerDashboard", icon: <DashboardIcon /> },
+    { label: "Manage Courts", key: "ownerCourts", icon: <BusinessIcon /> },
+    {
+      label: "Booking History",
+      key: "ownerBookingHistory",
+      icon: <HistoryIcon />,
+    },
+  ];
+
+  const clientSidebarItems = [
+    { label: "Home", key: "home", icon: <Home /> },
+    { label: "My Bookings", key: "bookings", icon: <Folder /> },
+  ];
+
+  const currentSidebarItems =
+    authUser && authUser.role === "OWNER"
+      ? ownerSidebarItems
+      : clientSidebarItems;
+
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
+    if (authUser) {
+      setUser(authUser);
+      setFormData({
+        fullName: authUser.fullName || "",
+        email: authUser.email || "",
+        phoneNumber: authUser.phoneNumber || "",
+      });
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [authUser]);
 
   const fetchUserProfile = async () => {
     try {
       const response = await authAPI.getCurrentUser();
       setUser(response.data);
+      login(response.data);
       setFormData({
         fullName: response.data.fullName || "",
         email: response.data.email || "",
@@ -82,8 +113,6 @@ function Profile() {
       });
     } catch (err) {
       setError("Failed to fetch user profile");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -111,15 +140,28 @@ function Profile() {
 
   const handleSelect = (key) => {
     setSelectedKey(key);
-    if (key === "home") {
-      navigate("/");
-    } else if (key === "bookings") {
-      navigate("/bookings");
+    switch (key) {
+      case "home":
+        navigate("/");
+        break;
+      case "bookings":
+        navigate("/bookings");
+        break;
+      case "ownerDashboard":
+        navigate("/owner/dashboard");
+        break;
+      case "ownerCourts":
+        navigate("/owner/courts");
+        break;
+      case "ownerBookingHistory":
+        navigate("/owner/booking-history");
+        break;
+      default:
+        break;
     }
   };
 
   const handleLogout = () => {
-    // Handle logout logic here
     navigate("/login");
   };
 
@@ -137,8 +179,9 @@ function Profile() {
     setLoading(true);
 
     try {
-      await authAPI.updateProfile(formData);
-      await fetchUserProfile();
+      const response = await authAPI.updateProfile(formData);
+      setUser(response.data);
+      login(response.data);
       handleCloseEditModal();
       setEditMode(false);
     } catch (err) {
@@ -164,7 +207,7 @@ function Profile() {
   return (
     <Box sx={{ display: "flex" }}>
       <Sidebar
-        sidebarItems={sidebarItems}
+        sidebarItems={currentSidebarItems}
         accountSettings={accountSettings}
         selectedKey={selectedKey}
         onSelect={handleSelect}
@@ -198,158 +241,62 @@ function Profile() {
         >
           Edit Profile
         </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <Box component="form" onSubmit={handleEditProfile}>
-            <Box sx={{ mb: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  mb: 3,
-                  position: "relative",
-                  width: "fit-content",
-                  margin: "0 auto",
-                }}
-              >
-                <Avatar
-                  src={user?.avatarUrl}
-                  alt={user?.fullName || "U"}
-                  sx={{
-                    width: 100,
-                    height: 100,
-                    border: "4px solid #fff",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  {user?.fullName?.charAt(0) || "U"}
-                </Avatar>
-                <Button
-                  variant="contained"
-                  component="label"
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    minWidth: "auto",
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    p: 0,
-                    bgcolor: "#5372F0",
-                    "&:hover": {
-                      bgcolor: "#4263eb",
-                    },
-                  }}
-                >
-                  <Edit sx={{ fontSize: 20 }} />
-                  <input type="file" hidden accept="image/*" />
-                </Button>
-              </Box>
-            </Box>
-
-            <TextField
-              fullWidth
-              label="Full Name"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              margin="normal"
-              required
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 2,
-                  "&:hover fieldset": {
-                    borderColor: "#5372F0",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#666",
-                },
-              }}
-            />
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              margin="normal"
-              required
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 2,
-                  "&:hover fieldset": {
-                    borderColor: "#5372F0",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#666",
-                },
-              }}
-            />
-            <TextField
-              fullWidth
-              label="Phone Number"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              margin="normal"
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 2,
-                  "&:hover fieldset": {
-                    borderColor: "#5372F0",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#666",
-                },
-              }}
-            />
-            {error && (
-              <Typography color="error" sx={{ mt: 2, textAlign: "center" }}>
-                {error}
-              </Typography>
-            )}
-          </Box>
+        <DialogContent sx={{ pt: 3, pb: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Full Name"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Phone Number"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions
-          sx={{
-            px: 3,
-            py: 2,
-            borderTop: "1px solid #eee",
-          }}
-        >
+        <DialogActions sx={{ px: 3, pb: 3, pt: 2 }}>
           <Button
             onClick={handleCloseEditModal}
-            sx={{
-              color: "#666",
-              "&:hover": {
-                bgcolor: "rgba(0,0,0,0.04)",
-              },
-            }}
+            variant="outlined"
+            sx={{ textTransform: "none", borderRadius: 2 }}
           >
             Cancel
           </Button>
           <Button
             onClick={handleEditProfile}
             variant="contained"
-            disabled={loading}
             sx={{
-              bgcolor: "#5372F0",
-              color: "white",
-              px: 3,
-              "&:hover": {
-                bgcolor: "#4263eb",
-              },
-              "&.Mui-disabled": {
-                bgcolor: "#e0e0e0",
-                color: "#9e9e9e",
-              },
+              textTransform: "none",
+              borderRadius: 2,
+              background: "#2563eb",
+              "&:hover": { background: "#1746a2" },
             }}
           >
-            {loading ? <CircularProgress size={24} /> : "Save Changes"}
+            Save Changes
           </Button>
         </DialogActions>
       </Dialog>

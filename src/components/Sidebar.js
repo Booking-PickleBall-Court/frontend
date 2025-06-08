@@ -125,9 +125,9 @@ const Sidebar = ({
         fontWeight={600}
         color="primary"
         sx={{ cursor: "pointer" }}
-        onClick={() => alert("More on Courtsite clicked")}
+        onClick={() => alert("More on PickleNet clicked")}
       >
-        MORE ON COURTSITE
+        MORE ON PICKLENET
       </Typography>
 
       <Typography
