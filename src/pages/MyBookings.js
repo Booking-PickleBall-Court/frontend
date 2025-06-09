@@ -37,6 +37,8 @@ function MyBooking() {
       try {
         const res = await bookingAPI.getUserBookings();
         setBookings(res.data);
+        console.log("Bookings fetched successfully:", res.data);
+        
       } catch (err) {
         setError("Không thể tải danh sách đặt sân.");
       } finally {
@@ -112,13 +114,6 @@ function MyBooking() {
                 <strong>Sân</strong>
               </TableCell>
               <TableCell>
-                <LocationOnIcon
-                  fontSize="small"
-                  sx={{ mr: 0.5, verticalAlign: "bottom" }}
-                />
-                Địa chỉ sân
-              </TableCell>
-              <TableCell>
                 <CalendarTodayIcon
                   fontSize="small"
                   sx={{ mr: 0.5, verticalAlign: "bottom" }}
@@ -148,21 +143,11 @@ function MyBooking() {
 
               return (
                 <TableRow key={booking.id} className="table-row">
-                  <TableCell>
-                    <Link
-                      component="button"
-                      onClick={() => handleCourtClick(booking.court.id)}
-                      sx={{
-                        color: "#5372F0",
-                        fontWeight: 500,
-                        textDecoration: "none",
-                        "&:hover": { textDecoration: "underline" },
-                      }}
-                    >
-                      {booking.court.name}
-                    </Link>
+                  <TableCell
+                    onClick={() => handleCourtClick(booking.courtId)}
+                  >
+                    {booking.courtName}
                   </TableCell>
-                  <TableCell>{booking.court.address}</TableCell>
                   <TableCell>{start.format("YYYY-MM-DD")}</TableCell>
                   <TableCell>
                     {start.format("HH:mm")} - {end.format("HH:mm")}

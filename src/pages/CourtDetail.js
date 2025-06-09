@@ -167,7 +167,7 @@ const CourtDetail = () => {
               height: "50px",
               "&:hover": { backgroundColor: "#2541b2" },
             }}
-            onClick={() => navigate("/schedule-calendar")}
+            onClick={() => navigate(`/schedule-calendar?courtId=${id}`)}
           >
             Book Now
           </Button>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Container,
@@ -11,43 +11,46 @@ import {
 } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { bookingAPI, courtAPI } from "../services/api";
+import { bookingAPI } from "../services/api";
 import dayjs from "dayjs";
 
 function BookingConfirmation() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const bookingId = searchParams.get("bookingId");
+  const status = searchParams.get("status");
+  const bookingIdsParam = searchParams.get("bookingIds");
 
-  const [booking, setBooking] = useState(null);
-  const [court, setCourt] = useState(null);
+  // Sử dụng useMemo để đảm bảo bookingIds chỉ thay đổi khi bookingIdsParam thay đổi
+  const bookingIds = useMemo(() => {
+    return bookingIdsParam ? bookingIdsParam.split(',').map(Number) : [];
+  }, [bookingIdsParam]);
+
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!bookingId) {
-        setError("Không tìm thấy mã đặt sân.");
+      if (status !== "success" || bookingIds.length === 0) {
+        setError("Thanh toán không thành công hoặc không tìm thấy mã đặt sân.");
         setLoading(false);
         return;
       }
       try {
-        const bookingRes = await bookingAPI.getBooking(bookingId);
-        setBooking(bookingRes.data);
-
-        console.log("Booking data:", bookingRes.data);
-
-        const courtRes = await courtAPI.getCourtById(bookingRes.data.court.id);
-        setCourt(courtRes.data);
+        const fetchedBookings = await Promise.all(
+          bookingIds.map(id => bookingAPI.getBooking(id).then(res => res.data))
+        );
+        setBookings(fetchedBookings);
+        console.log("Fetched bookings data:", fetchedBookings);
       } catch (err) {
-        setError("Không thể tải thông tin đặt sân hoặc sân bóng.");
+        setError("Không thể tải thông tin đặt sân.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [bookingId]);
+  }, [bookingIds, status]);
 
   if (loading) {
     return (
@@ -73,12 +76,20 @@ function BookingConfirmation() {
     );
   }
 
-  if (!booking || !court) return null;
-
-  const { startTime, endTime, notes } = booking;
-  const formattedDate = dayjs(startTime).format("YYYY-MM-DD");
-  const formattedStart = dayjs(startTime).format("HH:mm");
-  const formattedEnd = dayjs(endTime).format("HH:mm");
+  if (bookings.length === 0) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 8, textAlign: "center" }}>
+        <Alert severity="info">Không tìm thấy thông tin đặt sân nào.</Alert>
+        <Button
+          variant="contained"
+          sx={{ mt: 2 }}
+          onClick={() => navigate("/")}
+        >
+          Về trang chủ
+        </Button>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -101,37 +112,61 @@ function BookingConfirmation() {
           Cảm ơn bạn đã đặt sân. Thông tin chi tiết:
         </Typography>
 
-        <Box sx={{ textAlign: "left", mb: 4 }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-            Thông tin sân:
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Tên sân: {court.name}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Địa chỉ: {court.address}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Loại sân: {court.courtType || "Không rõ"}
-          </Typography>
-        </Box>
+        {bookings.map((booking, index) => {
+          console.log("Current booking object in render:", booking);
+          const { startTime, endTime, notes, totalPrice, paymentStatus, paymentMethod } = booking;
+          const courtName = booking.court ? booking.court.name : "N/A";
+          const subCourts = booking.court ? booking.court.subCourts : [];
 
-        <Divider sx={{ mb: 3 }} />
+          const formattedDate = dayjs(startTime).format("YYYY-MM-DD");
+          const formattedStart = dayjs(startTime).format("HH:mm");
+          const formattedEnd = dayjs(endTime).format("HH:mm");
 
-        <Box sx={{ textAlign: "left", mb: 4 }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-            Thông tin đặt sân:
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Ngày: {formattedDate}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Giờ: {formattedStart} - {formattedEnd}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Ghi chú: {notes || "Không có"}
-          </Typography>
-        </Box>
+          return (
+            <Box key={booking.id} sx={{ textAlign: "left", mb: 4, mt: index > 0 ? 4 : 0 }}>
+              {bookings.length > 1 && (
+                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                  Booking #{index + 1}
+                </Typography>
+              )}
+              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                Thông tin sân:
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Tên sân: {courtName}
+              </Typography>
+              {subCourts && subCourts.length > 0 && (
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Sân nhỏ: {subCourts.map(sc => sc.name).join(", ")}
+                </Typography>
+              )}
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Tổng giá: {totalPrice ? totalPrice.toLocaleString() : "N/A"} đ
+              </Typography>
+            
+              <Divider sx={{ my: 3 }} />
+
+              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                Thông tin đặt sân:
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Ngày: {formattedDate}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Giờ: {formattedStart} - {formattedEnd}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Ghi chú: {notes || "Không có"}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Trạng thái thanh toán: {paymentStatus || "N/A"}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Phương thức thanh toán: {paymentMethod || "N/A"}
+              </Typography>
+            </Box>
+          );
+        })}
 
         <Button
           variant="contained"

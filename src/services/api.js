@@ -71,6 +71,8 @@ export const bookingAPI = {
       params: { paymentStatus },
     }),
   deleteBooking: (id) => api.delete(`/bookings/${id}`),
+  getBookedSlots: (courtId, date) =>
+    api.get(`/bookings/slots`, { params: { courtId, date } }),
 };
 
 export const paymentAPI = {
