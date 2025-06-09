@@ -57,6 +57,9 @@ export const courtAPI = {
   createCourt: (data) => api.post("/courts", data),
   updateCourt: (id, data) => api.put(`/courts/${id}`, data),
   deleteCourt: (id) => api.delete(`/courts/${id}`),
+  getOwnerRevenue: (ownerId) => api.get(`/courts/owner/${ownerId}/revenue`),
+  getMonthlyRevenueByCourt: (courtId) => api.get(`/courts/${courtId}/monthly-revenue`),
+  getTopCustomersByOwner: (ownerId) => api.get(`/courts/owner/${ownerId}/top-customers`),
 };
 
 export const bookingAPI = {
@@ -73,6 +76,7 @@ export const bookingAPI = {
   deleteBooking: (id) => api.delete(`/bookings/${id}`),
   getBookedSlots: (courtId, date) =>
     api.get(`/bookings/slots`, { params: { courtId, date } }),
+  getOwnerBookings: (ownerId) => api.get(`/bookings/owner/${ownerId}`),
 };
 
 export const paymentAPI = {

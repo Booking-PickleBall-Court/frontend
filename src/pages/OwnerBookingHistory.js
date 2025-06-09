@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/OwnerBookingHistory.css";
+import { authAPI, bookingAPI } from "../services/api";
+import dayjs from "dayjs";
 
 function OwnerBookingHistory() {
   const [bookings, setBookings] = useState([]);
@@ -9,12 +11,13 @@ function OwnerBookingHistory() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch("/api/owner/bookings");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setBookings(data);
+        // Lấy ownerId từ người dùng hiện tại
+        const userRes = await authAPI.getCurrentUser();
+        const ownerId = userRes.data.id;
+
+        // Gọi API để lấy lịch sử booking của owner
+        const res = await bookingAPI.getOwnerBookings(ownerId);
+        setBookings(res.data);
       } catch (error) {
         setError("Failed to fetch booking history.");
         console.error("Fetching owner booking history failed:", error);
@@ -44,20 +47,34 @@ function OwnerBookingHistory() {
           <thead>
             <tr>
               <th>Sân</th>
-              <th>Thời gian</th>
-              <th>Khách hàng</th>
+              <th>Sân nhỏ</th>
+              <th>Thời gian đặt</th>
               <th>Trạng thái</th>
+              <th>Giá tiền</th>
+              <th>Phương thức TT</th>
+              <th>Trạng thái TT</th>
             </tr>
           </thead>
           <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.id}>
-                <td>{booking.courtName}</td>
-                <td>{booking.timeSlot}</td>
-                <td>{booking.customerName}</td>
-                <td>{booking.status}</td>
-              </tr>
-            ))}
+            {bookings.map((booking) => {
+              const start = dayjs(booking.startTime);
+              const end = dayjs(booking.endTime);
+              return (
+                <tr key={booking.id}>
+                  <td>{booking.courtName}</td>
+                  <td>
+                    {booking.subCourts && booking.subCourts.length > 0
+                      ? booking.subCourts.map(sc => sc.name).join(", ")
+                      : "—"}
+                  </td>
+                  <td>{`${start.format("YYYY-MM-DD HH:mm")} - ${end.format("HH:mm")}`}</td>
+                  <td>{booking.status}</td>
+                  <td>{booking.totalPrice?.toLocaleString() || 'N/A'} đ</td>
+                  <td>{booking.paymentMethod || 'N/A'}</td>
+                  <td>{booking.paymentStatus || 'N/A'}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}

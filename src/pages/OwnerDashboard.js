@@ -36,6 +36,7 @@ import {
 } from "recharts";
 import Sidebar from "../components/Sidebar";
 import { useNavigate, useLocation } from "react-router-dom";
+import { authAPI, courtAPI } from "../services/api";
 
 const sidebarItems = [
   { label: "Dashboard", key: "dashboard", icon: <BarChartIcon /> },
@@ -58,6 +59,7 @@ function OwnerDashboard() {
     totalRevenue: 0,
     totalHours: 0,
     totalBookings: 0,
+    totalCourts: 0,
     monthlyRevenueSum: 0,
   });
   const [selectedKey, setSelectedKey] = useState("dashboard");
@@ -65,85 +67,76 @@ function OwnerDashboard() {
   const location = useLocation();
 
   useEffect(() => {
-    const mockRevenue = [
-      { month: "Jan", revenue: 12600 },
-      { month: "Feb", revenue: 9670 },
-      { month: "Mar", revenue: 45000 },
-      { month: "Apr", revenue: 87000 },
-      { month: "May", revenue: 40000 },
-      { month: "Jun", revenue: 53000 },
-      { month: "Jul", revenue: 62000 },
-      { month: "Aug", revenue: 45000 },
-      { month: "Sep", revenue: 35000 },
-      { month: "Oct", revenue: 41000 },
-      { month: "Nov", revenue: 47000 },
-      { month: "Dec", revenue: 52000 },
-    ];
-    const mockHours = [
-      { month: "Jan", hours: 50 },
-      { month: "Feb", hours: 70 },
-      { month: "Mar", hours: 80 },
-      { month: "Apr", hours: 95 },
-      { month: "May", hours: 60 },
-      { month: "Jun", hours: 75 },
-      { month: "Jul", hours: 85 },
-      { month: "Aug", hours: 90 },
-      { month: "Sep", hours: 70 },
-      { month: "Oct", hours: 65 },
-      { month: "Nov", hours: 60 },
-      { month: "Dec", hours: 80 },
-    ];
-    const mockCustomers = [
-      {
-        id: 1,
-        name: "Nguyen Van A",
-        totalBookings: 5,
-        totalHours: 20,
-        totalSpent: 500,
-        lastBooking: "2025-05-25T00:00:00Z",
-      },
-      {
-        id: 2,
-        name: "Tran Thi B",
-        totalBookings: 3,
-        totalHours: 12,
-        totalSpent: 250,
-        lastBooking: "2025-05-20T00:00:00Z",
-      },
-      {
-        id: 3,
-        name: "Le Van C",
-        totalBookings: 7,
-        totalHours: 25,
-        totalSpent: 650,
-        lastBooking: "2025-05-15T00:00:00Z",
-      },
-      {
-        id: 4,
-        name: "Pham Thi D",
-        totalBookings: 4,
-        totalHours: 15,
-        totalSpent: 400,
-        lastBooking: "2025-05-18T00:00:00Z",
-      },
-    ];
+    const fetchData = async () => {
+      try {
+        // Lấy thông tin người dùng hiện tại để có ownerId
+        const userRes = await authAPI.getCurrentUser();
+        const ownerId = userRes.data.id; 
 
-    const totalRev = mockRevenue.reduce((acc, cur) => acc + cur.revenue, 0);
+        // Fetch dữ liệu doanh thu tổng quan
+        const revenueRes = await courtAPI.getOwnerRevenue(ownerId);
+        const { totalRevenue, totalHoursBooked, totalBookings, totalCourts } = revenueRes.data;
 
-    const mockSummary = {
-      totalRevenue: 95000,
-      totalHours: 230,
-      totalBookings: 45,
-      monthlyRevenueSum: totalRev,
+        setSummary({
+          totalRevenue: totalRevenue || 0,
+          totalHours: totalHoursBooked || 0,
+          totalBookings: totalBookings || 0,
+          totalCourts: totalCourts || 0,
+          monthlyRevenueSum: totalRevenue || 0,
+        });
+
+        // Fetch danh sách các sân của chủ sở hữu
+        const courtsRes = await courtAPI.getCourtsByOwner(ownerId);
+        const ownerCourts = courtsRes.data;
+
+        if (ownerCourts && ownerCourts.length > 0) {
+          // Lấy ID của sân đầu tiên để fetch dữ liệu hàng tháng
+          const firstCourtId = ownerCourts[0].id;
+          const monthlyRevenueData = await courtAPI.getMonthlyRevenueByCourt(firstCourtId);
+          
+          // Map dữ liệu từ API vào định dạng biểu đồ
+          const mappedMonthlyRevenue = monthlyRevenueData.data.map(item => ({
+            month: item.month.substring(5), // Lấy MM từ YYYY-MM
+            revenue: item.totalRevenue,
+          }));
+
+          const mappedMonthlyHours = monthlyRevenueData.data.map(item => ({
+            month: item.month.substring(5), // Lấy MM từ YYYY-MM
+            hours: item.totalHoursBooked,
+          }));
+
+          setMonthlyRevenue(mappedMonthlyRevenue);
+          setMonthlyHours(mappedMonthlyHours);
+        } else {
+          // Nếu không có sân nào, reset biểu đồ về rỗng hoặc giữ mock data
+          setMonthlyRevenue([]);
+          setMonthlyHours([]);
+        }
+
+        // Fetch dữ liệu khách hàng tiềm năng từ API
+        const customersRes = await courtAPI.getTopCustomersByOwner(ownerId);
+        // Map dữ liệu từ API sang định dạng cũ nếu cần hoặc cập nhật bảng để khớp định dạng mới
+        const mappedCustomers = customersRes.data.map(customer => ({
+          id: customer.customerId,
+          name: customer.customerName,
+          totalBookings: customer.totalBookings,
+          totalHours: customer.totalHoursBooked,
+          totalSpent: customer.totalSpent,
+          lastBooking: customer.lastBookingDate,
+          email: customer.customerEmail, // Thêm email và phone nếu muốn hiển thị
+          phone: customer.customerPhone,
+        }));
+        setPotentialCustomers(mappedCustomers);
+
+      } catch (error) {
+        console.error("Error fetching owner dashboard data:", error);
+        // Có thể set error state để hiển thị thông báo lỗi trên UI
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setTimeout(() => {
-      setMonthlyRevenue(mockRevenue);
-      setMonthlyHours(mockHours);
-      setPotentialCustomers(mockCustomers);
-      setSummary(mockSummary);
-      setLoading(false);
-    }, 1000);
+    fetchData();
   }, []);
 
   const handleSelect = (key) => {
@@ -225,6 +218,24 @@ function OwnerDashboard() {
                   </Box>
                   <Typography variant="h4" fontWeight="700">
                     {summary.totalHours.toLocaleString()}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={3} sx={{ width: "23%" }}>
+              <Card
+                elevation={3}
+                sx={{ p: 2, height: "100%", backgroundColor: "#c8e6c9" }}
+              >
+                <CardContent>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                    <EventIcon sx={{ mr: 1, color: "text.secondary" }} />
+                    <Typography color="textSecondary" gutterBottom>
+                      Total Courts
+                    </Typography>
+                  </Box>
+                  <Typography variant="h4" fontWeight="700">
+                    {summary.totalCourts.toLocaleString()}
                   </Typography>
                 </CardContent>
               </Card>
@@ -321,25 +332,27 @@ function OwnerDashboard() {
                       <TableHead>
                         <TableRow>
                           <TableCell>Customer Name</TableCell>
+                          <TableCell>Email</TableCell>
+                          <TableCell>Phone</TableCell>
                           <TableCell>Total Bookings</TableCell>
                           <TableCell>Total Hours</TableCell>
                           <TableCell>Total Spent</TableCell>
-                          <TableCell>Last Booking</TableCell>
+                          <TableCell>Last Booking Date</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {potentialCustomers.map((customer) => (
                           <TableRow key={customer.id}>
                             <TableCell>{customer.name}</TableCell>
+                            <TableCell>{customer.email || 'N/A'}</TableCell>
+                            <TableCell>{customer.phone || 'N/A'}</TableCell>
                             <TableCell>{customer.totalBookings}</TableCell>
                             <TableCell>{customer.totalHours}</TableCell>
                             <TableCell>
                               ${customer.totalSpent.toLocaleString()}
                             </TableCell>
                             <TableCell>
-                              {new Date(
-                                customer.lastBooking
-                              ).toLocaleDateString()}
+                              {customer.lastBooking ? new Date(customer.lastBooking).toLocaleDateString() : 'N/A'}
                             </TableCell>
                           </TableRow>
                         ))}

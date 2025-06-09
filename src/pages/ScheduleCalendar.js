@@ -66,6 +66,7 @@ const ScheduleCalendar = () => {
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CARD");
   const [bookedSlots, setBookedSlots] = useState([]);
+  const [courtHourlyPrice, setCourtHourlyPrice] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,11 +74,12 @@ const ScheduleCalendar = () => {
   const searchParams = new URLSearchParams(location.search);
   const courtId = searchParams.get("courtId");
 
-  // Fetch subCourts khi courtId thay đổi
+  // Fetch subCourts và hourlyPrice khi courtId thay đổi
   useEffect(() => {
     if (courtId) {
       courtAPI.getCourtById(courtId).then(res => {
         setSubCourts(res.data.subCourts || []);
+        setCourtHourlyPrice(res.data.hourlyPrice || 0);
       });
     }
   }, [courtId]);
@@ -388,8 +390,14 @@ const ScheduleCalendar = () => {
             Tổng tiền: {selectedSlots.reduce((total, slot) => {
               const time = slot.split("-")[0];
               const hour = parseInt(time.split(":")[0], 10);
-              const pricePerSlot = hour >= 17 ? 60000 : 45000;
-              return total + pricePerSlot;
+
+              let currentSlotPrice = courtHourlyPrice / 2; // Giá cơ bản 30 phút
+              
+              if (hour >= 17) {
+                currentSlotPrice *= 1.10; // Tăng 10% cho giờ cao điểm
+              }
+              
+              return total + currentSlotPrice;
             }, 0).toLocaleString()} đ
           </p>
         </div>
