@@ -1,124 +1,32 @@
-/* Basic styles for MyBookings page */
 .my-bookings-container {
   padding: 20px;
-  max-width: 800px;
-  margin: 20px auto;
-  /* Background image styling moved to inline style in MyBookings.js */
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Removed min-height to allow table to size based on content */
-  /* min-height: 80vh; */
-  margin-top: 20px;
-  overflow: hidden;
+  max-width: 1100px;
+  margin: 40px auto;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .my-bookings-title {
   text-align: center;
   margin-bottom: 30px;
-  color: #ffffff;
+  color: #2c3e50;
   font-size: 28px;
+  font-weight: bold;
+  padding: 20px 0;
 }
 
-.booking-item {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.booking-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.booking-item h6 {
-  color: #1a237e;
-  margin-bottom: 10px;
-}
-
-.booking-details p {
-  margin: 5px 0;
-  color: #555;
-}
-
-.booking-details strong {
-  color: #333;
-}
-
-.no-bookings-message {
-  text-align: center;
-  color: #666;
-  font-size: 18px;
-}
-
-/* Table styles */
 .table-container {
-  margin-top: 20px;
-  overflow-x: auto; /* Add horizontal scroll for smaller screens */
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.9
-  ); /* Semi-transparent white background for readability */
+  overflow-x: auto;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 10px;
 }
 
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table-header {
-  background-color: #f2f2f2;
-  color: #333;
-  font-weight: bold;
-  text-align: left;
-}
-
-.table-header th {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-}
-
-.table-row {
-  border-bottom: 1px solid #ddd;
-  transition: background-color 0.3s ease;
-}
-
-.table-row:nth-of-type(even) {
-  background-color: #f9f9f9; /* Stripe rows */
-}
-
 .table-row:hover {
-  background-color: #f1f1f1; /* Hover effect */
+  background-color: #f0f8ff;
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
 }
-
-.table-row td {
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  vertical-align: top; /* Align content to top */
-}
-
-/* Removed Full page background for MyBookings styles */
-
-/* Add some basic styling if needed */
-/* You can customize this further */
-
-/* Remove background styling for body */
-/*
-body.my-bookings-background {
-  background-image: url('/bg-home.avif');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-*/
 
 .my-bookings-container table {
   width: 100%;
@@ -130,28 +38,14 @@ body.my-bookings-background {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+  vertical-align: top;
 }
 
 .my-bookings-container th {
-  background-color: #f2f2f2;
+  background-color: #e3f2fd;
   font-weight: bold;
-}
-
-.my-bookings-container tbody tr:hover {
-  background-color: #f9f9f9; /* Subtle hover effect */
-  cursor: pointer; /* Indicate it's interactive */
 }
 
 .my-bookings-container tbody tr:last-child td {
   border-bottom: none;
-}
-
-/* Style for the table caption (the title) */
-.my-bookings-container caption {
-  caption-side: top;
-  text-align: center;
-  font-size: 1.2em;
-  font-weight: bold;
-  margin-bottom: 10px;
-  padding: 10px 0;
 }

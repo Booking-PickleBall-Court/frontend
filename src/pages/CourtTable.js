@@ -48,11 +48,6 @@ const CourtTable = ({ courts, onEdit, onDeleteSuccess }) => {
 
   return (
     <Box
-      sx={
-        {
-          // Removed background and centering styles
-        }
-      }
     >
       <Container maxWidth="lg">
         <Paper

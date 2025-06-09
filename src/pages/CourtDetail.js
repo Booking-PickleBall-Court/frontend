@@ -16,19 +16,19 @@ import {
   TextField,
   MenuItem,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ExploreIcon from "@mui/icons-material/Explore";
 import { courtAPI, paymentAPI } from "../services/api";
 import {
   LocalizationProvider,
   DatePicker,
-  TimePicker,
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
 const CourtDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [court, setCourt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -129,8 +129,6 @@ const CourtDetail = () => {
     description,
     hourlyPrice,
     imageUrls = [],
-    amenities = [],
-    categories = [],
   } = court;
 
   return (
@@ -169,7 +167,7 @@ const CourtDetail = () => {
               height: "50px",
               "&:hover": { backgroundColor: "#2541b2" },
             }}
-            onClick={handleOpenDialog}
+            onClick={() => navigate("/schedule-calendar")}
           >
             Book Now
           </Button>

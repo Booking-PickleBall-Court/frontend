@@ -35,7 +35,7 @@ import {
   Legend,
 } from "recharts";
 import Sidebar from "../components/Sidebar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const sidebarItems = [
   { label: "Dashboard", key: "dashboard", icon: <BarChartIcon /> },
@@ -62,6 +62,7 @@ function OwnerDashboard() {
   });
   const [selectedKey, setSelectedKey] = useState("dashboard");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const mockRevenue = [
@@ -150,7 +151,6 @@ function OwnerDashboard() {
   };
 
   const handleLogout = () => {
-    // Handle logout logic here
     navigate("/login");
   };
 
@@ -164,19 +164,26 @@ function OwnerDashboard() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar
-        sidebarItems={sidebarItems}
-        accountSettings={accountSettings}
-        selectedKey={selectedKey}
-        onSelect={handleSelect}
-        onLogout={handleLogout}
-      />
+      {location.pathname !== "/owner/dashboard" && (
+        <Sidebar
+          sidebarItems={sidebarItems}
+          accountSettings={accountSettings}
+          selectedKey={selectedKey}
+          onSelect={handleSelect}
+          onLogout={handleLogout}
+        />
+      )}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - 280px)` },
+          width: {
+            sm:
+              location.pathname === "/owner/dashboard"
+                ? "100%"
+                : `calc(100% - 280px)`,
+          },
         }}
       >
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>

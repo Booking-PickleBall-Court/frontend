@@ -7,7 +7,6 @@ import {
   IconButton,
   Stack,
 } from "@mui/material";
-import SportsTennisIcon from "@mui/icons-material/SportsTennis";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
@@ -28,13 +27,6 @@ function Footer() {
               justifyContent: "center",
             }}
           >
-            {/* <SportsTennisIcon sx={{ color: "#2563eb", fontSize: 36, mr: 1 }} /> */}
-            {/* <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", color: "#2563eb" }}
-            >
-              PickleNet
-            </Typography> */}
             <img
               src="/logo.jpg"
               alt="PickleNet Logo"

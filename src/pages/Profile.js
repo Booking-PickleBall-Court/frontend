@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Container,
   Paper,
@@ -16,6 +16,10 @@ import {
   ListItemText,
   Divider,
   Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   Person,
@@ -31,28 +35,29 @@ import {
   ExpandLess,
   ExpandMore,
   Logout,
+  Home,
+  Dashboard as DashboardIcon,
+  Business as BusinessIcon,
+  History as HistoryIcon,
 } from "@mui/icons-material";
 import { authAPI } from "../services/api";
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
-
-const sidebarItems = [
-  { label: "My Profile", key: "profile", icon: <Person /> },
-  { label: "My Bookings", key: "bookings", icon: <Folder /> },
-];
+import { AuthContext } from "../contexts/AuthContext";
 
 const accountSettings = [
   { label: "Edit Profile", key: "editProfile", icon: <Edit /> },
-  { label: "Link Social Accounts", key: "linkSocial", icon: <LinkIcon /> },
-  { label: "Create Password", key: "createPassword", icon: <Lock /> },
+  { label: "Change Password", key: "changePassword", icon: <Lock /> },
   { label: "Language", key: "language", icon: <Language /> },
 ];
 
 function Profile() {
+  const { user: authUser, login } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -62,14 +67,45 @@ function Profile() {
   const [selectedKey, setSelectedKey] = useState("profile");
   const navigate = useNavigate();
 
+  const ownerSidebarItems = [
+    { label: "Dashboard", key: "ownerDashboard", icon: <DashboardIcon /> },
+    { label: "Manage Courts", key: "ownerCourts", icon: <BusinessIcon /> },
+    {
+      label: "Booking History",
+      key: "ownerBookingHistory",
+      icon: <HistoryIcon />,
+    },
+  ];
+
+  const clientSidebarItems = [
+    { label: "Home", key: "home", icon: <Home /> },
+    { label: "My Bookings", key: "bookings", icon: <Folder /> },
+  ];
+
+  const currentSidebarItems =
+    authUser && authUser.role === "OWNER"
+      ? ownerSidebarItems
+      : clientSidebarItems;
+
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
+    if (authUser) {
+      setUser(authUser);
+      setFormData({
+        fullName: authUser.fullName || "",
+        email: authUser.email || "",
+        phoneNumber: authUser.phoneNumber || "",
+      });
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [authUser]);
 
   const fetchUserProfile = async () => {
     try {
       const response = await authAPI.getCurrentUser();
       setUser(response.data);
+      login(response.data);
       setFormData({
         fullName: response.data.fullName || "",
         email: response.data.email || "",
@@ -77,8 +113,6 @@ function Profile() {
       });
     } catch (err) {
       setError("Failed to fetch user profile");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -106,11 +140,55 @@ function Profile() {
 
   const handleSelect = (key) => {
     setSelectedKey(key);
+    switch (key) {
+      case "home":
+        navigate("/");
+        break;
+      case "bookings":
+        navigate("/bookings");
+        break;
+      case "ownerDashboard":
+        navigate("/owner/dashboard");
+        break;
+      case "ownerCourts":
+        navigate("/owner/courts");
+        break;
+      case "ownerBookingHistory":
+        navigate("/owner/booking-history");
+        break;
+      default:
+        break;
+    }
   };
 
   const handleLogout = () => {
-    // Handle logout logic here
     navigate("/login");
+  };
+
+  const handleOpenEditModal = () => {
+    setOpenEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setOpenEditModal(false);
+  };
+
+  const handleEditProfile = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await authAPI.updateProfile(formData);
+      setUser(response.data);
+      login(response.data);
+      handleCloseEditModal();
+      setEditMode(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -129,12 +207,99 @@ function Profile() {
   return (
     <Box sx={{ display: "flex" }}>
       <Sidebar
-        sidebarItems={sidebarItems}
+        sidebarItems={currentSidebarItems}
         accountSettings={accountSettings}
         selectedKey={selectedKey}
         onSelect={handleSelect}
         onLogout={handleLogout}
+        onEditProfile={handleOpenEditModal}
       />
+
+      {/* Edit Profile Modal */}
+      <Dialog
+        open={openEditModal}
+        onClose={handleCloseEditModal}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            borderBottom: "1px solid #eee",
+            pb: 2,
+            "& .MuiTypography-root": {
+              fontSize: "1.5rem",
+              fontWeight: 600,
+              color: "#1a1a1a",
+            },
+          }}
+        >
+          Edit Profile
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3, pb: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Full Name"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Phone Number"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3, pt: 2 }}>
+          <Button
+            onClick={handleCloseEditModal}
+            variant="outlined"
+            sx={{ textTransform: "none", borderRadius: 2 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEditProfile}
+            variant="contained"
+            sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              background: "#2563eb",
+              "&:hover": { background: "#1746a2" },
+            }}
+          >
+            Save Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>

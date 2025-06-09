@@ -10,14 +10,16 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import BusinessIcon from "@mui/icons-material/Business";
+import HistoryIcon from "@mui/icons-material/History";
 import { AuthContext } from "../contexts/AuthContext";
 
 function Navbar() {
   const [langAnchorEl, setLangAnchorEl] = useState(null);
   const [avatarAnchorEl, setAvatarAnchorEl] = useState(null);
+  const location = useLocation();
 
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -49,6 +51,8 @@ function Navbar() {
     ...commonButtonStyle,
     color: isActive ? "#2563eb" : "#222",
     textDecoration: "none",
+    display: "flex",
+    alignItems: "center",
   });
 
   return (
@@ -76,36 +80,34 @@ function Navbar() {
         </Box>
 
         <Box sx={{ display: "flex", gap: 3 }}>
-          {user && user.role === "CLIENT" && (
-            <>
-              <NavLink to="/" style={navLinkStyle}>
-                Home
-              </NavLink>
-              <NavLink to="/bookings" style={navLinkStyle}>
-                Booking history
-              </NavLink>
-            </>
-          )}
-          {user && user.role === "OWNER" && (
-            <>
-              <NavLink to="/owner/dashboard" style={navLinkStyle}>
-                <DashboardIcon sx={{ mr: 1 }} /> Dashboard
-              </NavLink>
-              <NavLink to="/owner/courts" style={navLinkStyle}>
-                <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
-              </NavLink>
-              <NavLink to="/owner/booking-history" style={navLinkStyle}>
-                Booking History
-              </NavLink>
-            </>
-          )}
-          {user && user.role === "ADMIN" && (
-            <>
-              <NavLink to="/admin" style={navLinkStyle}>
-                <DashboardIcon sx={{ mr: 1 }} /> Admin Dashboard
-              </NavLink>
-            </>
-          )}
+          {user &&
+            user.role === "CLIENT" &&
+            location.pathname !== "/profile" && (
+              <>
+                <NavLink to="/" style={navLinkStyle}>
+                  Home
+                </NavLink>
+                <NavLink to="/bookings" style={navLinkStyle}>
+                  Booking history
+                </NavLink>
+              </>
+            )}
+          {user &&
+            user.role === "OWNER" &&
+            location.pathname !== "/profile" && (
+              <>
+                <NavLink to="/owner/dashboard" style={navLinkStyle}>
+                  <DashboardIcon sx={{ mr: 1 }} /> Dashboard
+                </NavLink>
+                <NavLink to="/owner/courts" style={navLinkStyle}>
+                  <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
+                </NavLink>
+                <NavLink to="/owner/booking-history" style={navLinkStyle}>
+                  <HistoryIcon sx={{ mr: 1 }} /> Booking History
+                </NavLink>
+              </>
+            )}
+          {user && user.role === "ADMIN" && <></>}
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>

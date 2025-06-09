@@ -9,9 +9,11 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
+import { useTheme } from "@mui/material/styles";
 
 function SearchBar({ onSearch }) {
   const [query, setQuery] = useState("");
+  const theme = useTheme();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -20,7 +22,7 @@ function SearchBar({ onSearch }) {
 
   const handleClear = () => {
     setQuery("");
-    onSearch({ query: "" }); // reset kết quả khi xoá input
+    onSearch({ query: "" }); 
   };
 
   return (

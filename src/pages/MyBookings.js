@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Container,
   Typography,
-  Box,
   Paper,
-  Divider,
   CircularProgress,
   Alert,
   Button,
@@ -15,6 +13,7 @@ import {
   TableHead,
   TableRow,
   TablePagination,
+  Link,
 } from "@mui/material";
 import { bookingAPI } from "../services/api";
 import dayjs from "dayjs";
@@ -23,6 +22,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotesIcon from "@mui/icons-material/Notes";
+import { useNavigate } from "react-router-dom";
 
 function MyBooking() {
   const [bookings, setBookings] = useState([]);
@@ -30,6 +30,7 @@ function MyBooking() {
   const [error, setError] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -48,7 +49,6 @@ function MyBooking() {
 
   useEffect(() => {
     const originalStyle = document.body.style.cssText;
-
     document.body.style.cssText = `
       background-image: url(${process.env.PUBLIC_URL}/bg-home.avif);
       background-size: cover;
@@ -56,7 +56,6 @@ function MyBooking() {
       background-repeat: no-repeat;
       background-attachment: fixed;
     `;
-
     return () => {
       document.body.style.cssText = originalStyle;
     };
@@ -68,13 +67,17 @@ function MyBooking() {
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
-    setPage(0); // Reset to the first page when rows per page changes
+    setPage(0);
   };
 
   const paginatedBookings = bookings.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  const handleCourtClick = (courtId) => {
+    navigate(`/courts/${courtId}`);
+  };
 
   if (loading) {
     return (
@@ -97,50 +100,42 @@ function MyBooking() {
   }
 
   return (
-    <Container
-      maxWidth="md"
-      sx={{
-        py: 4,
-      }}
-      className="my-bookings-container"
-    >
-      <Typography
-        variant="h5"
-        sx={{ fontWeight: "700", mb: 3 }}
-        className="my-bookings-title"
-      >
+    <Container maxWidth="xl" className="my-bookings-container">
+      <Typography variant="h5" className="my-bookings-title">
         Lịch sử đặt sân của bạn
       </Typography>
-      <TableContainer component={Paper} className="my-bookings-container">
-        <Table aria-label="simple table">
+      <TableContainer component={Paper} className="table-container">
+        <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Sân</TableCell>
+              <TableCell>
+                <strong>Sân</strong>
+              </TableCell>
               <TableCell>
                 <LocationOnIcon
                   fontSize="small"
-                  sx={{ verticalAlign: "bottom", mr: 0.5 }}
+                  sx={{ mr: 0.5, verticalAlign: "bottom" }}
                 />
                 Địa chỉ sân
               </TableCell>
               <TableCell>
                 <CalendarTodayIcon
                   fontSize="small"
-                  sx={{ verticalAlign: "bottom", mr: 0.5 }}
+                  sx={{ mr: 0.5, verticalAlign: "bottom" }}
                 />
                 Ngày
               </TableCell>
               <TableCell>
                 <AccessTimeIcon
                   fontSize="small"
-                  sx={{ verticalAlign: "bottom", mr: 0.5 }}
+                  sx={{ mr: 0.5, verticalAlign: "bottom" }}
                 />
                 Giờ
               </TableCell>
               <TableCell>
                 <NotesIcon
                   fontSize="small"
-                  sx={{ verticalAlign: "bottom", mr: 0.5 }}
+                  sx={{ mr: 0.5, verticalAlign: "bottom" }}
                 />
                 Ghi chú
               </TableCell>
@@ -153,7 +148,20 @@ function MyBooking() {
 
               return (
                 <TableRow key={booking.id} className="table-row">
-                  <TableCell>{booking.court.name}</TableCell>
+                  <TableCell>
+                    <Link
+                      component="button"
+                      onClick={() => handleCourtClick(booking.court.id)}
+                      sx={{
+                        color: "#5372F0",
+                        fontWeight: 500,
+                        textDecoration: "none",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      {booking.court.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>{booking.court.address}</TableCell>
                   <TableCell>{start.format("YYYY-MM-DD")}</TableCell>
                   <TableCell>

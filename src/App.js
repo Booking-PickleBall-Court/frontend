@@ -28,6 +28,7 @@ import CourtManagement from "./pages/CourtManagement";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerBookingHistory from "./pages/OwnerBookingHistory";
+import ScheduleCalendar from "./pages/ScheduleCalendar";
 
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -41,6 +42,18 @@ const theme = createTheme({
     },
   },
 });
+
+theme.hero = {
+  height: 200,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  color: "white",
+  backgroundImage: `url(${process.env.PUBLIC_URL}/bg-home.avif)`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+};
 
 const PageWrapper = ({ children, style }) => (
   <motion.div
@@ -59,12 +72,14 @@ const PageWrapper = ({ children, style }) => (
 
 function AppContent() {
   const location = useLocation();
-  const hideLayout =
+  const hideAuthLayout =
     location.pathname === "/register" || location.pathname === "/login";
+  const hideNavbar =
+    hideAuthLayout || location.pathname === "/schedule-calendar";
 
   return (
     <>
-      {!hideLayout && <Navbar />}
+      {!hideNavbar && <Navbar />}
       {location.pathname === "/bookings" && (
         <Box
           sx={{
@@ -200,9 +215,17 @@ function AppContent() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/schedule-calendar"
+            element={
+              <PageWrapper>
+                <ScheduleCalendar />
+              </PageWrapper>
+            }
+          />
         </Routes>
       </AnimatePresence>
-      {!hideLayout && <Footer />}
+      {!hideAuthLayout && <Footer />}
     </>
   );
 }

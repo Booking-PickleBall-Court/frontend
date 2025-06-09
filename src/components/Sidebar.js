@@ -24,11 +24,20 @@ const Sidebar = ({
   selectedKey,
   onSelect,
   onLogout,
+  onEditProfile,
 }) => {
   const [openAccount, setOpenAccount] = useState(false);
 
   const handleToggleAccount = () => {
     setOpenAccount(!openAccount);
+  };
+
+  const handleAccountSettingClick = (key) => {
+    if (key === "editProfile") {
+      onEditProfile();
+    } else {
+      onSelect(key);
+    }
   };
 
   return (
@@ -91,7 +100,7 @@ const Sidebar = ({
                 <ListItemButton
                   key={item.key}
                   selected={selectedKey === item.key}
-                  onClick={() => onSelect(item.key)}
+                  onClick={() => handleAccountSettingClick(item.key)}
                   sx={{ borderRadius: 1 }}
                 >
                   <ListItemIcon
@@ -110,26 +119,6 @@ const Sidebar = ({
       </Box>
 
       <Divider />
-
-      <Typography
-        variant="subtitle1"
-        fontWeight={600}
-        color="primary"
-        sx={{ cursor: "pointer" }}
-        onClick={() => alert("More on Courtsite clicked")}
-      >
-        MORE ON COURTSITE
-      </Typography>
-
-      <Typography
-        variant="subtitle1"
-        fontWeight={600}
-        color="primary"
-        sx={{ cursor: "pointer" }}
-        onClick={() => alert("For Business clicked")}
-      >
-        FOR BUSINESS
-      </Typography>
 
       <Typography
         variant="subtitle1"
