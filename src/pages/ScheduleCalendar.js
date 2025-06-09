@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/ScheduleCalendar.css";
 import { useNavigate } from "react-router-dom";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TextField } from "@mui/material";
 import dayjs from "dayjs";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const times = [
   "05:00",
@@ -79,10 +80,45 @@ const lockedSlots = ["05:00", "05:30", "06:00", "06:30", "07:00"];
 
 const ScheduleCalendar = () => {
   const [selectedSlots, setSelectedSlots] = useState([]);
+  const [currentLockedSlots, setCurrentLockedSlots] = useState([]);
   const navigate = useNavigate();
 
+  const totalPrice = selectedSlots.reduce((total, slot) => {
+    const time = slot.split("-")[0];
+    const hour = parseInt(time.split(":")[0], 10);
+    const pricePerSlot = hour >= 17 ? 60000 : 45000;
+    return total + pricePerSlot;
+  }, 0);
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // Hàm để kiểm tra và cập nhật các ô đã qua giờ hiện tại
+  const updateLockedSlots = () => {
+    const now = dayjs();
+    const currentTime = now.format("HH:mm");
+    const isToday =
+      now.format("YYYY-MM-DD") === dayjs(selectedDate).format("YYYY-MM-DD");
+
+    if (isToday) {
+      const newLockedSlots = times.filter((time) => time <= currentTime);
+      setCurrentLockedSlots([...lockedSlots, ...newLockedSlots]);
+    } else {
+      setCurrentLockedSlots(lockedSlots);
+    }
+  };
+
+  // Cập nhật lockedSlots mỗi phút và khi ngày thay đổi
+  useEffect(() => {
+    updateLockedSlots();
+    const interval = setInterval(updateLockedSlots, 60000); // Cập nhật mỗi phút
+    return () => clearInterval(interval);
+  }, [selectedDate]);
+
   const toggleSlot = (time, court) => {
-    if (bookedSlots.includes(`${time}-${court}`) || lockedSlots.includes(time))
+    if (
+      bookedSlots.includes(`${time}-${court}`) ||
+      currentLockedSlots.includes(time)
+    )
       return;
     const slot = `${time}-${court}`;
     setSelectedSlots((prev) =>
@@ -94,15 +130,6 @@ const ScheduleCalendar = () => {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   const totalHours = `${hours}:${minutes === 0 ? "00" : minutes}`;
-
-  const totalPrice = selectedSlots.reduce((total, slot) => {
-    const time = slot.split("-")[0];
-    const hour = parseInt(time.split(":")[0], 10);
-    const pricePerSlot = hour >= 17 ? 60000 : 45000;
-    return total + pricePerSlot;
-  }, 0);
-
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
   return (
     <Box
@@ -133,19 +160,34 @@ const ScheduleCalendar = () => {
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            gap: "200px",
+            justifyContent: "space-between",
             marginBottom: "40px",
+            width: "100%",
           }}
         >
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(-1)}
+            sx={{
+              borderRadius: "50px",
+              padding: "8px 20px",
+              borderColor: "#4263eb",
+              color: "#4263eb",
+              "&:hover": {
+                borderColor: "#2541b2",
+                backgroundColor: "rgba(66, 99, 235, 0.04)",
+              },
+            }}
+          >
+            Quay lại
+          </Button>
           <h4
             style={{
               fontSize: "28px",
               fontWeight: "bold",
               margin: 0,
               whiteSpace: "nowrap",
-              justifyContent: "center",
-              marginLeft: "500px",
             }}
           >
             Đặt lịch ngày trực quan
@@ -220,7 +262,7 @@ const ScheduleCalendar = () => {
                   const slot = `${time}-${court}`;
                   const isSelected = selectedSlots.includes(slot);
                   const isBooked = bookedSlots.includes(slot);
-                  const isLocked = lockedSlots.includes(time);
+                  const isLocked = currentLockedSlots.includes(time);
                   return (
                     <div
                       key={slot}
@@ -237,10 +279,11 @@ const ScheduleCalendar = () => {
                         border: "1px solid #ddd",
                         fontSize: "14px",
                         fontWeight: "bold",
+                        cursor: isLocked ? "not-allowed" : "pointer",
                       }}
                       onClick={() => toggleSlot(time, court)}
                     >
-                      {isSelected ? "✔" : isBooked ? "✖" : isLocked ? "" : ""}
+                      {isSelected ? "✔" : isBooked ? "✖" : isLocked ? "🔒" : ""}
                     </div>
                   );
                 })}

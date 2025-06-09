@@ -1,7 +1,7 @@
 :root {
-  --primary-blue: #028242; 
-  --light-blue: #a9d5b3; 
-  --dark-blue: #014421; 
+  --primary-blue: #028242;
+  --light-blue: #a9d5b3;
+  --dark-blue: #014421;
   --accent-orange: #fbbc05;
   --dark-orange: #f5a623;
   --text-dark: #202124;
@@ -23,17 +23,17 @@
 
 body,
 html {
-  overflow-x: hidden !important; 
-  overflow-y: auto; 
+  overflow-x: hidden !important;
+  overflow-y: auto;
   background: var(--bg-light);
   color: var(--text-medium);
   font-size: 18px;
-  width: 100vw; 
+  width: 100vw;
 }
 
 .dashboard-container {
   display: flex;
-  min-height: 100vh; 
+  min-height: 100vh;
   overflow: hidden;
 }
 
@@ -82,7 +82,7 @@ html {
   cursor: pointer;
   border-radius: 12px;
   transition: all 0.3s ease;
-  font-size: 20px;
+  font-size: 18px;
   background: rgba(255, 255, 255, 0.1);
   color: var(--bg-white);
   font-weight: 500;
@@ -158,12 +158,12 @@ html {
   padding: 40px;
   overflow-y: unset;
   background: var(--bg-light);
-  min-width: 0; 
+  min-width: 0;
 }
 
 .content-wrapper {
   animation: fadeIn 0.7s ease-in-out forwards;
-  max-width: 100%; 
+  max-width: 100%;
   margin: 0 auto;
 }
 

@@ -72,12 +72,14 @@ const PageWrapper = ({ children, style }) => (
 
 function AppContent() {
   const location = useLocation();
-  const hideLayout =
+  const hideAuthLayout =
     location.pathname === "/register" || location.pathname === "/login";
+  const hideNavbar =
+    hideAuthLayout || location.pathname === "/schedule-calendar";
 
   return (
     <>
-      {!hideLayout && <Navbar />}
+      {!hideNavbar && <Navbar />}
       {location.pathname === "/bookings" && (
         <Box
           sx={{
@@ -223,7 +225,7 @@ function AppContent() {
           />
         </Routes>
       </AnimatePresence>
-      {!hideLayout && <Footer />}
+      {!hideAuthLayout && <Footer />}
     </>
   );
 }

@@ -123,26 +123,6 @@ const Sidebar = ({
       <Typography
         variant="subtitle1"
         fontWeight={600}
-        color="primary"
-        sx={{ cursor: "pointer" }}
-        onClick={() => alert("More on PickleNet clicked")}
-      >
-        MORE ON PICKLENET
-      </Typography>
-
-      <Typography
-        variant="subtitle1"
-        fontWeight={600}
-        color="primary"
-        sx={{ cursor: "pointer" }}
-        onClick={() => alert("For Business clicked")}
-      >
-        FOR BUSINESS
-      </Typography>
-
-      <Typography
-        variant="subtitle1"
-        fontWeight={600}
         sx={{ cursor: "pointer" }}
       >
         SUPPORT
