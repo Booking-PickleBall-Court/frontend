@@ -141,7 +141,7 @@ function BookingConfirmation() {
                 </Typography>
               )}
               <Typography variant="body2" sx={{ mb: 1 }}>
-                Tổng giá: {totalPrice ? totalPrice.toLocaleString() : "N/A"} đ
+                Tổng giá: {totalPrice ? totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "N/A"}
               </Typography>
             
               <Divider sx={{ my: 3 }} />

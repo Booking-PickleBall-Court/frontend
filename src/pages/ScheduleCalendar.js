@@ -398,7 +398,7 @@ const ScheduleCalendar = () => {
               }
               
               return total + currentSlotPrice;
-            }, 0).toLocaleString()} đ
+            }, 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
           </p>
         </div>
 

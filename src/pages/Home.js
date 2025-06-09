@@ -137,7 +137,7 @@ const Home = () => {
                       variant="body2"
                       sx={{ fontWeight: "bold", mt: 1 }}
                     >
-                      {venue.hourlyPrice || "Liên hệ để biết giá"}
+                      {venue.hourlyPrice ? venue.hourlyPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Liên hệ để biết giá"}
                     </Typography>
 
                     <Box

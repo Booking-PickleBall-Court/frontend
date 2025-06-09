@@ -199,7 +199,7 @@ function OwnerDashboard() {
                     </Typography>
                   </Box>
                   <Typography variant="h4" fontWeight="700">
-                    ${summary.totalRevenue.toLocaleString()}
+                    {summary.totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                   </Typography>
                 </CardContent>
               </Card>
@@ -271,7 +271,7 @@ function OwnerDashboard() {
                     </Typography>
                   </Box>
                   <Typography variant="h4" fontWeight="700" color="#4b4b4b">
-                    ${summary.monthlyRevenueSum.toLocaleString()}
+                    {summary.monthlyRevenueSum.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                   </Typography>
                 </CardContent>
               </Card>
@@ -349,7 +349,7 @@ function OwnerDashboard() {
                             <TableCell>{customer.totalBookings}</TableCell>
                             <TableCell>{customer.totalHours}</TableCell>
                             <TableCell>
-                              ${customer.totalSpent.toLocaleString()}
+                              {customer.totalSpent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                             </TableCell>
                             <TableCell>
                               {customer.lastBooking ? new Date(customer.lastBooking).toLocaleDateString() : 'N/A'}

@@ -134,6 +134,15 @@ function MyBooking() {
                 />
                 Ghi chú
               </TableCell>
+              <TableCell>
+                <strong>Trạng thái</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Tổng giá</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Phương thức thanh toán</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -153,6 +162,9 @@ function MyBooking() {
                     {start.format("HH:mm")} - {end.format("HH:mm")}
                   </TableCell>
                   <TableCell>{booking.notes || "Không có"}</TableCell>
+                  <TableCell>{booking.status}</TableCell>
+                  <TableCell>{booking.totalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || 'N/A'}</TableCell>
+                  <TableCell>{booking.paymentMethod || 'N/A'}</TableCell>
                 </TableRow>
               );
             })}
