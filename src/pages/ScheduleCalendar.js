@@ -158,28 +158,22 @@ const ScheduleCalendar = () => {
       alert("Vui lòng chọn khung giờ!");
       return;
     }
-    // Gom slot theo subCourtId
     const date = dayjs(selectedDate).format("YYYY-MM-DD");
-    const slotsBySubCourt = {};
-    selectedSlots.forEach(slot => {
-      const [time, subCourtIdStr] = slot.split("-");
+
+    // Tạo một mảng các đối tượng booking riêng lẻ cho mỗi slot đã chọn
+    const bookings = selectedSlots.map(slot => {
+      const [timeStr, subCourtIdStr] = slot.split("-");
       const subCourtId = Number(subCourtIdStr);
-      if (!slotsBySubCourt[subCourtId]) slotsBySubCourt[subCourtId] = [];
-      slotsBySubCourt[subCourtId].push(time);
-    });
-    // Tạo bookings list
-    const bookings = Object.entries(slotsBySubCourt).map(([subCourtId, times]) => {
-      // Sắp xếp times
-      const sortedTimes = times.sort();
-      const startTime = `${date}T${sortedTimes[0]}:00`;
-      // endTime là kết thúc slot cuối + 30 phút
-      const endTime = dayjs(`${date}T${sortedTimes[sortedTimes.length-1]}:00`).add(30, "minute").format("YYYY-MM-DDTHH:mm:ss");
+      const startTime = `${date}T${timeStr}:00`;
+      const endTime = dayjs(startTime).add(30, "minute").format("YYYY-MM-DDTHH:mm:ss");
+
       return {
-        subCourtId: Number(subCourtId),
+        subCourtId,
         startTime,
         endTime,
       };
     });
+
     const bookingData = {
       courtId: Number(courtId),
       bookings,
