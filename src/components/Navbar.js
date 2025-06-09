@@ -72,7 +72,7 @@ function Navbar() {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <img
+          <img onClick={() => navigate("/")}
             src="/logo.jpg"
             alt="PickleNet Logo"
             style={{ height: 46, marginRight: 8, verticalAlign: "middle" }}

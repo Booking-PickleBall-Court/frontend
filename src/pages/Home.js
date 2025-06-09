@@ -170,7 +170,7 @@ const Home = () => {
                           color: "white",
                           "&:hover": { backgroundColor: "#2541b2" },
                         }}
-                        onClick={() => navigate(`/schedule-calendar `)}
+                        onClick={() => navigate(`/schedule-calendar?courtId=${venue.id}`)}
                       >
                         Book Now
                       </Button>
