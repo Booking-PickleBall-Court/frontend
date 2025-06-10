@@ -1,15 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CircularProgress, Box } from '@mui/material';
 
-interface LoadingContextType {
-  isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
-}
+const LoadingContext = createContext(undefined);
 
-const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
-
-export const LoadingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const LoadingProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (

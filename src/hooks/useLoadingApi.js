@@ -3,7 +3,7 @@ import { useLoading } from '../contexts/LoadingContext';
 export const useLoadingApi = () => {
   const { setIsLoading } = useLoading();
 
-  const withLoading = async <T>(promise: Promise<T>): Promise<T> => {
+  const withLoading = async (promise) => {
     try {
       setIsLoading(true);
       const result = await promise;
