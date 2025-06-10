@@ -20,7 +20,6 @@ function BookingConfirmation() {
   const status = searchParams.get("status");
   const bookingIdsParam = searchParams.get("bookingIds");
 
-  // Sử dụng useMemo để đảm bảo bookingIds chỉ thay đổi khi bookingIdsParam thay đổi
   const bookingIds = useMemo(() => {
     return bookingIdsParam ? bookingIdsParam.split(',').map(Number) : [];
   }, [bookingIdsParam]);

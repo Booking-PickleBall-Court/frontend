@@ -69,11 +69,9 @@ function OwnerDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Lấy thông tin người dùng hiện tại để có ownerId
         const userRes = await authAPI.getCurrentUser();
         const ownerId = userRes.data.id; 
 
-        // Fetch dữ liệu doanh thu tổng quan
         const revenueRes = await courtAPI.getOwnerRevenue(ownerId);
         const { totalRevenue, totalHoursBooked, totalBookings, totalCourts } = revenueRes.data;
 
@@ -85,37 +83,31 @@ function OwnerDashboard() {
           monthlyRevenueSum: totalRevenue || 0,
         });
 
-        // Fetch danh sách các sân của chủ sở hữu
         const courtsRes = await courtAPI.getCourtsByOwner(ownerId);
         const ownerCourts = courtsRes.data;
 
         if (ownerCourts && ownerCourts.length > 0) {
-          // Lấy ID của sân đầu tiên để fetch dữ liệu hàng tháng
           const firstCourtId = ownerCourts[0].id;
           const monthlyRevenueData = await courtAPI.getMonthlyRevenueByCourt(firstCourtId);
           
-          // Map dữ liệu từ API vào định dạng biểu đồ
           const mappedMonthlyRevenue = monthlyRevenueData.data.map(item => ({
-            month: item.month.substring(5), // Lấy MM từ YYYY-MM
+            month: item.month.substring(5), 
             revenue: item.totalRevenue,
           }));
 
           const mappedMonthlyHours = monthlyRevenueData.data.map(item => ({
-            month: item.month.substring(5), // Lấy MM từ YYYY-MM
+            month: item.month.substring(5), 
             hours: item.totalHoursBooked,
           }));
 
           setMonthlyRevenue(mappedMonthlyRevenue);
           setMonthlyHours(mappedMonthlyHours);
         } else {
-          // Nếu không có sân nào, reset biểu đồ về rỗng hoặc giữ mock data
           setMonthlyRevenue([]);
           setMonthlyHours([]);
         }
 
-        // Fetch dữ liệu khách hàng tiềm năng từ API
         const customersRes = await courtAPI.getTopCustomersByOwner(ownerId);
-        // Map dữ liệu từ API sang định dạng cũ nếu cần hoặc cập nhật bảng để khớp định dạng mới
         const mappedCustomers = customersRes.data.map(customer => ({
           id: customer.customerId,
           name: customer.customerName,
@@ -123,14 +115,13 @@ function OwnerDashboard() {
           totalHours: customer.totalHoursBooked,
           totalSpent: customer.totalSpent,
           lastBooking: customer.lastBookingDate,
-          email: customer.customerEmail, // Thêm email và phone nếu muốn hiển thị
+          email: customer.customerEmail, 
           phone: customer.customerPhone,
         }));
         setPotentialCustomers(mappedCustomers);
 
       } catch (error) {
         console.error("Error fetching owner dashboard data:", error);
-        // Có thể set error state để hiển thị thông báo lỗi trên UI
       } finally {
         setLoading(false);
       }

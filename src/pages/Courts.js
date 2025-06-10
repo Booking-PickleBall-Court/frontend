@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Container,
   Grid,
-  Card,
-  CardContent,
   Typography,
   Button,
   Box,

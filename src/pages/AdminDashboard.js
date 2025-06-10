@@ -3,13 +3,11 @@ import Chart from "chart.js/auto";
 import "../styles/AdminDashboard.css";
 import { courtAPI, authAPI } from "../services/api";
 import {
-  Container,
   Typography,
   Box,
   Paper,
   Grid,
   Button,
-  CircularProgress,
 } from "@mui/material";
 import CourtFormDialog from "./CourtFormDialog";
 import { toast } from "react-toastify";

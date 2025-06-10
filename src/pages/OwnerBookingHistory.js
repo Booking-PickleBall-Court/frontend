@@ -11,11 +11,9 @@ function OwnerBookingHistory() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        // Lấy ownerId từ người dùng hiện tại
         const userRes = await authAPI.getCurrentUser();
         const ownerId = userRes.data.id;
 
-        // Gọi API để lấy lịch sử booking của owner
         const res = await bookingAPI.getOwnerBookings(ownerId);
         setBookings(res.data);
       } catch (error) {

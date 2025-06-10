@@ -6,7 +6,6 @@ import {
   Button,
   Grid,
   Paper,
-  Chip,
   CircularProgress,
   Alert,
   Dialog,

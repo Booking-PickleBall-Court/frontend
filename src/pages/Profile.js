@@ -9,32 +9,17 @@ import {
   Avatar,
   Grid,
   CircularProgress,
-  Link,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  Collapse,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from "@mui/material";
 import {
-  Person,
   Folder,
-  Group,
-  Receipt,
   Edit,
   Link as LinkIcon,
   Lock,
   Language,
-  HelpOutline,
-  WhatsApp,
-  ExpandLess,
-  ExpandMore,
-  Logout,
   Home,
   Dashboard as DashboardIcon,
   Business as BusinessIcon,
@@ -485,105 +470,6 @@ function Profile() {
           </Box>
 
           <Grid container spacing={3} sx={{ mt: 6 }}>
-            <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ p: 2, height: "100%" }}>
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  mb={1}
-                >
-                  <Typography fontWeight={600}>My Bookings</Typography>
-                  <Link href="#" underline="hover" fontSize="0.9rem">
-                    See all
-                  </Link>
-                </Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  No booking made
-                </Typography>
-                <Typography variant="caption" sx={{ mb: 1, display: "block" }}>
-                  Dive into the world of sports and start booking your favorite
-                  venues.
-                </Typography>
-                <Link
-                  href="#"
-                  underline="hover"
-                  fontWeight={600}
-                  fontSize="0.9rem"
-                >
-                  Book Now
-                </Link>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ p: 2, height: "100%" }}>
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  mb={1}
-                >
-                  <Typography fontWeight={600}>My Contact</Typography>
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={() => setEditMode(true)}
-                  >
-                    Edit
-                  </Button>
-                </Box>
-
-                {!editMode ? (
-                  <>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>Email:</strong> {user?.email || "-"}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>Phone:</strong> {user?.phoneNumber || "-"}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>Location:</strong> 11000
-                    </Typography>
-                  </>
-                ) : (
-                  <form onSubmit={handleSubmit}>
-                    <TextField
-                      label="Email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                    />
-                    <TextField
-                      label="Phone Number"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleChange}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                    />
-                    <Box display="flex" justifyContent="flex-end" gap={2}>
-                      <Button
-                        variant="outlined"
-                        onClick={() => setEditMode(false)}
-                        disabled={loading}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        disabled={loading}
-                      >
-                        Save
-                      </Button>
-                    </Box>
-                  </form>
-                )}
-              </Paper>
-            </Grid>
           </Grid>
         </Paper>
       </Container>

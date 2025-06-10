@@ -10,9 +10,6 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { courtAPI, bookingAPI, paymentAPI } from "../services/api";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import MenuItem from "@mui/material/MenuItem";
 
 dayjs.extend(isSameOrAfter);
 
@@ -70,11 +67,9 @@ const ScheduleCalendar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Lấy courtId từ query param
   const searchParams = new URLSearchParams(location.search);
   const courtId = searchParams.get("courtId");
 
-  // Fetch subCourts và hourlyPrice khi courtId thay đổi
   useEffect(() => {
     if (courtId) {
       courtAPI.getCourtById(courtId).then(res => {
@@ -98,7 +93,6 @@ const ScheduleCalendar = () => {
     }
   }, [courtId, selectedDate]);
 
-  // Hàm để kiểm tra và cập nhật các ô đã qua giờ hiện tại
   const updateLockedSlots = () => {
     const now = dayjs();
     const currentTime = now.format("HH:mm");
@@ -113,10 +107,9 @@ const ScheduleCalendar = () => {
     }
   };
 
-  // Cập nhật lockedSlots mỗi phút và khi ngày thay đổi
   useEffect(() => {
     updateLockedSlots();
-    const interval = setInterval(updateLockedSlots, 60000); // Cập nhật mỗi phút
+    const interval = setInterval(updateLockedSlots, 60000); 
     return () => clearInterval(interval);
   }, [selectedDate]);
 
@@ -136,8 +129,6 @@ const ScheduleCalendar = () => {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   const totalHours = `${hours}:${minutes === 0 ? "00" : minutes}`;
-
-  // Thêm hàm kiểm tra slot đã được book
   const isSlotBooked = (time, subCourtId) => {
     const date = dayjs(selectedDate).format("YYYY-MM-DD");
     const slotStart = dayjs(`${date}T${time}:00`);
@@ -152,7 +143,6 @@ const ScheduleCalendar = () => {
     });
   };
 
-  // Khi nhấn TIẾP THEO, gửi dữ liệu booking đúng format
   const handleBooking = () => {
     if (!courtId || selectedSlots.length === 0) {
       alert("Vui lòng chọn khung giờ!");
@@ -160,7 +150,6 @@ const ScheduleCalendar = () => {
     }
     const date = dayjs(selectedDate).format("YYYY-MM-DD");
 
-    // Tạo một mảng các đối tượng booking riêng lẻ cho mỗi slot đã chọn
     const bookings = selectedSlots.map(slot => {
       const [timeStr, subCourtIdStr] = slot.split("-");
       const subCourtId = Number(subCourtIdStr);
