@@ -14,6 +14,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import BusinessIcon from "@mui/icons-material/Business";
 import HistoryIcon from "@mui/icons-material/History";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { AuthContext } from "../contexts/AuthContext";
 
 function Navbar() {
@@ -72,7 +73,8 @@ function Navbar() {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <img onClick={() => navigate("/")}
+          <img
+            onClick={() => navigate("/")}
             src="/logo.jpg"
             alt="PickleNet Logo"
             style={{ height: 46, marginRight: 8, verticalAlign: "middle" }}
@@ -101,6 +103,9 @@ function Navbar() {
                 </NavLink>
                 <NavLink to="/owner/courts" style={navLinkStyle}>
                   <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
+                </NavLink>
+                <NavLink to="/owner/bookings" style={navLinkStyle}>
+                  <CalendarMonthIcon sx={{ mr: 1 }} /> Manage Booking
                 </NavLink>
                 <NavLink to="/owner/booking-history" style={navLinkStyle}>
                   <HistoryIcon sx={{ mr: 1 }} /> Booking History

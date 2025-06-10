@@ -29,6 +29,7 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerBookingHistory from "./pages/OwnerBookingHistory";
 import ScheduleCalendar from "./pages/ScheduleCalendar";
+import BookingManagement from "./pages/BookingManagement";
 
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -221,6 +222,16 @@ function AppContent() {
               <PageWrapper>
                 <ScheduleCalendar />
               </PageWrapper>
+            }
+          />
+          <Route
+            path="/owner/bookings"
+            element={
+              <PrivateRoute requiredRole="OWNER">
+                <PageWrapper>
+                  <BookingManagement />
+                </PageWrapper>
+              </PrivateRoute>
             }
           />
         </Routes>
