@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -7,12 +6,9 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  Collapse,
   Button,
 } from "@mui/material";
 import {
-  ExpandLess,
-  ExpandMore,
   HelpOutline,
   WhatsApp,
   Logout,
@@ -26,12 +22,6 @@ const Sidebar = ({
   onLogout,
   onEditProfile,
 }) => {
-  const [openAccount, setOpenAccount] = useState(false);
-
-  const handleToggleAccount = () => {
-    setOpenAccount(!openAccount);
-  };
-
   const handleAccountSettingClick = (key) => {
     if (key === "editProfile") {
       onEditProfile();
@@ -77,45 +67,30 @@ const Sidebar = ({
       <Divider />
 
       <Box>
-        <Box
-          onClick={handleToggleAccount}
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            cursor: "pointer",
-            mb: 1,
-          }}
-        >
-          <Typography variant="subtitle1" fontWeight={600}>
-            ACCOUNT SETTINGS
-          </Typography>
-          {openAccount ? <ExpandLess /> : <ExpandMore />}
-        </Box>
-
-        <Collapse in={openAccount} timeout="auto" unmountOnExit>
-          <List disablePadding>
-            {accountSettings.map((item) =>
-              item.key !== "language" ? (
-                <ListItemButton
-                  key={item.key}
-                  selected={selectedKey === item.key}
-                  onClick={() => handleAccountSettingClick(item.key)}
-                  sx={{ borderRadius: 1 }}
+        <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+          ACCOUNT SETTINGS
+        </Typography>
+        <List disablePadding>
+          {accountSettings.map((item) =>
+            item.key !== "language" ? (
+              <ListItemButton
+                key={item.key}
+                selected={selectedKey === item.key}
+                onClick={() => handleAccountSettingClick(item.key)}
+                sx={{ borderRadius: 1 }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color: selectedKey === item.key ? "#5372F0" : "inherit",
+                  }}
                 >
-                  <ListItemIcon
-                    sx={{
-                      color: selectedKey === item.key ? "#5372F0" : "inherit",
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={item.label} />
-                </ListItemButton>
-              ) : null
-            )}
-          </List>
-        </Collapse>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            ) : null
+          )}
+        </List>
       </Box>
 
       <Divider />

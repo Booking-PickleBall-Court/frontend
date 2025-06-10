@@ -36,6 +36,8 @@ export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   register: (data) => api.post("/auth/register", data),
   getCurrentUser: () => api.get("/auth/me"),
+  updateProfile: (data) => api.put("/auth/profile", data),
+  getUserStats: () => api.get("/users/me/stats"),
 };
 
 export const courtAPI = {

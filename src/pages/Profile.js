@@ -10,31 +10,17 @@ import {
   Grid,
   CircularProgress,
   Link,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  Collapse,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from "@mui/material";
 import {
-  Person,
   Folder,
-  Group,
-  Receipt,
   Edit,
   Link as LinkIcon,
   Lock,
   Language,
-  HelpOutline,
-  WhatsApp,
-  ExpandLess,
-  ExpandMore,
-  Logout,
   Home,
   Dashboard as DashboardIcon,
   Business as BusinessIcon,
@@ -44,6 +30,7 @@ import { authAPI } from "../services/api";
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 const accountSettings = [
   { label: "Edit Profile", key: "editProfile", icon: <Edit /> },
@@ -52,7 +39,7 @@ const accountSettings = [
 ];
 
 function Profile() {
-  const { user: authUser, login } = useContext(AuthContext);
+  const { user: authUser, login, logout } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -62,6 +49,11 @@ function Profile() {
     fullName: "",
     email: "",
     phoneNumber: "",
+  });
+  const [userStats, setUserStats] = useState({
+    totalBookings: 0,
+    totalBookingHours: 0,
+    totalGamesJoined: 0,
   });
 
   const [selectedKey, setSelectedKey] = useState("profile");
@@ -78,7 +70,11 @@ function Profile() {
   ];
 
   const clientSidebarItems = [
-    { label: "Home", key: "home", icon: <Home /> },
+    { 
+      label: authUser?.role === "ADMIN" ? "Admin Dashboard" : "Home", 
+      key: authUser?.role === "ADMIN" ? "adminDashboard" : "home", 
+      icon: <Home /> 
+    },
     { label: "My Bookings", key: "bookings", icon: <Folder /> },
   ];
 
@@ -95,11 +91,23 @@ function Profile() {
         email: authUser.email || "",
         phoneNumber: authUser.phoneNumber || "",
       });
+      fetchUserStats(); // Fetch user stats when user is authenticated
       setLoading(false);
     } else {
-      setLoading(true);
+      // Optionally redirect to login or handle unauthenticated state
+      setLoading(false); 
     }
   }, [authUser]);
+
+  const fetchUserStats = async () => {
+    try {
+      const response = await authAPI.getUserStats();
+      setUserStats(response.data);
+    } catch (err) {
+      console.error("Failed to fetch user stats:", err);
+      toast.error("Failed to fetch user statistics.");
+    }
+  };
 
   const fetchUserProfile = async () => {
     try {
@@ -113,6 +121,7 @@ function Profile() {
       });
     } catch (err) {
       setError("Failed to fetch user profile");
+      toast.error("Failed to fetch user profile.");
     }
   };
 
@@ -133,6 +142,7 @@ function Profile() {
       await fetchUserProfile();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update profile");
+      toast.error(err.response?.data?.message || "Failed to update profile.");
     } finally {
       setLoading(false);
     }
@@ -143,6 +153,9 @@ function Profile() {
     switch (key) {
       case "home":
         navigate("/");
+        break;
+      case "adminDashboard":
+        navigate("/admin");
         break;
       case "bookings":
         navigate("/bookings");
@@ -162,6 +175,7 @@ function Profile() {
   };
 
   const handleLogout = () => {
+    logout(); // Use the logout function from AuthContext
     navigate("/login");
   };
 
@@ -180,12 +194,13 @@ function Profile() {
 
     try {
       const response = await authAPI.updateProfile(formData);
-      setUser(response.data);
-      login(response.data);
+      login(response.data); // Update user in context with new data
+      toast.success("Profile updated successfully!");
       handleCloseEditModal();
       setEditMode(false);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update profile");
+      toast.error(err.response?.data?.message || "Failed to update profile.");
     } finally {
       setLoading(false);
     }
@@ -221,7 +236,7 @@ function Profile() {
         onClose={handleCloseEditModal}
         maxWidth="sm"
         fullWidth
-        PaperProps={{
+        PaperProps={{ 
           sx: {
             borderRadius: 2,
             boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
@@ -426,7 +441,6 @@ function Profile() {
                     maxWidth: 120,
                   }}
                 />
-                <Box>Joined since May, 2025</Box>
                 <Box
                   sx={{
                     flex: 1,
@@ -444,10 +458,10 @@ function Profile() {
                   fontWeight: 600,
                 }}
               >
-                {[
-                  { label: "bookings made", value: 0 },
-                  { label: "booking hours", value: 0 },
-                  { label: "games joined", value: 0 },
+                {[ 
+                  { label: "bookings made", value: userStats.totalBookings },
+                  { label: "booking hours", value: userStats.totalBookingHours },
+                  { label: "games joined", value: userStats.totalGamesJoined },
                 ].map((item, idx) => (
                   <React.Fragment key={item.label}>
                     <Box
