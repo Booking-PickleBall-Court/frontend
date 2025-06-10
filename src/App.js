@@ -13,7 +13,6 @@ import { Box } from "@mui/material";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
-import { LoadingProvider } from "./contexts/LoadingContext";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -236,11 +235,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <LoadingProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </LoadingProvider>
+        <Router>
+          <AppContent />
+        </Router>
       </AuthProvider>
     </ThemeProvider>
   );

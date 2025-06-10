@@ -3,6 +3,7 @@ import {
   Container,
   Typography,
   Paper,
+  CircularProgress,
   Alert,
   Button,
   Table,
@@ -15,7 +16,6 @@ import {
   Link,
 } from "@mui/material";
 import { bookingAPI } from "../services/api";
-import { useLoadingApi } from "../hooks/useLoadingApi";
 import dayjs from "dayjs";
 import "../styles/MyBookings.css";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -26,20 +26,23 @@ import { useNavigate } from "react-router-dom";
 
 function MyBooking() {
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const navigate = useNavigate();
-  const { withLoading } = useLoadingApi();
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await withLoading(bookingAPI.getUserBookings());
+        const res = await bookingAPI.getUserBookings();
         setBookings(res.data);
         console.log("Bookings fetched successfully:", res.data);
+        
       } catch (err) {
         setError("Không thể tải danh sách đặt sân.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -77,6 +80,15 @@ function MyBooking() {
   const handleCourtClick = (courtId) => {
     navigate(`/courts/${courtId}`);
   };
+
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 8, textAlign: "center" }}>
+        <CircularProgress />
+        <Typography sx={{ mt: 2 }}>Đang tải danh sách đặt sân...</Typography>
+      </Container>
+    );
+  }
 
   if (error) {
     return (

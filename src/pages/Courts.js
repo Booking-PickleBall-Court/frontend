@@ -18,10 +18,10 @@ import {
 } from "@mui/material";
 import { courtAPI } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { useLoadingApi } from "../hooks/useLoadingApi";
 
 function Courts() {
   const [courts, setCourts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCourt, setSelectedCourt] = useState(null);
@@ -34,7 +34,6 @@ function Courts() {
     images: [],
   });
   const navigate = useNavigate();
-  const { withLoading } = useLoadingApi();
 
   useEffect(() => {
     fetchCourts();
@@ -42,11 +41,13 @@ function Courts() {
 
   const fetchCourts = async () => {
     try {
-      const response = await withLoading(courtAPI.getAllCourts());
+      const response = await courtAPI.getAllCourts();
       console.log("Courts data:", response.data);
       setCourts(response.data);
     } catch (err) {
       setError("Failed to fetch courts");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,9 +104,9 @@ function Courts() {
       });
 
       if (selectedCourt) {
-        await withLoading(courtAPI.updateCourt(selectedCourt.id, form));
+        await courtAPI.updateCourt(selectedCourt.id, form);
       } else {
-        await withLoading(courtAPI.createCourt(form));
+        await courtAPI.createCourt(form);
       }
       handleCloseDialog();
       fetchCourts();
@@ -117,7 +118,7 @@ function Courts() {
   const handleDelete = async (courtId) => {
     if (window.confirm("Are you sure you want to delete this court?")) {
       try {
-        await withLoading(courtAPI.deleteCourt(courtId));
+        await courtAPI.deleteCourt(courtId);
         fetchCourts();
       } catch (err) {
         setError("Failed to delete court");
@@ -125,8 +126,8 @@ function Courts() {
     }
   };
 
-  if (error) {
-    return <Typography>Error: {error}</Typography>;
+  if (loading) {
+    return <Typography>Loading...</Typography>;
   }
 
   return (
