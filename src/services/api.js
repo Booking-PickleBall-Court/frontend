@@ -6,13 +6,31 @@ const api = axios.create({
   baseURL: API_URL,
 });
 
+// Request interceptor
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
+
+// Response interceptor
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 403) {
+      // Clear invalid token
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      // Redirect to login page
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const authAPI = {
   login: (data) => api.post("/auth/login", data),
@@ -88,6 +106,13 @@ export const paymentAPI = {
     api.post(`/payments/refund/${paymentIntentId}`),
   createCheckoutSession: (data) =>
     api.post("/payments/create-checkout-session", data),
+};
+
+export const adminAPI = {
+  getAllUsers: () => api.get("/admin/users"),
+  getUsersByRole: (role) => api.get(`/admin/users/role/${role}`),
+  updateUserStatus: (userId, status) => api.put(`/admin/users/${userId}/status`, null, { params: { status } }),
+  updateUserRole: (userId, role) => api.put(`/admin/users/${userId}/role`, null, { params: { role } }),
 };
 
 export default api;

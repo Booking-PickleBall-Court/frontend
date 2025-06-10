@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import Chart from "chart.js/auto";
 import "../styles/AdminDashboard.css";
-import { courtAPI, authAPI } from "../services/api";
+import { courtAPI, authAPI, adminAPI } from "../services/api";
+import { AuthContext } from "../contexts/AuthContext";
 import {
   Container,
   Typography,
@@ -10,11 +11,34 @@ import {
   Grid,
   Button,
   CircularProgress,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Avatar,
+  Chip,
+  IconButton,
+  TablePagination,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import CourtFormDialog from "./CourtFormDialog";
 import { toast } from "react-toastify";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 function AdminDashboard() {
+  const { user: currentUser } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("courts");
   const [courts, setCourts] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -25,6 +49,13 @@ function AdminDashboard() {
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
   const [topCourtsRevenue, setTopCourtsRevenue] = useState([]);
   const [topCustomers, setTopCustomers] = useState([]);
+  const [selectedRole, setSelectedRole] = useState("ALL");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [newRole, setNewRole] = useState("");
 
   const chartRef = useRef(null);
   const topCourtsChartRef = useRef(null);
@@ -321,6 +352,10 @@ function AdminDashboard() {
       }
     }
 
+    if (activeTab === "users") {
+      fetchUsers();
+    }
+
     return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
@@ -335,7 +370,7 @@ function AdminDashboard() {
         topUsersChartInstanceRef.current = null;
       }
     };
-  }, [activeTab, ownerId, monthlyRevenue, topCourtsRevenue, topCustomers]);
+  }, [activeTab, ownerId, monthlyRevenue, topCourtsRevenue, topCustomers, selectedRole]);
 
   const fetchCourts = async () => {
     try {
@@ -344,6 +379,22 @@ function AdminDashboard() {
     } catch (error) {
       console.error("Failed to fetch courts:", error);
       toast.error("Failed to fetch courts");
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      let response;
+      if (selectedRole === "ALL") {
+        response = await adminAPI.getAllUsers();
+      } else {
+        response = await adminAPI.getUsersByRole(selectedRole);
+      }
+      const filteredUsers = response.data.filter(user => user.id !== currentUser.id);
+      setUsers(filteredUsers);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      toast.error("Failed to fetch users");
     }
   };
 
@@ -368,6 +419,51 @@ function AdminDashboard() {
         toast.error("Failed to delete court");
       }
     }
+  };
+
+  const handleUserMenuOpen = (event, user) => {
+    setUserMenuAnchor(event.currentTarget);
+    setSelectedUser(user);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+    setSelectedUser(null);
+  };
+
+  const handleStatusChange = async (userId, newStatus) => {
+    try {
+      await adminAPI.updateUserStatus(userId, newStatus);
+      toast.success("User status updated successfully");
+      fetchUsers();
+    } catch (error) {
+      console.error("Failed to update user status:", error);
+      toast.error("Failed to update user status");
+    }
+    handleUserMenuClose();
+  };
+
+  const handleRoleChange = async () => {
+    if (!selectedUser || !newRole) return;
+
+    try {
+      await adminAPI.updateUserRole(selectedUser.id, newRole);
+      toast.success("User role updated successfully");
+      fetchUsers();
+      setRoleDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to update user role:", error);
+      toast.error("Failed to update user role");
+    }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const renderContent = () => {
@@ -424,7 +520,7 @@ function AdminDashboard() {
                       </Typography>
                       <Typography variant="body2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{court.address}</Typography>
                       <Typography variant="body2" sx={{ fontWeight: "bold", mt: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
-                        {court.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '0 VND'}/slot
+                        {court.hourlyPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '0 VND'}/slot
                       </Typography>
                       <Typography variant="body2" sx={{ mt: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                         <strong>Giờ hoạt động:</strong> 5:00 - 23:00
@@ -472,50 +568,161 @@ function AdminDashboard() {
       case "users":
         return (
           <div className="content-wrapper">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "20px",
-              }}
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                  Quản lý người dùng
+                </Typography>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <InputLabel>Vai trò</InputLabel>
+                    <Select
+                      value={selectedRole}
+                      label="Vai trò"
+                      onChange={(e) => setSelectedRole(e.target.value)}
+                    >
+                      <MenuItem value="ALL">Tất cả</MenuItem>
+                      <MenuItem value="ADMIN">Admin</MenuItem>
+                      <MenuItem value="OWNER">Owner</MenuItem>
+                      <MenuItem value="CLIENT">Client</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
+
+              <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
+                        <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Tên</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Vai trò</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Trạng thái</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Hành động</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {users
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((user) => (
+                          <TableRow 
+                            key={user.id}
+                            sx={{ 
+                              '&:hover': { 
+                                backgroundColor: '#f8f9fa',
+                                transition: 'background-color 0.2s'
+                              }
+                            }}
+                          >
+                            <TableCell>{user.id}</TableCell>
+                            <TableCell>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Avatar 
+                                  src={user.avatarUrl}
+                                  sx={{ width: 32, height: 32 }}
+                                >
+                                  {user.fullName?.charAt(0) || 'U'}
+                                </Avatar>
+                                <Typography>{user.fullName}</Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                              <Chip
+                                label={user.role}
+                                color={
+                                  user.role === 'ADMIN' ? 'error' :
+                                  user.role === 'OWNER' ? 'warning' :
+                                  'success'
+                                }
+                                size="small"
+                                sx={{ 
+                                  fontWeight: 'medium',
+                                  textTransform: 'uppercase'
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={user.status === 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}
+                                color={user.status === 'ACTIVE' ? 'success' : 'default'}
+                                size="small"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => handleUserMenuOpen(e, user)}
+                              >
+                                <MoreVertIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <TablePagination
+                  component="div"
+                  count={users.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  sx={{
+                    borderTop: '1px solid #e0e0e0',
+                    '.MuiTablePagination-select': {
+                      borderRadius: 1
+                    }
+                  }}
+                />
+              </Paper>
+            </Box>
+
+            {/* User Menu */}
+            <Menu
+              anchorEl={userMenuAnchor}
+              open={Boolean(userMenuAnchor)}
+              onClose={handleUserMenuClose}
             >
-              <h2 className="content-title">Quản lý người dùng</h2>
-              <button className="add-button" onClick={() => setActiveTab('users')}>
-                <i className="fas fa-user-plus"></i> Thêm người dùng
-              </button>
-            </div>
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr className="table-header">
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Email</th>
-                    <th>Vai trò</th>
-                    <th>Hành động</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id} className="table-row">
-                      <td>{user.id}</td>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
-                      <td>{user.roles && user.roles.length > 0 ? user.roles[0].name : "N/A"}</td>
-                      <td>
-                        <button className="action-button edit-button">
-                          <i className="fas fa-edit"></i> Sửa
-                        </button>
-                        <button className="action-button delete-button">
-                          <i className="fas fa-trash"></i> Xóa
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              <MenuItem onClick={() => {
+                setNewRole(selectedUser?.role);
+                setRoleDialogOpen(true);
+                handleUserMenuClose();
+              }}>
+                Thay đổi vai trò
+              </MenuItem>
+              <MenuItem onClick={() => handleStatusChange(selectedUser?.id, selectedUser?.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE')}>
+                {selectedUser?.status === 'ACTIVE' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
+              </MenuItem>
+            </Menu>
+
+            {/* Role Change Dialog */}
+            <Dialog open={roleDialogOpen} onClose={() => setRoleDialogOpen(false)}>
+              <DialogTitle>Thay đổi vai trò</DialogTitle>
+              <DialogContent>
+                <FormControl fullWidth sx={{ mt: 2 }}>
+                  <InputLabel>Vai trò mới</InputLabel>
+                  <Select
+                    value={newRole}
+                    label="Vai trò mới"
+                    onChange={(e) => setNewRole(e.target.value)}
+                  >
+                    <MenuItem value="ADMIN">Admin</MenuItem>
+                    <MenuItem value="OWNER">Owner</MenuItem>
+                    <MenuItem value="CLIENT">Client</MenuItem>
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setRoleDialogOpen(false)}>Hủy</Button>
+                <Button onClick={handleRoleChange} variant="contained">
+                  Xác nhận
+                </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         );
       case "revenue":
