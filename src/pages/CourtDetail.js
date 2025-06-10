@@ -7,7 +7,6 @@ import {
   Grid,
   Paper,
   Chip,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -19,6 +18,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import ExploreIcon from "@mui/icons-material/Explore";
 import { courtAPI, paymentAPI } from "../services/api";
+import { useLoadingApi } from "../hooks/useLoadingApi";
 import {
   LocalizationProvider,
   DatePicker,
@@ -30,14 +30,13 @@ const CourtDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [court, setCourt] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { withLoading } = useLoadingApi();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDuration, setSelectedDuration] = useState(60);
-  const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState("");
 
   const handleOpenDialog = () => setOpenDialog(true);
@@ -57,16 +56,15 @@ const CourtDetail = () => {
         notes: `Booking for ${selectedDuration} minutes`,
       });
 
-      setPaying(true);
       setPayError("");
       try {
-        const res = await paymentAPI.createCheckoutSession({
+        const res = await withLoading(paymentAPI.createCheckoutSession({
           courtId: parseInt(id),
           startTime: `${selectedDate}T${startTime}:00`,
           endTime: `${selectedDate}T${endTime}:00`,
           notes: `Booking for ${selectedDuration} minutes`,
           paymentMethod: "CARD",
-        });
+        }));
 
         if (res.data.url) {
           window.location.href = res.data.url;
@@ -75,8 +73,6 @@ const CourtDetail = () => {
         }
       } catch (err) {
         setPayError("Không thể khởi tạo thanh toán.");
-      } finally {
-        setPaying(false);
       }
     }
   };
@@ -84,25 +80,14 @@ const CourtDetail = () => {
   useEffect(() => {
     const fetchCourt = async () => {
       try {
-        const res = await courtAPI.getCourtById(id);
+        const res = await withLoading(courtAPI.getCourtById(id));
         setCourt(res.data);
       } catch (err) {
         setError("Không thể tải thông tin sân.");
-      } finally {
-        setLoading(false);
       }
     };
     fetchCourt();
   }, [id]);
-
-  if (loading) {
-    return (
-      <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
-        <CircularProgress />
-        <Typography sx={{ mt: 2 }}>Đang tải thông tin sân...</Typography>
-      </Container>
-    );
-  }
 
   if (error) {
     return (
@@ -272,9 +257,9 @@ const CourtDetail = () => {
           <Button
             variant="contained"
             onClick={handleConfirmBooking}
-            disabled={!selectedDate || !selectedTime || paying}
+            disabled={!selectedDate || !selectedTime}
           >
-            {paying ? "Đang xử lý..." : "Thanh toán"}
+            Thanh toán
           </Button>
         </DialogActions>
       </Dialog>
