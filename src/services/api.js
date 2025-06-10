@@ -78,6 +78,7 @@ export const courtAPI = {
   getOwnerRevenue: (ownerId) => api.get(`/courts/owner/${ownerId}/revenue`),
   getMonthlyRevenueByCourt: (courtId) => api.get(`/courts/${courtId}/monthly-revenue`),
   getTopCustomersByOwner: (ownerId) => api.get(`/courts/owner/${ownerId}/top-customers`),
+  updateCourtStatus: (id, status) => api.put(`/courts/${id}/status`, null, { params: { status } }),
 };
 
 export const bookingAPI = {

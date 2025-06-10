@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import Chart from "chart.js/auto";
 import "../styles/AdminDashboard.css";
 import { courtAPI, authAPI, adminAPI } from "../services/api";
 import { AuthContext } from "../contexts/AuthContext";
 import {
-  Container,
   Typography,
   Box,
   Paper,
   Grid,
   Button,
-  CircularProgress,
   TableContainer,
   Table,
   TableHead,
@@ -31,19 +29,13 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import CourtFormDialog from "./CourtFormDialog";
-import { toast } from "react-toastify";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { toast } from "react-toastify";
 
 function AdminDashboard() {
   const { user: currentUser } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("courts");
   const [courts, setCourts] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedCourt, setSelectedCourt] = useState(null);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [ownerId, setOwnerId] = useState(null);
   const [users, setUsers] = useState([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
@@ -56,6 +48,8 @@ function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [newRole, setNewRole] = useState("");
+  const [courtMenuAnchor, setCourtMenuAnchor] = useState(null);
+  const [selectedCourtForStatus, setSelectedCourtForStatus] = useState(null);
 
   const chartRef = useRef(null);
   const topCourtsChartRef = useRef(null);
@@ -79,8 +73,6 @@ function AdminDashboard() {
 
     const rootStyles = getComputedStyle(document.documentElement);
     const primaryBlue = rootStyles.getPropertyValue("--primary-blue").trim();
-    const accentOrange = rootStyles.getPropertyValue("--accent-orange").trim();
-    const darkOrange = rootStyles.getPropertyValue("--dark-orange").trim();
     const textMedium = rootStyles.getPropertyValue("--text-medium").trim();
     const textDark = rootStyles.getPropertyValue("--text-dark").trim();
 
@@ -352,10 +344,6 @@ function AdminDashboard() {
       }
     }
 
-    if (activeTab === "users") {
-      fetchUsers();
-    }
-
     return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
@@ -372,6 +360,12 @@ function AdminDashboard() {
     };
   }, [activeTab, ownerId, monthlyRevenue, topCourtsRevenue, topCustomers, selectedRole]);
 
+  useEffect(() => {
+    if (activeTab === "users") {
+      fetchUsers();
+    }
+  }, [activeTab, selectedRole]);
+
   const fetchCourts = async () => {
     try {
       const response = await courtAPI.getAllCourts();
@@ -382,6 +376,35 @@ function AdminDashboard() {
     }
   };
 
+  const handleCourtMenuOpen = (event, court) => {
+    setCourtMenuAnchor(event.currentTarget);
+    setSelectedCourtForStatus(court);
+  };
+
+  const handleCourtMenuClose = () => {
+    setCourtMenuAnchor(null);
+    setSelectedCourtForStatus(null);
+  };
+
+  const handleCourtStatusChange = async (status) => {
+    if (!selectedCourtForStatus) {
+      console.log("No court selected for status change.");
+      return;
+    }
+
+    console.log(`Attempting to change status for court ID: ${selectedCourtForStatus.id} to ${status}`);
+    try {
+      const response = await courtAPI.updateCourtStatus(selectedCourtForStatus.id, status);
+      console.log("Court status update API response:", response.data);
+      toast.success(`Court status updated to ${status}`);
+      fetchCourts();
+    } catch (error) {
+      console.error("Failed to update court status:", error);
+      toast.error("Failed to update court status");
+    }
+    handleCourtMenuClose();
+  };
+
   const fetchUsers = async () => {
     try {
       let response;
@@ -390,34 +413,12 @@ function AdminDashboard() {
       } else {
         response = await adminAPI.getUsersByRole(selectedRole);
       }
+      // Filter out the current user from the list
       const filteredUsers = response.data.filter(user => user.id !== currentUser.id);
       setUsers(filteredUsers);
     } catch (error) {
       console.error("Failed to fetch users:", error);
       toast.error("Failed to fetch users");
-    }
-  };
-
-  const handleOpenDialog = (court = null) => {
-    setSelectedCourt(court);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setSelectedCourt(null);
-    setOpenDialog(false);
-  };
-
-  const handleDeleteCourt = async (id) => {
-    if (window.confirm("Are you sure you want to delete this court?")) {
-      try {
-        await courtAPI.deleteCourt(id);
-        toast.success("Court deleted successfully");
-        fetchCourts();
-      } catch (error) {
-        console.error("Failed to delete court:", error);
-        toast.error("Failed to delete court");
-      }
     }
   };
 
@@ -476,16 +477,6 @@ function AdminDashboard() {
                 <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                   Quản lý sân Pickleball
                 </Typography>
-                <Button
-                  variant="contained"
-                  onClick={() => handleOpenDialog()}
-                  sx={{
-                    backgroundColor: "#4263eb",
-                    "&:hover": { backgroundColor: "#2541b2" },
-                  }}
-                >
-                  <i className="fas fa-plus"></i> Thêm sân
-                </Button>
               </Box>
 
               <Grid container spacing={3}>
@@ -493,7 +484,7 @@ function AdminDashboard() {
                   <Grid item xs={12} sm={6} md={4} key={court.id}>
                     <Paper
                       elevation={3}
-                      sx={{
+                      sx={{ 
                         p: 2,
                         borderRadius: 2,
                         display: "flex",
@@ -503,18 +494,29 @@ function AdminDashboard() {
                         justifyContent: "space-between",
                         width: "366px",
                         margin: "auto",
+                        position: "relative",
                       }}
                     >
-                      <img
-                        src={court.imageUrls?.[0] || "https://via.placeholder.com/300x200"}
-                        alt={court.name}
-                        style={{
-                          width: "100%",
-                          height: "200px",
-                          objectFit: "cover",
-                          borderRadius: "8px",
-                        }}
-                      />
+                      <Box sx={{ position: 'relative' }}>
+                        <img
+                          src={court.imageUrls?.[0] || "https://via.placeholder.com/300x200"}
+                          alt={court.name}
+                          style={{
+                            width: "100%",
+                            height: "200px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+                          <Chip
+                            label={court.status === 'AVAILABLE' ? 'Sân trống' : court.status === 'UNAVAILABLE' ? 'Không khả dụng' : 'Đang bảo trì'}
+                            color={court.status === 'AVAILABLE' ? 'success' : court.status === 'UNAVAILABLE' ? 'error' : 'warning'}
+                            size="small"
+                            sx={{ fontWeight: 'bold' }}
+                          />
+                        </Box>
+                      </Box>
                       <Typography variant="h6" sx={{ mt: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                         {court.name}
                       </Typography>
@@ -523,46 +525,44 @@ function AdminDashboard() {
                         {court.hourlyPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '0 VND'}/slot
                       </Typography>
                       <Typography variant="body2" sx={{ mt: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
-                        <strong>Giờ hoạt động:</strong> 5:00 - 23:00
+                        <strong>Giờ hoạt động:</strong> {court.openingTime} - {court.closingTime}
                       </Typography>
                       {court.subCourts && court.subCourts.length > 0 && (
                         <Typography variant="body2" sx={{ mt: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                           <strong>Sân con:</strong> {court.subCourts.map((subCourt) => subCourt.name).join(", ")}
                         </Typography>
                       )}
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-                        <Button
-                          variant="outlined"
-                          sx={{
-                            borderRadius: "50px",
-                            width: "48%",
-                            background: "#fff",
-                            color: "#4263eb",
-                            border: "2px solid #4263eb",
-                            "&:hover": { background: "#4263eb", color: "#fff" },
-                          }}
-                          onClick={() => handleOpenDialog(court)}
+                      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleCourtMenuOpen(e, court)}
+                          sx={{ width: "auto", borderRadius: "50px", border: "2px solid #ccc" }}
                         >
-                          <i className="fas fa-edit"></i> Sửa
-                        </Button>
-                        <Button
-                          variant="contained"
-                          sx={{
-                            borderRadius: "50px",
-                            width: "48%",
-                            backgroundColor: "#dc3545",
-                            "&:hover": { backgroundColor: "#c82333" },
-                          }}
-                          onClick={() => handleDeleteCourt(court.id)}
-                        >
-                          <i className="fas fa-trash"></i> Xóa
-                        </Button>
+                          <MoreVertIcon />
+                        </IconButton>
                       </Box>
                     </Paper>
                   </Grid>
                 ))}
               </Grid>
             </Box>
+
+            {/* Court Status Change Menu */}
+            <Menu
+              anchorEl={courtMenuAnchor}
+              open={Boolean(courtMenuAnchor)}
+              onClose={handleCourtMenuClose}
+            >
+              <MenuItem onClick={() => handleCourtStatusChange("AVAILABLE")}>
+                Sân trống
+              </MenuItem>
+              <MenuItem onClick={() => handleCourtStatusChange("UNAVAILABLE")}>
+                Không khả dụng
+              </MenuItem>
+              <MenuItem onClick={() => handleCourtStatusChange("MAINTENANCE")}>
+                Đang bảo trì
+              </MenuItem>
+            </Menu>
           </div>
         );
       case "users":
@@ -793,12 +793,6 @@ function AdminDashboard() {
         </div>
       </div>
       <div className="main-content">{renderContent()}</div>
-      <CourtFormDialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        court={selectedCourt}
-        onSuccess={fetchCourts}
-      />
     </div>
   );
 }

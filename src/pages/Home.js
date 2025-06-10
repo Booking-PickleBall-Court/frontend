@@ -25,8 +25,10 @@ const Home = () => {
     const fetchCourts = async () => {
       try {
         const response = await courtAPI.getAllCourts();
-        setAllVenues(response.data);
-        setFilteredVenues(response.data);
+        // Filter for available courts only
+        const availableCourts = response.data.filter(court => court.status === "AVAILABLE");
+        setAllVenues(availableCourts);
+        setFilteredVenues(availableCourts);
       } catch (error) {
         console.error("Error fetching court data:", error);
       } finally {
@@ -40,7 +42,7 @@ const Home = () => {
     (str || "")
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\u0300-\u036f/g, "")
       .replace(/đ/g, "d")
       .replace(/[^a-z0-9\s]/g, "");
 
