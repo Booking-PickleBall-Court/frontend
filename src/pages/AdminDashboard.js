@@ -50,6 +50,12 @@ function AdminDashboard() {
   const [newRole, setNewRole] = useState("");
   const [courtMenuAnchor, setCourtMenuAnchor] = useState(null);
   const [selectedCourtForStatus, setSelectedCourtForStatus] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalRevenue: 0,
+    courtCount: 0,
+    userCount: 0,
+    activeCourtCount: 0
+  });
 
   const chartRef = useRef(null);
   const topCourtsChartRef = useRef(null);
@@ -70,11 +76,27 @@ function AdminDashboard() {
       }
     };
     fetchOwnerAndCourts();
+  }, []);
 
-    const rootStyles = getComputedStyle(document.documentElement);
-    const primaryBlue = rootStyles.getPropertyValue("--primary-blue").trim();
-    const textMedium = rootStyles.getPropertyValue("--text-medium").trim();
-    const textDark = rootStyles.getPropertyValue("--text-dark").trim();
+  useEffect(() => {
+    if (activeTab === "revenue") {
+      const fetchData = async () => {
+        try {
+          const dashboardRes = await adminAPI.getDashboardStats();
+          setDashboardStats(dashboardRes.data);
+          setMonthlyRevenue(dashboardRes.data.monthlyRevenue);
+          setTopCourtsRevenue(dashboardRes.data.topCourts);
+          setTopCustomers(dashboardRes.data.topCustomers);
+        } catch (error) {
+          console.error("Failed to fetch dashboard data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== "revenue") return;
 
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
@@ -89,276 +111,267 @@ function AdminDashboard() {
       topUsersChartInstanceRef.current = null;
     }
 
-    const fetchDataForRevenue = async () => {
-      if (ownerId) {
-        try {
-          const monthlyRevenueRes = await courtAPI.getMonthlyRevenueByCourt(ownerId);
-          setMonthlyRevenue(monthlyRevenueRes.data);
-
-          const topCourtsRes = await courtAPI.getOwnerRevenue(ownerId);
-          setTopCourtsRevenue(topCourtsRes.data);
-
-          const topCustomersRes = await courtAPI.getTopCustomersByOwner(ownerId);
-          setTopCustomers(topCustomersRes.data);
-
-        } catch (error) {
-          console.error("Failed to fetch revenue data:", error);
-        }
-      }
-    };
-
-    if (activeTab === "revenue") {
-      fetchDataForRevenue();
-      if (chartRef.current) {
-        const ctx = chartRef.current.getContext("2d");
-        const lineChartOptions = {
-          type: "line",
-          data: {
-            labels: monthlyRevenue?.map(data => data.month) || [],
-            datasets: [
-              {
-                label: "Doanh thu (VND)",
-                data: monthlyRevenue?.map(data => data.revenue) || [],
-                fill: false,
-                borderColor: primaryBlue,
-                backgroundColor: primaryBlue,
-                tension: 0.4,
-                borderWidth: 2,
-                pointBackgroundColor: "#ffffff",
-                pointBorderColor: primaryBlue,
-                pointBorderWidth: 2,
-                pointRadius: 4,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: "Tháng",
-                  color: textMedium,
-                  font: {
-                    size: 14,
-                  },
-                },
-                ticks: {
-                  color: textMedium,
-                },
-                grid: {
-                  color: "rgba(0,0,0,0.05)",
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "Doanh thu (VND)",
-                  color: textMedium,
-                  font: {
-                    size: 14,
-                  },
-                },
-                ticks: {
-                  color: textMedium,
-                  callback: function (value) {
-                    return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-                  },
-                },
-                beginAtZero: true,
-                grid: {
-                  color: "rgba(0,0,0,0.05)",
-                },
-              },
+    if (chartRef.current && monthlyRevenue && monthlyRevenue.length > 0) {
+      const ctx = chartRef.current.getContext("2d");
+      const rootStyles = getComputedStyle(document.documentElement);
+      const primaryBlue = rootStyles.getPropertyValue("--primary-blue").trim() || "#1976d2";
+      const textMedium = rootStyles.getPropertyValue("--text-medium").trim() || "#666";
+      const textDark = rootStyles.getPropertyValue("--text-dark").trim() || "#222";
+      chartInstanceRef.current = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: monthlyRevenue.map(data => {
+            const date = new Date(data.month);
+            return date.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+          }),
+          datasets: [
+            {
+              label: "Doanh thu (VND)",
+              data: monthlyRevenue.map(data => data.totalRevenue),
+              fill: false,
+              borderColor: primaryBlue,
+              backgroundColor: primaryBlue,
+              tension: 0.4,
+              borderWidth: 2,
+              pointBackgroundColor: "#ffffff",
+              pointBorderColor: primaryBlue,
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              yAxisID: 'y',
             },
-            plugins: {
-              legend: {
-                labels: {
-                  color: textDark,
-                  font: {
-                    size: 14,
-                  },
-                },
+            {
+              label: "Số lượt đặt",
+              data: monthlyRevenue.map(data => data.totalBookings),
+              fill: false,
+              borderColor: "#2e7d32",
+              backgroundColor: "#2e7d32",
+              tension: 0.4,
+              borderWidth: 2,
+              pointBackgroundColor: "#ffffff",
+              pointBorderColor: "#2e7d32",
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              yAxisID: 'y1',
+            }
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Tháng",
+                color: textMedium,
+                font: { size: 14 },
               },
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    return (
-                      context.dataset.label +
-                      ": " +
-                      context.parsed.y.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
-                    );
-                  },
-                },
+              ticks: { color: textMedium },
+              grid: { color: "rgba(0,0,0,0.05)" },
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: {
+                display: true,
+                text: "Doanh thu (VND)",
+                color: textMedium,
+                font: { size: 14 },
               },
+              ticks: {
+                color: textMedium,
+                callback: value => value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+              },
+              beginAtZero: true,
+              grid: { color: "rgba(0,0,0,0.05)" },
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              title: {
+                display: true,
+                text: "Số lượt đặt",
+                color: textMedium,
+                font: { size: 14 },
+              },
+              ticks: { color: textMedium },
+              beginAtZero: true,
+              grid: { drawOnChartArea: false },
             },
           },
-        };
-        console.log("Line Chart Options:", lineChartOptions);
-        chartInstanceRef.current = new Chart(ctx, lineChartOptions);
-      }
-
-      if (topCourtsChartRef.current) {
-        const ctx = topCourtsChartRef.current.getContext("2d");
-        const topCourtsChartOptions = {
-          type: "bar",
-          data: {
-            labels: topCourtsRevenue?.map(data => data.courtName) || [],
-            datasets: [
-              {
-                label: "Tổng doanh thu (VND)",
-                data: topCourtsRevenue?.map(data => data.totalRevenue) || [],
-                backgroundColor: "#fbbc05",
-                borderColor: "#f5a623",
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: "y",
-            scales: {
-              x: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "Tổng doanh thu (VND)",
-                  color: textMedium,
-                },
-                ticks: {
-                  color: textMedium,
-                  callback: function (value) {
-                    return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-                  },
-                },
-                grid: {
-                  color: "rgba(0,0,0,0.05)",
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "Sân",
-                  color: textMedium,
-                },
-                ticks: {
-                  color: textMedium,
-                },
-                grid: {
-                  color: "rgba(0,0,0,0.05)",
-                },
-              },
+          plugins: {
+            legend: {
+              labels: { color: textDark, font: { size: 14 } },
             },
-            plugins: {
-              legend: {
-                display: false,
-              },
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    return (
-                      context.dataset.label +
-                      ": " +
-                      context.parsed.x.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
-                    );
-                  },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  if (context.dataset.label === "Doanh thu (VND)") {
+                    return context.dataset.label + ": " + context.parsed.y.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                  }
+                  return context.dataset.label + ": " + context.parsed.y;
                 },
               },
             },
           },
-        };
-        console.log("Top Courts Chart Options:", topCourtsChartOptions);
-        topCourtsChartInstanceRef.current = new Chart(
-          ctx,
-          topCourtsChartOptions
-        );
-      }
-
-      if (topUsersChartRef.current) {
-        const ctx = topUsersChartRef.current.getContext("2d");
-        const topUsersChartOptions = {
-          type: "bar",
-          data: {
-            labels: topCustomers?.map(data => data.customerName) || [],
-            datasets: [
-              {
-                label: "Số lượt đặt",
-                data: topCustomers?.map(data => data.totalBookings) || [],
-                backgroundColor: "#fbbc05",
-                borderColor: "#f5a623",
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: "y",
-            scales: {
-              x: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "Số lượt đặt",
-                  color: textMedium,
-                },
-                ticks: {
-                  color: textMedium,
-                },
-                grid: {
-                  color: "rgba(0,0,0,0.05)",
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "Khách hàng",
-                  color: textMedium,
-                },
-                ticks: {
-                  color: textMedium,
-                },
-                grid: {
-                  color: "rgba(0,0,0,0.05)",
-                },
-              },
-            },
-            plugins: {
-              legend: {
-                display: false,
-              },
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    return context.dataset.label + ": " + context.parsed.x;
-                  },
-                },
-              },
-            },
-          },
-        };
-        console.log("Top Users Chart Options:", topUsersChartOptions);
-        topUsersChartInstanceRef.current = new Chart(ctx, topUsersChartOptions);
-      }
+        },
+      });
     }
 
-    return () => {
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy();
-        chartInstanceRef.current = null;
-      }
-      if (topCourtsChartInstanceRef.current) {
-        topCourtsChartInstanceRef.current.destroy();
-        topCourtsChartInstanceRef.current = null;
-      }
-      if (topUsersChartInstanceRef.current) {
-        topUsersChartInstanceRef.current.destroy();
-        topUsersChartInstanceRef.current = null;
-      }
-    };
-  }, [activeTab, ownerId, monthlyRevenue, topCourtsRevenue, topCustomers, selectedRole]);
+    if (topCourtsChartRef.current && topCourtsRevenue && topCourtsRevenue.length > 0) {
+      const ctx = topCourtsChartRef.current.getContext("2d");
+      const rootStyles = getComputedStyle(document.documentElement);
+      const textMedium = rootStyles.getPropertyValue("--text-medium").trim() || "#666";
+      const textDark = rootStyles.getPropertyValue("--text-dark").trim() || "#222";
+      topCourtsChartInstanceRef.current = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: topCourtsRevenue.map(data => data.courtName),
+          datasets: [
+            {
+              label: "Doanh thu (VND)",
+              data: topCourtsRevenue.map(data => data.totalRevenue),
+              backgroundColor: "#fbbc05",
+              borderColor: "#f5a623",
+              borderWidth: 1,
+              yAxisID: 'y',
+            },
+            {
+              label: "Số lượt đặt",
+              data: topCourtsRevenue.map(data => data.totalBookings),
+              backgroundColor: "#34a853",
+              borderColor: "#2e7d32",
+              borderWidth: 1,
+              yAxisID: 'y1',
+            }
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: { display: true, text: "Sân", color: textMedium },
+              ticks: { color: textMedium },
+              grid: { color: "rgba(0,0,0,0.05)" },
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: { display: true, text: "Doanh thu (VND)", color: textMedium },
+              ticks: {
+                color: textMedium,
+                callback: value => value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+              },
+              beginAtZero: true,
+              grid: { color: "rgba(0,0,0,0.05)" },
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              title: { display: true, text: "Số lượt đặt", color: textMedium },
+              ticks: { color: textMedium },
+              beginAtZero: true,
+              grid: { drawOnChartArea: false },
+            },
+          },
+          plugins: {
+            legend: { labels: { color: textDark, font: { size: 14 } } },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  if (context.dataset.label === "Doanh thu (VND)") {
+                    return context.dataset.label + ": " + context.parsed.y.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                  }
+                  return context.dataset.label + ": " + context.parsed.y;
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    if (topUsersChartRef.current && topCustomers && topCustomers.length > 0) {
+      const ctx = topUsersChartRef.current.getContext("2d");
+      const rootStyles = getComputedStyle(document.documentElement);
+      const textMedium = rootStyles.getPropertyValue("--text-medium").trim() || "#666";
+      const textDark = rootStyles.getPropertyValue("--text-dark").trim() || "#222";
+      topUsersChartInstanceRef.current = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: topCustomers.map(data => data.customerName),
+          datasets: [
+            {
+              label: "Số lượt đặt",
+              data: topCustomers.map(data => data.totalBookings),
+              backgroundColor: "#fbbc05",
+              borderColor: "#f5a623",
+              borderWidth: 1,
+              yAxisID: 'y',
+            },
+            {
+              label: "Tổng chi tiêu",
+              data: topCustomers.map(data => data.totalSpent),
+              backgroundColor: "#34a853",
+              borderColor: "#2e7d32",
+              borderWidth: 1,
+              yAxisID: 'y1',
+            }
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: { display: true, text: "Khách hàng", color: textMedium },
+              ticks: { color: textMedium },
+              grid: { color: "rgba(0,0,0,0.05)" },
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: { display: true, text: "Số lượt đặt", color: textMedium },
+              ticks: { color: textMedium },
+              beginAtZero: true,
+              grid: { color: "rgba(0,0,0,0.05)" },
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              title: { display: true, text: "Tổng chi tiêu (VND)", color: textMedium },
+              ticks: {
+                color: textMedium,
+                callback: value => value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+              },
+              beginAtZero: true,
+              grid: { drawOnChartArea: false },
+            },
+          },
+          plugins: {
+            legend: { labels: { color: textDark, font: { size: 14 } } },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  if (context.dataset.label === "Tổng chi tiêu") {
+                    return context.dataset.label + ": " + context.parsed.y.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                  }
+                  return context.dataset.label + ": " + context.parsed.y;
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+  }, [monthlyRevenue, topCourtsRevenue, topCustomers, activeTab]);
 
   useEffect(() => {
     if (activeTab === "users") {
@@ -729,26 +742,115 @@ function AdminDashboard() {
         return (
           <div className="content-wrapper">
             <h2 className="content-title">Thống kê doanh thu</h2>
-            <div className="chart-section">
-              <h3 className="chart-title">Doanh thu hàng tháng</h3>
-              <div className="chart-container">
-                <canvas ref={chartRef}></canvas>
-              </div>
-            </div>
+            
+            {/* Statistics Cards */}
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 3,
+                    borderRadius: 2,
+                    textAlign: "center",
+                    bgcolor: "#f8f9fa",
+                  }}
+                >
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Tổng doanh thu
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: "bold", color: "#1976d2" }}>
+                    {dashboardStats.totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 3,
+                    borderRadius: 2,
+                    textAlign: "center",
+                    bgcolor: "#f8f9fa",
+                  }}
+                >
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Số sân
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: "bold", color: "#2e7d32" }}>
+                    {dashboardStats.courtCount}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 3,
+                    borderRadius: 2,
+                    textAlign: "center",
+                    bgcolor: "#f8f9fa",
+                  }}
+                >
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Số người dùng
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: "bold", color: "#ed6c02" }}>
+                    {dashboardStats.userCount}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 3,
+                    borderRadius: 2,
+                    textAlign: "center",
+                    bgcolor: "#f8f9fa",
+                  }}
+                >
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Sân đang hoạt động
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: "bold", color: "#9c27b0" }}>
+                    {dashboardStats.activeCourtCount}
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
 
-            <div className="section-spacing">
-              <h3 className="chart-title">Top sân thu nhập cao nhất</h3>
-              <div className="chart-container">
-                <canvas ref={topCourtsChartRef}></canvas>
-              </div>
-            </div>
-
-            <div className="section-spacing">
-              <h3 className="chart-title">Top 5 người đặt sân nhiều nhất</h3>
-              <div className="chart-container">
-                <canvas ref={topUsersChartRef}></canvas>
-              </div>
-            </div>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Doanh thu theo tháng
+                  </Typography>
+                  <div style={{ height: "300px" }}>
+                    <canvas ref={chartRef}></canvas>
+                  </div>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Top sân doanh thu cao nhất
+                  </Typography>
+                  <div style={{ height: "300px" }}>
+                    <canvas ref={topCourtsChartRef}></canvas>
+                  </div>
+                </Paper>
+              </Grid>
+              <Grid item xs={12}>
+                <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Top 5 khách hàng đặt sân nhiều nhất
+                  </Typography>
+                  <div style={{ height: "300px" }}>
+                    <canvas ref={topUsersChartRef}></canvas>
+                  </div>
+                </Paper>
+              </Grid>
+            </Grid>
           </div>
         );
       default:

@@ -124,6 +124,7 @@ export const adminAPI = {
   getUsersByRole: (role) => api.get(`/admin/users/role/${role}`),
   updateUserStatus: (userId, status) => api.put(`/admin/users/${userId}/status`, null, { params: { status } }),
   updateUserRole: (userId, role) => api.put(`/admin/users/${userId}/role`, null, { params: { role } }),
+  getDashboardStats: () => api.get("/admin/dashboard"),
 };
 
 export default api;
