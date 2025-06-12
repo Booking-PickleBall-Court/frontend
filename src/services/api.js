@@ -7,15 +7,18 @@ const api = axios.create({
 });
 
 // Request interceptor
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+);
 
 // Response interceptor
 api.interceptors.response.use(
@@ -40,11 +43,12 @@ export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   register: (data) => api.post("/auth/register", data),
   getCurrentUser: () => api.get("/auth/me"),
-  updateProfile: (data) => api.put("/auth/updateProfile", data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  updateProfile: (data) =>
+    api.put("/auth/updateProfile", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
   getUserStats: () => api.get("/users/me/stats"),
 };
 
@@ -86,9 +90,12 @@ export const courtAPI = {
   updateCourt: (id, data) => api.put(`/courts/${id}`, data),
   deleteCourt: (id) => api.delete(`/courts/${id}`),
   getOwnerRevenue: (ownerId) => api.get(`/courts/owner/${ownerId}/revenue`),
-  getMonthlyRevenueByCourt: (courtId) => api.get(`/courts/${courtId}/monthly-revenue`),
-  getTopCustomersByOwner: (ownerId) => api.get(`/courts/owner/${ownerId}/top-customers`),
-  updateCourtStatus: (id, status) => api.put(`/courts/${id}/status`, null, { params: { status } }),
+  getMonthlyRevenueByCourt: (courtId) =>
+    api.get(`/courts/${courtId}/monthly-revenue`),
+  getTopCustomersByOwner: (ownerId) =>
+    api.get(`/courts/owner/${ownerId}/top-customers`),
+  updateCourtStatus: (id, status) =>
+    api.put(`/courts/${id}/status`, null, { params: { status } }),
 };
 
 export const bookingAPI = {
@@ -106,6 +113,7 @@ export const bookingAPI = {
   getBookedSlots: (courtId, date) =>
     api.get(`/bookings/slots`, { params: { courtId, date } }),
   getOwnerBookings: (ownerId) => api.get(`/bookings/owner/${ownerId}`),
+  createOwnerBooking: (data) => api.post("/bookings/owner/create-multi", data),
 };
 
 export const paymentAPI = {
@@ -122,8 +130,10 @@ export const paymentAPI = {
 export const adminAPI = {
   getAllUsers: () => api.get("/admin/users"),
   getUsersByRole: (role) => api.get(`/admin/users/role/${role}`),
-  updateUserStatus: (userId, status) => api.put(`/admin/users/${userId}/status`, null, { params: { status } }),
-  updateUserRole: (userId, role) => api.put(`/admin/users/${userId}/role`, null, { params: { role } }),
+  updateUserStatus: (userId, status) =>
+    api.put(`/admin/users/${userId}/status`, null, { params: { status } }),
+  updateUserRole: (userId, role) =>
+    api.put(`/admin/users/${userId}/role`, null, { params: { role } }),
   getDashboardStats: () => api.get("/admin/dashboard"),
 };
 

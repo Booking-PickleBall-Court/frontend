@@ -19,7 +19,7 @@ function OwnerBookingHistory() {
         const res = await bookingAPI.getOwnerBookings(ownerId);
         setBookings(res.data);
       } catch (error) {
-        setError("Failed to fetch booking history.");
+        setError("Empty booking history.");
         console.error("Fetching owner booking history failed:", error);
       } finally {
         setLoading(false);
@@ -34,7 +34,7 @@ function OwnerBookingHistory() {
   }
 
   if (error) {
-    return <div className="container error">Error: {error}</div>;
+    return <div className="container error">{error}</div>;
   }
 
   return (

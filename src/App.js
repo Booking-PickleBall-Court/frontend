@@ -29,6 +29,7 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerBookingHistory from "./pages/OwnerBookingHistory";
 import ScheduleCalendar from "./pages/ScheduleCalendar";
+import CourtCalendarManagement from "./pages/CourtCalendarManagement";
 
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -220,6 +221,14 @@ function AppContent() {
             element={
               <PageWrapper>
                 <ScheduleCalendar />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/court-schedule/:courtId"
+            element={
+              <PageWrapper>
+                <CourtCalendarManagement />
               </PageWrapper>
             }
           />

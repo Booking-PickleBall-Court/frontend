@@ -444,6 +444,7 @@ function Profile() {
               </Avatar>
 
               <Box
+                component="label"
                 sx={{
                   position: "absolute",
                   bottom: 8,
@@ -459,21 +460,33 @@ function Profile() {
                   cursor: "pointer",
                   zIndex: 2,
                 }}
-                onClick={() => setEditMode(true)}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M17 3a2.828 2.828 0 0 1 4 4L7 21H3v-4L17 3z" />
-                </svg>
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const formDataToSend = new FormData();
+                    formDataToSend.append("avatar", file);
+
+                    try {
+                      const response = await authAPI.updateProfile(
+                        formDataToSend
+                      );
+                      login(response.data); 
+                      toast.success("Avatar updated successfully!");
+                    } catch (err) {
+                      toast.error(
+                        err.response?.data?.message ||
+                          "Failed to update avatar."
+                      );
+                    }
+                  }}
+                />
+                <Edit fontSize="small" />
               </Box>
             </Box>
 

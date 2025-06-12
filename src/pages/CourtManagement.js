@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import CourtFormDialog from "./CourtFormDialog";
 import { courtAPI, authAPI } from "../services/api";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -41,6 +42,7 @@ const CourtManagement = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentUser, setCurrentUser] = useState(null);
   const theme = useTheme();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCurrentUser();
@@ -100,6 +102,10 @@ const CourtManagement = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleCourtClick = (courtId) => {
+    navigate(`/court-schedule/${courtId}`);
   };
 
   return (
@@ -331,7 +337,13 @@ const CourtManagement = () => {
                                 sx={{
                                   fontWeight: "medium",
                                   fontSize: "1.1rem",
+                                  cursor: "pointer",
+                                  color: theme.palette.primary.main,
+                                  "&:hover": {
+                                    textDecoration: "underline",
+                                  },
                                 }}
+                                onClick={() => handleCourtClick(court.id)}
                               >
                                 {court.name}
                               </TableCell>
