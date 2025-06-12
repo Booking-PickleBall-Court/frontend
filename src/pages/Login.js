@@ -37,10 +37,15 @@ function Login() {
 
     try {
       const response = await authAPI.login(formData);
-      const { token, id, email, fullName, role, avatarUrl, phoneNumber } = response.data;
+      const { token, id, email, fullName, role, avatarUrl, phoneNumber } =
+        response.data;
 
       localStorage.setItem("token", token);
       login({ id, email, fullName, role, avatarUrl, phoneNumber });
+
+      const meResponse = await authAPI.getCurrentUser();
+
+      login(meResponse.data);
 
       if (role === "ADMIN") {
         navigate("/admin");
