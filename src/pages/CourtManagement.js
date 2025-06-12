@@ -28,7 +28,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import ImageIcon from "@mui/icons-material/Image";
 import { toast } from "react-toastify";
 import CourtFormDialog from "./CourtFormDialog";
-import { courtAPI } from "../services/api";
+import { courtAPI, authAPI } from "../services/api";
 import { useTheme } from "@mui/material/styles";
 
 const drawerWidth = 240;
@@ -39,15 +39,31 @@ const CourtManagement = () => {
   const [selectedCourt, setSelectedCourt] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [currentUser, setCurrentUser] = useState(null);
   const theme = useTheme();
 
   useEffect(() => {
-    fetchCourts();
+    fetchCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchCourts();
+    }
+  }, [currentUser]);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await authAPI.getCurrentUser();
+      setCurrentUser(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch user information");
+    }
+  };
 
   const fetchCourts = async () => {
     try {
-      const response = await courtAPI.getAllCourts();
+      const response = await courtAPI.getCourtsByOwner(currentUser.id);
       console.log("Courts data:", response.data);
       setCourts(response.data);
     } catch (error) {
