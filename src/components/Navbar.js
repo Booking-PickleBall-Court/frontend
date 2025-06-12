@@ -143,7 +143,18 @@ function Navbar() {
                 </Typography>
 
                 <IconButton onClick={handleAvatarClick}>
-                  <Avatar src={user.avatarUrl}>
+                  <Avatar 
+                    src={user.avatarUrl}
+                    onError={(e) => {
+                      console.error("Navbar Avatar load error:", e);
+                      e.target.src = ''; // Clear the src to show the fallback
+                    }}
+                    sx={{ 
+                      width: 40, 
+                      height: 40,
+                      bgcolor: user.avatarUrl ? 'transparent' : '#2563eb'
+                    }}
+                  >
                     {user.fullName?.charAt(0) || "U"}
                   </Avatar>
                 </IconButton>

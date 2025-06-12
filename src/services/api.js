@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://picklenet-api.onrender.com/api";
+const API_URL = "http://localhost:8080/api";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -19,7 +19,11 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log response data for debugging
+    console.log("API Response:", response.data);
+    return response;
+  },
   (error) => {
     if (error.response?.status === 403) {
       // Clear invalid token
@@ -36,7 +40,11 @@ export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   register: (data) => api.post("/auth/register", data),
   getCurrentUser: () => api.get("/auth/me"),
-  updateProfile: (data) => api.put("/auth/profile", data),
+  updateProfile: (data) => api.put("/auth/updateProfile", data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
   getUserStats: () => api.get("/users/me/stats"),
 };
 

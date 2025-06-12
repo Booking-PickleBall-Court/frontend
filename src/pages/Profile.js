@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   Container,
   Paper,
@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  IconButton,
 } from "@mui/material";
 import {
   Folder,
@@ -25,6 +26,7 @@ import {
   Dashboard as DashboardIcon,
   Business as BusinessIcon,
   History as HistoryIcon,
+  PhotoCamera,
 } from "@mui/icons-material";
 import { authAPI } from "../services/api";
 import Sidebar from "../components/Sidebar";
@@ -34,8 +36,6 @@ import { toast } from "react-toastify";
 
 const accountSettings = [
   { label: "Edit Profile", key: "editProfile", icon: <Edit /> },
-  { label: "Change Password", key: "changePassword", icon: <Lock /> },
-  { label: "Language", key: "language", icon: <Language /> },
 ];
 
 function Profile() {
@@ -49,15 +49,14 @@ function Profile() {
     fullName: "",
     email: "",
     phoneNumber: "",
-  });
-  const [userStats, setUserStats] = useState({
-    totalBookings: 0,
-    totalBookingHours: 0,
-    totalGamesJoined: 0,
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const [selectedKey, setSelectedKey] = useState("profile");
   const navigate = useNavigate();
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
 
   const ownerSidebarItems = [
     { label: "Dashboard", key: "ownerDashboard", icon: <DashboardIcon /> },
@@ -70,10 +69,10 @@ function Profile() {
   ];
 
   const clientSidebarItems = [
-    { 
-      label: authUser?.role === "ADMIN" ? "Admin Dashboard" : "Home", 
-      key: authUser?.role === "ADMIN" ? "adminDashboard" : "home", 
-      icon: <Home /> 
+    {
+      label: authUser?.role === "ADMIN" ? "Admin Dashboard" : "Home",
+      key: authUser?.role === "ADMIN" ? "adminDashboard" : "home",
+      icon: <Home />,
     },
     { label: "My Bookings", key: "bookings", icon: <Folder /> },
   ];
@@ -91,39 +90,11 @@ function Profile() {
         email: authUser.email || "",
         phoneNumber: authUser.phoneNumber || "",
       });
-      fetchUserStats(); // Fetch user stats when user is authenticated
       setLoading(false);
     } else {
-      // Optionally redirect to login or handle unauthenticated state
-      setLoading(false); 
+      setLoading(false);
     }
   }, [authUser]);
-
-  const fetchUserStats = async () => {
-    try {
-      const response = await authAPI.getUserStats();
-      setUserStats(response.data);
-    } catch (err) {
-      console.error("Failed to fetch user stats:", err);
-      toast.error("Failed to fetch user statistics.");
-    }
-  };
-
-  const fetchUserProfile = async () => {
-    try {
-      const response = await authAPI.getCurrentUser();
-      setUser(response.data);
-      login(response.data);
-      setFormData({
-        fullName: response.data.fullName || "",
-        email: response.data.email || "",
-        phoneNumber: response.data.phoneNumber || "",
-      });
-    } catch (err) {
-      setError("Failed to fetch user profile");
-      toast.error("Failed to fetch user profile.");
-    }
-  };
 
   const handleChange = (e) => {
     setFormData({
@@ -136,10 +107,13 @@ function Profile() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       setEditMode(false);
-      await fetchUserProfile();
+      const response = await authAPI.updateProfile(formData);
+      login(response.data);
+      setUser(response.data);
+      toast.success("Profile updated successfully!");
+      setOpenEditModal(false);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update profile");
       toast.error(err.response?.data?.message || "Failed to update profile.");
@@ -175,7 +149,7 @@ function Profile() {
   };
 
   const handleLogout = () => {
-    logout(); // Use the logout function from AuthContext
+    logout();
     navigate("/login");
   };
 
@@ -185,25 +159,6 @@ function Profile() {
 
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
-  };
-
-  const handleEditProfile = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const response = await authAPI.updateProfile(formData);
-      login(response.data); // Update user in context with new data
-      toast.success("Profile updated successfully!");
-      handleCloseEditModal();
-      setEditMode(false);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to update profile");
-      toast.error(err.response?.data?.message || "Failed to update profile.");
-    } finally {
-      setLoading(false);
-    }
   };
 
   if (loading) {
@@ -230,35 +185,69 @@ function Profile() {
         onEditProfile={handleOpenEditModal}
       />
 
-      {/* Edit Profile Modal */}
       <Dialog
         open={openEditModal}
         onClose={handleCloseEditModal}
         maxWidth="sm"
         fullWidth
-        PaperProps={{ 
-          sx: {
-            borderRadius: 2,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-          },
+        PaperProps={{
+          sx: { borderRadius: 3, boxShadow: 4, p: 2, background: "#f9f9f9" },
         }}
       >
         <DialogTitle
-          sx={{
-            borderBottom: "1px solid #eee",
-            pb: 2,
-            "& .MuiTypography-root": {
-              fontSize: "1.5rem",
-              fontWeight: 600,
-              color: "#1a1a1a",
-            },
-          }}
+          sx={{ fontWeight: 700, fontSize: 22, textAlign: "center", mb: 1 }}
         >
           Edit Profile
         </DialogTitle>
-        <DialogContent sx={{ pt: 3, pb: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+        <DialogContent>
+          <Grid container spacing={3}>
+            {/* Thông tin cá nhân */}
+            <Grid item xs={12} md={6}>
+              <Typography
+                variant="subtitle1"
+                fontWeight={600}
+                sx={{ mb: 2, color: "#2563eb" }}
+              >
+                Personal Info
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <Avatar
+                  src={
+                    selectedAvatar
+                      ? URL.createObjectURL(selectedAvatar)
+                      : user?.avatarUrl
+                  }
+                  alt={formData.fullName || "U"}
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    mb: 1,
+                    border: "2px solid #2563eb",
+                  }}
+                >
+                  {formData.fullName?.charAt(0) || "U"}
+                </Avatar>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  sx={{ borderRadius: 2, fontWeight: 500 }}
+                >
+                  Change Avatar
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={(e) => setSelectedAvatar(e.target.files[0])}
+                  />
+                </Button>
+              </Box>
               <TextField
                 label="Full Name"
                 name="fullName"
@@ -267,9 +256,8 @@ function Profile() {
                 fullWidth
                 variant="outlined"
                 size="small"
+                sx={{ mb: 2 }}
               />
-            </Grid>
-            <Grid item xs={12}>
               <TextField
                 label="Email"
                 name="email"
@@ -278,9 +266,8 @@ function Profile() {
                 fullWidth
                 variant="outlined"
                 size="small"
+                sx={{ mb: 2 }}
               />
-            </Grid>
-            <Grid item xs={12}>
               <TextField
                 label="Phone Number"
                 name="phoneNumber"
@@ -291,24 +278,109 @@ function Profile() {
                 size="small"
               />
             </Grid>
+            {/* Đổi mật khẩu */}
+            <Grid item xs={12} md={6}>
+              <Typography
+                variant="subtitle1"
+                fontWeight={600}
+                sx={{ mb: 2, color: "#2563eb" }}
+              >
+                Change Password
+              </Typography>
+              <TextField
+                label="Current Password"
+                name="currentPassword"
+                type="password"
+                value={formData.currentPassword || ""}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="New Password"
+                name="newPassword"
+                type="password"
+                value={formData.newPassword || ""}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="Confirm New Password"
+                name="confirmPassword"
+                type="password"
+                value={formData.confirmPassword || ""}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3, pt: 2 }}>
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
           <Button
             onClick={handleCloseEditModal}
             variant="outlined"
-            sx={{ textTransform: "none", borderRadius: 2 }}
+            sx={{ borderRadius: 2, px: 4 }}
           >
             Cancel
           </Button>
           <Button
-            onClick={handleEditProfile}
+            onClick={async (e) => {
+              e.preventDefault();
+              setError("");
+              setLoading(true);
+              try {
+                const formDataToSend = new FormData();
+                formDataToSend.append("fullName", formData.fullName);
+                formDataToSend.append("email", formData.email);
+                formDataToSend.append("phoneNumber", formData.phoneNumber);
+                if (selectedAvatar)
+                  formDataToSend.append("avatar", selectedAvatar);
+                if (
+                  formData.currentPassword &&
+                  formData.newPassword &&
+                  formData.confirmPassword
+                ) {
+                  if (formData.newPassword !== formData.confirmPassword) {
+                    toast.error("New passwords do not match!");
+                    setLoading(false);
+                    return;
+                  }
+                  formDataToSend.append(
+                    "currentPassword",
+                    formData.currentPassword
+                  );
+                  formDataToSend.append("newPassword", formData.newPassword);
+                }
+                const response = await authAPI.updateProfile(formDataToSend);
+                login(response.data);
+                setUser(response.data);
+                toast.success("Profile updated successfully!");
+                setOpenEditModal(false);
+                setSelectedAvatar(null);
+              } catch (err) {
+                setError(
+                  err.response?.data?.message || "Failed to update profile"
+                );
+                toast.error(
+                  err.response?.data?.message || "Failed to update profile."
+                );
+              } finally {
+                setLoading(false);
+              }
+            }}
             variant="contained"
             sx={{
-              textTransform: "none",
-              borderRadius: 2,
               background: "#2563eb",
-              "&:hover": { background: "#1746a2" },
+              borderRadius: 2,
+              px: 4,
+              fontWeight: 600,
             }}
           >
             Save Changes
@@ -414,41 +486,9 @@ function Profile() {
               >
                 {user?.fullName || "User Name"}
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 2, fontWeight: 400 }}
-              >
+              <Typography variant="body2" color="text.secondary">
                 {user?.email || "email@example.com"}
               </Typography>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 2,
-                  color: "text.secondary",
-                  fontStyle: "italic",
-                  mb: 3,
-                  fontSize: "0.9rem",
-                }}
-              >
-                <Box
-                  sx={{
-                    flex: 1,
-                    borderBottom: "2px solid #5372F0",
-                    maxWidth: 120,
-                  }}
-                />
-                <Box
-                  sx={{
-                    flex: 1,
-                    borderBottom: "2px solid #5372F0",
-                    maxWidth: 120,
-                  }}
-                />
-              </Box>
 
               <Box
                 sx={{
@@ -458,10 +498,9 @@ function Profile() {
                   fontWeight: 600,
                 }}
               >
-                {[ 
-                  { label: "bookings made", value: userStats.totalBookings },
-                  { label: "booking hours", value: userStats.totalBookingHours },
-                  { label: "games joined", value: userStats.totalGamesJoined },
+                {[
+                  { label: "Bookings", value: user?.paymentsMade },
+                  { label: "Hours", value: user?.bookingHours },
                 ].map((item, idx) => (
                   <React.Fragment key={item.label}>
                     <Box
@@ -480,7 +519,7 @@ function Profile() {
                         {item.label}
                       </Typography>
                     </Box>
-                    {idx !== 2 && (
+                    {idx !== 1 && (
                       <Box
                         sx={{
                           width: 1,
@@ -508,19 +547,16 @@ function Profile() {
                   mb={1}
                 >
                   <Typography fontWeight={600}>My Bookings</Typography>
-                  <Link href="#" underline="hover" fontSize="0.9rem">
+                  <Link href="/bookings" underline="hover" fontSize="0.9rem">
                     See all
                   </Link>
                 </Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  No booking made
-                </Typography>
                 <Typography variant="caption" sx={{ mb: 1, display: "block" }}>
                   Dive into the world of sports and start booking your favorite
                   venues.
                 </Typography>
                 <Link
-                  href="#"
+                  href="/"
                   underline="hover"
                   fontWeight={600}
                   fontSize="0.9rem"
@@ -539,13 +575,6 @@ function Profile() {
                   mb={1}
                 >
                   <Typography fontWeight={600}>My Contact</Typography>
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={() => setEditMode(true)}
-                  >
-                    Edit
-                  </Button>
                 </Box>
 
                 {!editMode ? (
@@ -555,9 +584,6 @@ function Profile() {
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>Phone:</strong> {user?.phoneNumber || "-"}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>Location:</strong> 11000
                     </Typography>
                   </>
                 ) : (

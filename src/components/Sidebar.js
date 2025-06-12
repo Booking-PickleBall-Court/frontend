@@ -21,10 +21,13 @@ const Sidebar = ({
   onSelect,
   onLogout,
   onEditProfile,
+  onPasswordChange,
 }) => {
   const handleAccountSettingClick = (key) => {
     if (key === "editProfile") {
       onEditProfile();
+    } else if (key === "changePassword") {
+      onPasswordChange();
     } else {
       onSelect(key);
     }
@@ -66,66 +69,34 @@ const Sidebar = ({
 
       <Divider />
 
-      <Box>
-        <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
-          ACCOUNT SETTINGS
-        </Typography>
-        <List disablePadding>
-          {accountSettings.map((item) =>
-            item.key !== "language" ? (
-              <ListItemButton
-                key={item.key}
-                selected={selectedKey === item.key}
-                onClick={() => handleAccountSettingClick(item.key)}
-                sx={{ borderRadius: 1 }}
-              >
-                <ListItemIcon
-                  sx={{
-                    color: selectedKey === item.key ? "#5372F0" : "inherit",
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.label} />
-              </ListItemButton>
-            ) : null
-          )}
-        </List>
-      </Box>
-
-      <Divider />
-
-      <Typography
-        variant="subtitle1"
-        fontWeight={600}
-        sx={{ cursor: "pointer" }}
-      >
-        SUPPORT
+      <Typography variant="subtitle1" fontWeight={600}>
+        ACCOUNT SETTINGS
       </Typography>
       <List disablePadding>
-        <ListItemButton onClick={() => alert("Help Centre clicked")}>
-          <ListItemIcon>
-            <HelpOutline />
-          </ListItemIcon>
-          <ListItemText primary="Help Centre" />
-        </ListItemButton>
-        <ListItemButton onClick={() => alert("WhatsApp Us clicked")}>
-          <ListItemIcon>
-            <WhatsApp />
-          </ListItemIcon>
-          <ListItemText primary="WhatsApp Us" />
-        </ListItemButton>
+        {accountSettings.map((item) => (
+          <ListItemButton
+            key={item.key}
+            onClick={() => handleAccountSettingClick(item.key)}
+            sx={{ borderRadius: 1 }}
+          >
+            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemText primary={item.label} />
+          </ListItemButton>
+        ))}
       </List>
 
-      <Button
-        variant="text"
-        color="primary"
-        startIcon={<Logout />}
-        sx={{ mt: "auto", justifyContent: "flex-start" }}
-        onClick={onLogout}
-      >
-        LOG OUT
-      </Button>
+      <Box sx={{ mt: "auto" }}>
+        <Button
+          variant="outlined"
+          color="error"
+          fullWidth
+          startIcon={<Logout />}
+          onClick={onLogout}
+          sx={{ textTransform: "none" }}
+        >
+          Logout
+        </Button>
+      </Box>
     </Box>
   );
 };
