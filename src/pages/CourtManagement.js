@@ -224,8 +224,8 @@ const CourtManagement = () => {
                                 gap: 1,
                               }}
                             >
-                              <LocationOnIcon sx={{ fontSize: "1.3rem" }} />{" "}
-                              Địa chỉ
+                              <LocationOnIcon sx={{ fontSize: "1.3rem" }} /> Địa
+                              chỉ
                             </Box>
                           </TableCell>
                           <TableCell
@@ -243,8 +243,8 @@ const CourtManagement = () => {
                                 gap: 1,
                               }}
                             >
-                              <DescriptionIcon sx={{ fontSize: "1.3rem" }} />{" "}
-                              Mô tả
+                              <DescriptionIcon sx={{ fontSize: "1.3rem" }} /> Mô
+                              tả
                             </Box>
                           </TableCell>
                           <TableCell
@@ -316,6 +316,7 @@ const CourtManagement = () => {
                       </TableHead>
                       <TableBody>
                         {courts
+                          .filter((court) => court.status === "AVAILABLE")
                           .slice(
                             page * rowsPerPage,
                             page * rowsPerPage + rowsPerPage
