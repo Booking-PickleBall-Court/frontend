@@ -71,7 +71,7 @@ function Profile() {
   const clientSidebarItems = [
     {
       label: authUser?.role === "ADMIN" ? "Admin Dashboard" : "Trang chủ",
-      key: authUser?.role === "ADMIN" ? "adminDashboard" : "Trang chủ",
+      key: authUser?.role === "ADMIN" ? "adminDashboard" : "home",
       icon: <Home />,
     },
     { label: "Lịch sử đặt sân", key: "bookings", icon: <Folder /> },
