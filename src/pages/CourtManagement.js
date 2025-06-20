@@ -84,7 +84,7 @@ const CourtManagement = () => {
   };
 
   const handleDelete = async (courtId) => {
-    if (window.confirm("Are you sure you want to delete this court?")) {
+    if (window.confirm("Bạn chắc chắn muốn xóa sân này?")) {
       try {
         await courtAPI.deleteCourt(courtId);
         toast.success("Court deleted successfully");
@@ -163,7 +163,7 @@ const CourtManagement = () => {
                         color: theme.palette.primary.main,
                       }}
                     >
-                      Court Management ({courts.length} total)
+                      Quản lý sân ({courts.length} sân)
                     </Typography>
                     <Button
                       variant="contained"
@@ -181,7 +181,7 @@ const CourtManagement = () => {
                         },
                       }}
                     >
-                      Add New Court
+                      Thêm sân mới
                     </Button>
                   </Box>
 
@@ -207,7 +207,7 @@ const CourtManagement = () => {
                               fontSize: "1.1rem",
                             }}
                           >
-                            Name
+                            Tên sân
                           </TableCell>
                           <TableCell
                             sx={{
@@ -225,7 +225,7 @@ const CourtManagement = () => {
                               }}
                             >
                               <LocationOnIcon sx={{ fontSize: "1.3rem" }} />{" "}
-                              Address
+                              Địa chỉ
                             </Box>
                           </TableCell>
                           <TableCell
@@ -244,7 +244,7 @@ const CourtManagement = () => {
                               }}
                             >
                               <DescriptionIcon sx={{ fontSize: "1.3rem" }} />{" "}
-                              Description
+                              Mô tả
                             </Box>
                           </TableCell>
                           <TableCell
@@ -263,7 +263,7 @@ const CourtManagement = () => {
                               }}
                             >
                               <AttachMoneyIcon sx={{ fontSize: "1.3rem" }} />{" "}
-                              Price
+                              Giá
                             </Box>
                           </TableCell>
                           <TableCell
@@ -281,7 +281,7 @@ const CourtManagement = () => {
                                 gap: 1,
                               }}
                             >
-                              <CategoryIcon sx={{ fontSize: "1.3rem" }} /> Type
+                              <CategoryIcon sx={{ fontSize: "1.3rem" }} /> Sân
                             </Box>
                           </TableCell>
                           <TableCell
@@ -299,7 +299,7 @@ const CourtManagement = () => {
                                 gap: 1,
                               }}
                             >
-                              <ImageIcon sx={{ fontSize: "1.3rem" }} /> Image
+                              <ImageIcon sx={{ fontSize: "1.3rem" }} /> Ảnh
                             </Box>
                           </TableCell>
                           <TableCell
@@ -310,7 +310,7 @@ const CourtManagement = () => {
                               fontSize: "1.1rem",
                             }}
                           >
-                            Actions
+                            Tùy chọn
                           </TableCell>
                         </TableRow>
                       </TableHead>

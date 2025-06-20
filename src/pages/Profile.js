@@ -35,7 +35,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 
 const accountSettings = [
-  { label: "Edit Profile", key: "editProfile", icon: <Edit /> },
+  { label: "Cập nhật thông tin", key: "editProfile", icon: <Edit /> },
 ];
 
 function Profile() {
@@ -70,11 +70,11 @@ function Profile() {
 
   const clientSidebarItems = [
     {
-      label: authUser?.role === "ADMIN" ? "Admin Dashboard" : "Home",
-      key: authUser?.role === "ADMIN" ? "adminDashboard" : "home",
+      label: authUser?.role === "ADMIN" ? "Admin Dashboard" : "Trang chủ",
+      key: authUser?.role === "ADMIN" ? "adminDashboard" : "Trang chủ",
       icon: <Home />,
     },
-    { label: "My Bookings", key: "bookings", icon: <Folder /> },
+    { label: "Lịch sử đặt sân", key: "bookings", icon: <Folder /> },
   ];
 
   const currentSidebarItems =
@@ -208,7 +208,7 @@ function Profile() {
                 fontWeight={600}
                 sx={{ mb: 2, color: "#2563eb" }}
               >
-                Personal Info
+                Thông tin cá nhân
               </Typography>
               <Box
                 sx={{
@@ -239,7 +239,7 @@ function Profile() {
                   component="label"
                   sx={{ borderRadius: 2, fontWeight: 500 }}
                 >
-                  Change Avatar
+                  Thay ảnh đại diện
                   <input
                     type="file"
                     hidden
@@ -278,17 +278,16 @@ function Profile() {
                 size="small"
               />
             </Grid>
-            {/* Đổi mật khẩu */}
             <Grid item xs={12} md={6}>
               <Typography
                 variant="subtitle1"
                 fontWeight={600}
                 sx={{ mb: 2, color: "#2563eb" }}
               >
-                Change Password
+                Thay đổi mật khẩu
               </Typography>
               <TextField
-                label="Current Password"
+                label="Mât khẩu hiện tại"
                 name="currentPassword"
                 type="password"
                 value={formData.currentPassword || ""}
@@ -299,7 +298,7 @@ function Profile() {
                 sx={{ mb: 2 }}
               />
               <TextField
-                label="New Password"
+                label="Mật khẩu mới"
                 name="newPassword"
                 type="password"
                 value={formData.newPassword || ""}
@@ -310,7 +309,7 @@ function Profile() {
                 sx={{ mb: 2 }}
               />
               <TextField
-                label="Confirm New Password"
+                label="Nhâp lại mật khẩu mới"
                 name="confirmPassword"
                 type="password"
                 value={formData.confirmPassword || ""}
@@ -328,7 +327,7 @@ function Profile() {
             variant="outlined"
             sx={{ borderRadius: 2, px: 4 }}
           >
-            Cancel
+            Đóng
           </Button>
           <Button
             onClick={async (e) => {
@@ -383,7 +382,7 @@ function Profile() {
               fontWeight: 600,
             }}
           >
-            Save Changes
+            Lưu các thay đổi
           </Button>
         </DialogActions>
       </Dialog>
@@ -476,7 +475,7 @@ function Profile() {
                       const response = await authAPI.updateProfile(
                         formDataToSend
                       );
-                      login(response.data); 
+                      login(response.data);
                       toast.success("Avatar updated successfully!");
                     } catch (err) {
                       toast.error(
@@ -559,14 +558,14 @@ function Profile() {
                   alignItems="center"
                   mb={1}
                 >
-                  <Typography fontWeight={600}>My Bookings</Typography>
+                  <Typography fontWeight={600}>Lịch sử đặt sân</Typography>
                   <Link href="/bookings" underline="hover" fontSize="0.9rem">
-                    See all
+                    Xem tất cả
                   </Link>
                 </Box>
                 <Typography variant="caption" sx={{ mb: 1, display: "block" }}>
-                  Dive into the world of sports and start booking your favorite
-                  venues.
+                  Hãy đắm mình vào thế giới thể thao và bắt đầu đặt chỗ tại địa
+                  điểm yêu thích của bạn.
                 </Typography>
                 <Link
                   href="/"
@@ -574,7 +573,7 @@ function Profile() {
                   fontWeight={600}
                   fontSize="0.9rem"
                 >
-                  Book Now
+                  Đặt sân ngay
                 </Link>
               </Paper>
             </Grid>
@@ -596,7 +595,7 @@ function Profile() {
                       <strong>Email:</strong> {user?.email || "-"}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>Phone:</strong> {user?.phoneNumber || "-"}
+                      <strong>Số điện thoại:</strong> {user?.phoneNumber || "-"}
                     </Typography>
                   </>
                 ) : (
@@ -623,14 +622,14 @@ function Profile() {
                         onClick={() => setEditMode(false)}
                         disabled={loading}
                       >
-                        Cancel
+                        Đóng
                       </Button>
                       <Button
                         type="submit"
                         variant="contained"
                         disabled={loading}
                       >
-                        Save
+                        Lưu
                       </Button>
                     </Box>
                   </form>

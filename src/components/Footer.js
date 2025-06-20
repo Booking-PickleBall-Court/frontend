@@ -34,46 +34,46 @@ function Footer() {
             />
           </Box>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Simplify your court booking and management experience.
+            Đơn giản hóa trải nghiệm đặt sân và quản lý sân của bạn.
           </Typography>
         </Grid>
 
         <Grid item xs={6} sm={3} md={2}>
           <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-            For Business
+            Dành cho doanh nghiệp
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-            Facility Management
+            Quản lý cơ sở
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-            Schedule a Demo
+            Lên lịch trình demo
           </Typography>
         </Grid>
 
         <Grid item xs={6} sm={3} md={2}>
           <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-            About
+            Giới thiệu
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-            About Us
+            Giới thiệu về chúng tôi
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
             Blog
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-            Careers
+            Công việc
           </Typography>
         </Grid>
 
         <Grid item xs={6} sm={3} md={2}>
           <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-            Support
+            Hỗ trợ
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-            Help Centre
+            Trung tâm trợ giúp
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-            Contact Us
+            Liên hệ với chúng tôi
           </Typography>
         </Grid>
 

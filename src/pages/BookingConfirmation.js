@@ -5,7 +5,6 @@ import {
   Typography,
   Paper,
   Button,
-  Divider,
   CircularProgress,
   Alert,
 } from "@mui/material";
@@ -20,9 +19,8 @@ function BookingConfirmation() {
   const status = searchParams.get("status");
   const bookingIdsParam = searchParams.get("bookingIds");
 
-  // Sử dụng useMemo để đảm bảo bookingIds chỉ thay đổi khi bookingIdsParam thay đổi
   const bookingIds = useMemo(() => {
-    return bookingIdsParam ? bookingIdsParam.split(',').map(Number) : [];
+    return bookingIdsParam ? bookingIdsParam.split(",").map(Number) : [];
   }, [bookingIdsParam]);
 
   const [bookings, setBookings] = useState([]);
@@ -38,10 +36,11 @@ function BookingConfirmation() {
       }
       try {
         const fetchedBookings = await Promise.all(
-          bookingIds.map(id => bookingAPI.getBooking(id).then(res => res.data))
+          bookingIds.map((id) =>
+            bookingAPI.getBooking(id).then((res) => res.data)
+          )
         );
         setBookings(fetchedBookings);
-        console.log("Fetched bookings data:", fetchedBookings);
       } catch (err) {
         setError("Không thể tải thông tin đặt sân.");
       } finally {
@@ -51,6 +50,33 @@ function BookingConfirmation() {
 
     fetchData();
   }, [bookingIds, status]);
+
+  const groupedBookings = useMemo(() => {
+    const map = new Map();
+
+    bookings.forEach((booking) => {
+      const courtId = booking.court?.id;
+      const courtName = booking.court?.name || "N/A";
+
+      if (!map.has(courtId)) {
+        map.set(courtId, {
+          courtName,
+          items: [],
+          totalPrice: 0,
+        });
+      }
+
+      const group = map.get(courtId);
+      group.items.push({
+        subCourtName: booking.subCourts?.[0]?.name || "Sân",
+        startTime: booking.startTime,
+        endTime: booking.endTime,
+      });
+      group.totalPrice += booking.totalPrice || 0;
+    });
+
+    return Array.from(map.values());
+  }, [bookings]);
 
   if (loading) {
     return (
@@ -65,21 +91,6 @@ function BookingConfirmation() {
     return (
       <Container maxWidth="sm" sx={{ mt: 8, textAlign: "center" }}>
         <Alert severity="error">{error}</Alert>
-        <Button
-          variant="contained"
-          sx={{ mt: 2 }}
-          onClick={() => navigate("/")}
-        >
-          Về trang chủ
-        </Button>
-      </Container>
-    );
-  }
-
-  if (bookings.length === 0) {
-    return (
-      <Container maxWidth="sm" sx={{ mt: 8, textAlign: "center" }}>
-        <Alert severity="info">Không tìm thấy thông tin đặt sân nào.</Alert>
         <Button
           variant="contained"
           sx={{ mt: 2 }}
@@ -112,61 +123,30 @@ function BookingConfirmation() {
           Cảm ơn bạn đã đặt sân. Thông tin chi tiết:
         </Typography>
 
-        {bookings.map((booking, index) => {
-          console.log("Current booking object in render:", booking);
-          const { startTime, endTime, notes, totalPrice, paymentStatus, paymentMethod } = booking;
-          const courtName = booking.court ? booking.court.name : "N/A";
-          const subCourts = booking.court ? booking.court.subCourts : [];
+        {groupedBookings.map((group, index) => (
+          <Box key={index} sx={{ textAlign: "left", mb: 4 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+              {group.courtName}
+            </Typography>
 
-          const formattedDate = dayjs(startTime).format("YYYY-MM-DD");
-          const formattedStart = dayjs(startTime).format("HH:mm");
-          const formattedEnd = dayjs(endTime).format("HH:mm");
+            {group.items.map((item, i) => (
+              <Typography key={i} variant="body2">
+                {item.subCourtName} –{" "}
+                {dayjs(item.startTime).format("YYYY-MM-DD")} |{" "}
+                {dayjs(item.startTime).format("HH:mm")} –{" "}
+                {dayjs(item.endTime).format("HH:mm")}
+              </Typography>
+            ))}
 
-          return (
-            <Box key={booking.id} sx={{ textAlign: "left", mb: 4, mt: index > 0 ? 4 : 0 }}>
-              {bookings.length > 1 && (
-                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-                  Booking #{index + 1}
-                </Typography>
-              )}
-              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-                Thông tin sân:
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Tên sân: {courtName}
-              </Typography>
-              {subCourts && subCourts.length > 0 && (
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Sân nhỏ: {subCourts.map(sc => sc.name).join(", ")}
-                </Typography>
-              )}
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Tổng giá: {totalPrice ? totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "N/A"}
-              </Typography>
-            
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-                Thông tin đặt sân:
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Ngày: {formattedDate}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Giờ: {formattedStart} - {formattedEnd}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Ghi chú: {notes || "Không có"}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Trạng thái thanh toán: {paymentStatus || "N/A"}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Phương thức thanh toán: {paymentMethod || "N/A"}
-              </Typography>
-            </Box>
-          );
-        })}
+            <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
+              Tổng tiền:{" "}
+              {group.totalPrice.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              })}
+            </Typography>
+          </Box>
+        ))}
 
         <Button
           variant="contained"

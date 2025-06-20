@@ -169,7 +169,7 @@ const CourtDetail = () => {
             }}
             onClick={() => navigate(`/schedule-calendar?courtId=${id}`)}
           >
-            Book Now
+            Đặt sân ngay
           </Button>
         </Box>
       </Box>

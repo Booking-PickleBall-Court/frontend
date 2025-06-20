@@ -195,7 +195,7 @@ function OwnerDashboard() {
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <AttachMoneyIcon sx={{ mr: 1, color: "text.secondary" }} />
                     <Typography color="textSecondary" gutterBottom>
-                      Total Revenue
+                      Tổng doanh thu
                     </Typography>
                   </Box>
                   <Typography variant="h4" fontWeight="700">
@@ -213,7 +213,7 @@ function OwnerDashboard() {
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <AccessTimeIcon sx={{ mr: 1, color: "text.secondary" }} />
                     <Typography color="textSecondary" gutterBottom>
-                      Total Hours Booked
+                      Tổng số giờ đặt sân
                     </Typography>
                   </Box>
                   <Typography variant="h4" fontWeight="700">
@@ -231,7 +231,7 @@ function OwnerDashboard() {
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <EventIcon sx={{ mr: 1, color: "text.secondary" }} />
                     <Typography color="textSecondary" gutterBottom>
-                      Total Courts
+                      Tổng sân
                     </Typography>
                   </Box>
                   <Typography variant="h4" fontWeight="700">
@@ -249,7 +249,7 @@ function OwnerDashboard() {
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <EventIcon sx={{ mr: 1, color: "text.secondary" }} />
                     <Typography color="textSecondary" gutterBottom>
-                      Total Bookings
+                      Tổng số đặt sân
                     </Typography>
                   </Box>
                   <Typography variant="h4" fontWeight="700">
@@ -267,7 +267,7 @@ function OwnerDashboard() {
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <BarChartIcon sx={{ mr: 1, color: "text.secondary" }} />
                     <Typography color="textSecondary" gutterBottom>
-                      Monthly Revenue
+                      Doanh thu hàng tháng
                     </Typography>
                   </Box>
                   <Typography variant="h4" fontWeight="700" color="#4b4b4b">
@@ -281,7 +281,7 @@ function OwnerDashboard() {
               <Card elevation={3} sx={{ p: 2, height: 370 }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom fontWeight="700">
-                    Monthly Revenue
+                    Doanh thu hàng tháng
                   </Typography>
                   <ResponsiveContainer width={480} height={250}>
                     <BarChart data={monthlyRevenue}>
@@ -305,7 +305,7 @@ function OwnerDashboard() {
               <Card elevation={1} sx={{ p: 2, height: 370 }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom fontWeight="700">
-                    Monthly Hours Booked
+                    Số giờ Đặt Sân Hàng Tháng
                   </Typography>
                   <ResponsiveContainer width={480} height={250}>
                     <BarChart data={monthlyHours}>
@@ -325,19 +325,19 @@ function OwnerDashboard() {
               <Card elevation={3} sx={{ p: 2, height: 370 }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom fontWeight="700">
-                    Potential Customers
+                    Khách hàng Tiềm Năng
                   </Typography>
                   <TableContainer>
                     <Table>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Customer Name</TableCell>
+                          <TableCell>Tên khách hàng</TableCell>
                           <TableCell>Email</TableCell>
-                          <TableCell>Phone</TableCell>
-                          <TableCell>Total Bookings</TableCell>
-                          <TableCell>Total Hours</TableCell>
-                          <TableCell>Total Spent</TableCell>
-                          <TableCell>Last Booking Date</TableCell>
+                          <TableCell>Số điện thoại</TableCell>
+                          <TableCell>Lượt đặt sân</TableCell>
+                          <TableCell>Thời gian</TableCell>
+                          <TableCell>Chi tiêu</TableCell>
+                          <TableCell>Lượt đặt cuối</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>

@@ -85,10 +85,10 @@ function Navbar() {
             location.pathname !== "/profile" && (
               <>
                 <NavLink to="/" style={navLinkStyle}>
-                  Home
+                  Trang chủ
                 </NavLink>
                 <NavLink to="/bookings" style={navLinkStyle}>
-                  Booking history
+                  Lịch sử đặt sân
                 </NavLink>
               </>
             )}
@@ -97,13 +97,13 @@ function Navbar() {
             location.pathname !== "/profile" && (
               <>
                 <NavLink to="/owner/dashboard" style={navLinkStyle}>
-                  <DashboardIcon sx={{ mr: 1 }} /> Dashboard
+                  <DashboardIcon sx={{ mr: 1 }} /> Thống kê
                 </NavLink>
                 <NavLink to="/owner/courts" style={navLinkStyle}>
-                  <BusinessIcon sx={{ mr: 1 }} /> Manage Courts
+                  <BusinessIcon sx={{ mr: 1 }} /> Quản lý sân
                 </NavLink>
                 <NavLink to="/owner/booking-history" style={navLinkStyle}>
-                  <HistoryIcon sx={{ mr: 1 }} /> Booking History
+                  <HistoryIcon sx={{ mr: 1 }} /> Lịch sử đặt sân
                 </NavLink>
               </>
             )}
@@ -114,7 +114,7 @@ function Navbar() {
           {!user && (
             <>
               <NavLink to="/register" style={navLinkStyle}>
-                Sign Up
+                Đăng ký
               </NavLink>
               <Button
                 component={NavLink}
@@ -130,7 +130,7 @@ function Navbar() {
                   "&:hover": { background: "#1746a2" },
                 }}
               >
-                Log In
+                Đăng nhập
               </Button>
             </>
           )}
@@ -147,7 +147,7 @@ function Navbar() {
                     src={user.avatarUrl}
                     onError={(e) => {
                       console.error("Navbar Avatar load error:", e);
-                      e.target.src = ''; // Clear the src to show the fallback
+                      e.target.src = '';
                     }}
                     sx={{ 
                       width: 40, 
@@ -170,7 +170,7 @@ function Navbar() {
                     handleAvatarClose();
                   }}
                 >
-                  Profile
+                  Thông tin cá nhân
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
@@ -178,7 +178,7 @@ function Navbar() {
                     navigate("/login");
                   }}
                 >
-                  Logout
+                  Đăng xuất
                 </MenuItem>
               </Menu>
             </>

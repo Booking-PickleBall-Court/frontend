@@ -92,7 +92,7 @@ const Home = () => {
       <Container maxWidth="lg">
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
-            Featured Venues
+            Danh sách sân
           </Typography>
 
           {loading ? (
@@ -161,7 +161,7 @@ const Home = () => {
                         }}
                         onClick={() => handleViewCourtDetail(venue.id)}
                       >
-                        View
+                        Xem sân
                       </Button>
                       <Button
                         variant="contained"
@@ -174,7 +174,7 @@ const Home = () => {
                         }}
                         onClick={() => navigate(`/schedule-calendar?courtId=${venue.id}`)}
                       >
-                        Book Now
+                        Đặt sân
                       </Button>
                     </Box>
                   </Paper>

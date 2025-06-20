@@ -9,8 +9,6 @@ import {
   Button,
 } from "@mui/material";
 import {
-  HelpOutline,
-  WhatsApp,
   Logout,
 } from "@mui/icons-material";
 
@@ -47,7 +45,7 @@ const Sidebar = ({
       }}
     >
       <Typography variant="subtitle1" fontWeight={600}>
-        ME
+        Bản thân
       </Typography>
       <List disablePadding>
         {sidebarItems.map((item) => (
@@ -70,7 +68,7 @@ const Sidebar = ({
       <Divider />
 
       <Typography variant="subtitle1" fontWeight={600}>
-        ACCOUNT SETTINGS
+        Quản lý tài khoản
       </Typography>
       <List disablePadding>
         {accountSettings.map((item) => (
@@ -94,7 +92,7 @@ const Sidebar = ({
           onClick={onLogout}
           sx={{ textTransform: "none" }}
         >
-          Logout
+          Đăng xuất
         </Button>
       </Box>
     </Box>

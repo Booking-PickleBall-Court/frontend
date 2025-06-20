@@ -52,7 +52,7 @@ function SearchBar({ onSearch }) {
           textShadow: "0 2px 12px rgba(0, 0, 0, 0.2)",
         }}
       >
-        Get Active, Book Your Games Now
+        Tìm kiếm và đặt sân 
       </Typography>
 
       <Typography
@@ -64,7 +64,7 @@ function SearchBar({ onSearch }) {
           textShadow: "0 1px 8px rgba(0, 0, 0, 0.2)",
         }}
       >
-        Search for sports venues across Vietnam by court name or address.
+        Tìm kiếm địa điểm pickle ball trên khắp Việt Nam theo tên sân hoặc địa chỉ.
       </Typography>
 
       <Box
@@ -87,7 +87,7 @@ function SearchBar({ onSearch }) {
         <TextField
           fullWidth
           variant="standard"
-          placeholder="Enter court name or address"
+          placeholder="Nhập tên sân hoặc địa chỉ..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           InputProps={{
@@ -127,7 +127,7 @@ function SearchBar({ onSearch }) {
             },
           }}
         >
-          Search
+          Tìm
         </Button>
       </Box>
     </Box>
