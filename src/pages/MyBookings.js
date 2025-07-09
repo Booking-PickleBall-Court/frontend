@@ -39,7 +39,8 @@ function MyBooking() {
     const fetchBookings = async () => {
       try {
         const res = await bookingAPI.getUserBookings();
-        setBookings(res.data);
+        const mergedBookings = mergeConsecutiveBookings(res.data);
+        setBookings(mergedBookings);
       } catch (err) {
         setError("Không thể tải danh sách đặt sân.");
       } finally {
@@ -49,6 +50,107 @@ function MyBooking() {
 
     fetchBookings();
   }, []);
+
+  // Function to merge consecutive bookings
+  const mergeConsecutiveBookings = (bookings) => {
+    if (!bookings || bookings.length === 0) return [];
+
+    const sortedBookings = [...bookings].sort((a, b) => {
+      const dateA = dayjs(a.startTime);
+      const dateB = dayjs(b.startTime);
+      if (!dateA.isSame(dateB, 'day')) {
+        return dateB.isAfter(dateA) ? 1 : -1;
+      }
+      if (a.courtId !== b.courtId) {
+        return String(a.courtId).localeCompare(String(b.courtId));
+      }
+      const aSubcourt = a.subCourts?.[0]?.name || a.subCourts?.[0]?.id || '';
+      const bSubcourt = b.subCourts?.[0]?.name || b.subCourts?.[0]?.id || '';
+      if (aSubcourt !== bSubcourt) {
+        return String(aSubcourt).localeCompare(String(bSubcourt));
+      }
+      return dayjs(a.startTime).isBefore(dayjs(b.startTime)) ? -1 : 1;
+    });
+
+    const mergedBookings = [];
+    
+    if (sortedBookings.length === 0) {
+      return mergedBookings;
+    }
+    
+    let currentGroup = [sortedBookings[0]];
+
+    for (let i = 1; i < sortedBookings.length; i++) {
+      const current = sortedBookings[i];
+      const lastInGroup = currentGroup[currentGroup.length - 1];
+
+      const isSameCourt = current.courtId === lastInGroup.courtId;
+      const currentSubcourt = current.subCourts?.[0]?.name || current.subCourts?.[0]?.id;
+      const lastSubcourt = lastInGroup.subCourts?.[0]?.name || lastInGroup.subCourts?.[0]?.id;
+      const isSameSubcourt = currentSubcourt === lastSubcourt;
+      const isSameStatus = current.status === lastInGroup.status;
+      const isSamePayment = current.paymentMethod === lastInGroup.paymentMethod;
+      const isSameDate = dayjs(current.startTime).format('YYYY-MM-DD') === dayjs(lastInGroup.startTime).format('YYYY-MM-DD');
+      const isConsecutive = dayjs(current.startTime).isSame(dayjs(lastInGroup.endTime)) || 
+                           Math.abs(dayjs(current.startTime).diff(dayjs(lastInGroup.endTime), 'minute')) <= 5;
+
+      const shouldMerge = isSameCourt && isSameSubcourt && isSameStatus && isSamePayment && isSameDate && isConsecutive;
+
+      if (shouldMerge) {
+        currentGroup.push(current);
+      } else {
+        mergedBookings.push(mergeBookingGroup(currentGroup));
+        currentGroup = [current];
+      }
+    }
+
+    if (currentGroup.length > 0) {
+      mergedBookings.push(mergeBookingGroup(currentGroup));
+    }
+
+    return mergedBookings.filter(booking => booking !== null);
+  };
+
+  const mergeBookingGroup = (bookingGroup) => {
+    if (!bookingGroup || bookingGroup.length === 0) {
+      return null;
+    }
+    
+    if (bookingGroup.length === 1) {
+      return {
+        ...bookingGroup[0],
+        mergedCount: 1,
+        originalBookings: [bookingGroup[0]]
+      };
+    }
+
+    const sortedGroup = bookingGroup.sort((a, b) => 
+      dayjs(a.startTime).isBefore(dayjs(b.startTime)) ? -1 : 1
+    );
+
+    const firstBooking = sortedGroup[0];
+    const lastBooking = sortedGroup[sortedGroup.length - 1];
+
+    const allNotes = bookingGroup
+      .map(b => b.notes)
+      .filter(note => note && note.trim())
+      .filter((note, index, arr) => arr.indexOf(note) === index);
+
+    const totalPrice = bookingGroup.reduce((sum, booking) => {
+      return sum + (booking.totalPrice || 0);
+    }, 0);
+
+    return {
+      ...firstBooking,
+      id: `merged_${firstBooking.id}_${lastBooking.id}`,
+      startTime: firstBooking.startTime,
+      endTime: lastBooking.endTime,
+      totalPrice: totalPrice,
+      notes: allNotes.length > 0 ? allNotes.join('; ') : (firstBooking.notes || ""),
+      mergedCount: bookingGroup.length,
+      originalBookings: bookingGroup
+    };
+  };
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -78,7 +180,8 @@ function MyBooking() {
     }
   };
 
-  const handleCourtClick = (courtId) => {
+  const handleCourtClick = (booking) => {
+    const courtId = booking.originalBookings ? booking.originalBookings[0].courtId : booking.courtId;
     navigate(`/courts/${courtId}`);
   };
 
@@ -147,7 +250,6 @@ function MyBooking() {
       }}
     >
       <Container maxWidth="lg">
-        {/* Header */}
         <Card
           sx={{
             mb: 4,
@@ -210,13 +312,17 @@ function MyBooking() {
               }}>
                 <Typography variant="body2" sx={{ color: "#065f46", fontWeight: 500 }}>
                   Tổng số lần đặt sân: <strong>{bookings.length}</strong>
+                  {bookings.some(b => b.mergedCount > 1) && (
+                    <Typography variant="caption" sx={{ display: "block", color: "#6b7280", mt: 0.5 }}>
+                      * Các booking liên tiếp đã được gộp lại để dễ xem
+                    </Typography>
+                  )}
                 </Typography>
               </Box>
             )}
           </CardContent>
         </Card>
 
-        {/* Bookings List */}
         {bookings.length === 0 ? (
           <Card
             sx={{
@@ -257,13 +363,23 @@ function MyBooking() {
             </Button>
           </Card>
         ) : (
-          <Box sx={{ mt: 2 }}>
+          <Box 
+            sx={{ 
+              mt: 2,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "60vh"
+            }}
+          >
             <Grid 
               container 
-              spacing={3} 
+              spacing={4} 
               sx={{ 
                 alignItems: "stretch",
-                justifyContent: "flex-start" 
+                justifyContent: "center",
+                maxWidth: { xs: "100%", lg: "1200px" },
+                mx: "auto"
               }}
             >
             {bookings.map((booking) => {
@@ -272,12 +388,23 @@ function MyBooking() {
               const statusColor = getStatusColor(booking.status);
 
               return (
-                <Grid item xs={12} md={6} lg={4} key={booking.id} sx={{ display: "flex" }}>
+                <Grid 
+                  item 
+                  xs={12} 
+                  md={6} 
+                  lg={4} 
+                  key={booking.id} 
+                  sx={{ 
+                    display: "flex",
+                    justifyContent: "center"
+                  }}
+                >
                   <Card
                     sx={{
                       borderRadius: 3,
-                      height: 420, 
-                      width: "100%", 
+                      height: 580,
+                      width: { xs: "100%", lg: 360 },
+                      maxWidth: 360,
                       background: "rgba(255,255,255,0.95)",
                       backdropFilter: "blur(10px)",
                       boxShadow: "0 4px 20px rgba(5, 150, 105, 0.1)",
@@ -286,46 +413,73 @@ function MyBooking() {
                       display: "flex",
                       flexDirection: "column",
                       "&:hover": {
-                        transform: "translateY(-4px)",
-                        boxShadow: "0 8px 30px rgba(5, 150, 105, 0.2)"
+                        transform: "translateY(-8px)",
+                        boxShadow: "0 12px 40px rgba(5, 150, 105, 0.25)"
                       }
                     }}
-                    onClick={() => handleCourtClick(booking.courtId)}
+                    onClick={() => handleCourtClick(booking)}
                   >
                     <CardContent 
                       sx={{ 
                         p: 3,
                         display: "flex",
                         flexDirection: "column",
-                        height: "100%"
+                        height: "100%",
+                        gap: 0
                       }}
                     >
-                      {/* Header Section - Fixed Height */}
                       <Box sx={{ 
                         display: "flex", 
                         justifyContent: "space-between", 
                         alignItems: "flex-start",
-                        mb: 2,
-                        minHeight: 48
+                        mb: 2.5,
+                        minHeight: 50
                       }}>
-                        <Typography 
-                          variant="h6" 
-                          sx={{ 
-                            fontWeight: 700,
-                            color: "#065f46",
-                            flex: 1,
-                            mr: 1,
-                            fontSize: "1.1rem",
-                            lineHeight: 1.3,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            maxWidth: "calc(100% - 100px)" // Reserve space for chip
-                          }}
-                          title={booking.courtName}
-                        >
-                          {booking.courtName}
-                        </Typography>
+                        <Box sx={{ flex: 1, mr: 1 }}>
+                          <Typography 
+                            variant="h6" 
+                            sx={{ 
+                              fontWeight: 700,
+                              color: "#065f46",
+                              fontSize: "1.1rem",
+                              lineHeight: 1.3,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap"
+                            }}
+                            title={`${booking.courtName}${booking.subCourts?.[0]?.name ? ` - Sân ${booking.subCourts[0].name}` : ''}`}
+                          >
+                            {booking.courtName}
+                          </Typography>
+                          {booking.subCourts?.[0]?.name && (
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: "#0277bd",
+                                fontSize: "0.8rem",
+                                fontWeight: 600,
+                                display: "block",
+                                mt: 0.2
+                              }}
+                            >
+                              Sân {booking.subCourts[0].name}
+                            </Typography>
+                          )}
+                          {booking.mergedCount > 1 && (
+                            <Typography 
+                              variant="caption" 
+                              sx={{ 
+                                color: "#059669",
+                                fontSize: "0.75rem",
+                                fontWeight: 500,
+                                display: "block",
+                                mt: 0.5
+                              }}
+                            >
+                              Đặt {booking.mergedCount} khung giờ liên tiếp
+                            </Typography>
+                          )}
+                        </Box>
                         <Chip
                           label={getStatusText(booking.status)}
                           size="small"
@@ -333,138 +487,191 @@ function MyBooking() {
                             ...statusColor,
                             fontWeight: 600,
                             fontSize: "0.75rem",
-                            minWidth: 80,
-                            height: 24
+                            minWidth: 85,
+                            height: 26
                           }}
                         />
                       </Box>
 
-                      <Divider sx={{ mb: 2, borderColor: "#d1fae5" }} />
+                      <Divider sx={{ mb: 2.5, borderColor: "#d1fae5" }} />
 
-                      {/* Main Content Section - Flexible but organized */}
-                      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                        <Stack spacing={2} sx={{ flex: 1 }}>
-                          {/* Date */}
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minHeight: 40 }}>
-                            <Avatar
-                              sx={{ 
-                                bgcolor: "#ecfdf5", 
-                                color: "#059669", 
-                                width: 32, 
-                                height: 32 
-                              }}
-                            >
-                              <CalendarTodayIcon fontSize="small" />
-                            </Avatar>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 500, fontSize: "0.8rem" }}>
-                                Ngày đặt
-                              </Typography>
-                              <Typography variant="body1" sx={{ color: "#065f46", fontWeight: 600, fontSize: "0.95rem" }}>
-                                {start.format("DD/MM/YYYY")}
-                              </Typography>
-                            </Box>
+                      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                          <Avatar
+                            sx={{ 
+                              bgcolor: "#ecfdf5", 
+                              color: "#059669", 
+                              width: 32, 
+                              height: 32 
+                            }}
+                          >
+                            <CalendarTodayIcon fontSize="small" />
+                          </Avatar>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 500, fontSize: "0.8rem", lineHeight: 1.2 }}>
+                              Ngày đặt
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: "#065f46", fontWeight: 600, fontSize: "0.95rem", lineHeight: 1.3 }}>
+                              {start.format("DD/MM/YYYY")}
+                            </Typography>
                           </Box>
+                        </Box>
 
-                          {/* Time */}
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minHeight: 40 }}>
-                            <Avatar
-                              sx={{ 
-                                bgcolor: "#ecfdf5", 
-                                color: "#059669", 
-                                width: 32, 
-                                height: 32 
-                              }}
-                            >
-                              <AccessTimeIcon fontSize="small" />
-                            </Avatar>
-                            <Box sx={{ flex: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
+                          <Avatar
+                            sx={{ 
+                              bgcolor: "#ecfdf5", 
+                              color: "#059669", 
+                              width: 32, 
+                              height: 32,
+                              mt: 0.2
+                            }}
+                          >
+                            <AccessTimeIcon fontSize="small" />
+                          </Avatar>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1, mb: 0.5 }}>
                               <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 500, fontSize: "0.8rem" }}>
-                                Thời gian
+                                Thời gian đặt sân
                               </Typography>
-                              <Typography variant="body1" sx={{ color: "#065f46", fontWeight: 600, fontSize: "0.95rem" }}>
-                                {start.format("HH:mm")} - {end.format("HH:mm")}
-                              </Typography>
+                              {booking.mergedCount > 1 && (
+                                <Chip
+                                  label={`${booking.mergedCount} khung giờ`}
+                                  size="small"
+                                  sx={{
+                                    height: 18,
+                                    fontSize: "0.6rem",
+                                    bgcolor: "#e0f2fe",
+                                    color: "#0277bd",
+                                    "& .MuiChip-label": {
+                                      px: 1
+                                    }
+                                  }}
+                                />
+                              )}
                             </Box>
+                            <Typography variant="body1" sx={{ color: "#065f46", fontWeight: 600, fontSize: "0.95rem", lineHeight: 1.3 }}>
+                              {start.format("HH:mm")} - {end.format("HH:mm")}
+                            </Typography>
+                            {booking.mergedCount > 1 && (
+                              <Box sx={{ mt: 0.5 }}>
+                                <Typography variant="caption" sx={{ color: "#0277bd", fontSize: "0.7rem", lineHeight: 1.2, fontWeight: 500 }}>
+                                  Tổng cộng: {Math.round(dayjs(booking.endTime).diff(dayjs(booking.startTime), 'minute') / 30)} × 30 phút
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "#6b7280", fontSize: "0.65rem", display: "block", lineHeight: 1.2 }}>
+                                  Các khung: {booking.originalBookings.map((b, index) => 
+                                    `${dayjs(b.startTime).format("HH:mm")}-${dayjs(b.endTime).format("HH:mm")}`
+                                  ).join(", ")}
+                                </Typography>
+                              </Box>
+                            )}
                           </Box>
+                        </Box>
 
-                          {/* Notes - Fixed height area */}
-                          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, minHeight: 60 }}>
-                            <Avatar
-                              sx={{ 
-                                bgcolor: "#ecfdf5", 
-                                color: "#059669", 
-                                width: 32, 
-                                height: 32 
-                              }}
-                            >
-                              <NotesIcon fontSize="small" />
-                            </Avatar>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 500, fontSize: "0.8rem" }}>
-                                Ghi chú
-                              </Typography>
+                        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
+                          <Avatar
+                            sx={{ 
+                              bgcolor: "#ecfdf5", 
+                              color: "#059669", 
+                              width: 32, 
+                              height: 32,
+                              mt: 0.2
+                            }}
+                          >
+                            <NotesIcon fontSize="small" />
+                          </Avatar>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 500, fontSize: "0.8rem", lineHeight: 1.2 }}>
+                              {booking.mergedCount > 1 ? "Thông tin đặt sân" : "Ghi chú"}
+                            </Typography>
+                            {booking.mergedCount > 1 ? (
+                              <Box>
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    color: "#065f46",
+                                    fontSize: "0.85rem",
+                                    lineHeight: 1.3,
+                                    fontWeight: 500
+                                  }}
+                                >
+                                  Đã đặt {booking.mergedCount} booking liên tiếp
+                                  {booking.subCourts?.[0]?.name && ` tại Sân ${booking.subCourts[0].name}`}
+                                </Typography>
+                                <Typography 
+                                  variant="caption" 
+                                  sx={{ 
+                                    color: "#6b7280",
+                                    fontSize: "0.7rem",
+                                    lineHeight: 1.2,
+                                    display: "block"
+                                  }}
+                                >
+                                  Cùng sân{booking.subCourts?.[0]?.name ? ` (Sân ${booking.subCourts[0].name})` : ''}, cùng trạng thái, cùng phương thức thanh toán
+                                </Typography>
+                              </Box>
+                            ) : (
                               <Typography 
                                 variant="body2" 
                                 sx={{ 
                                   color: "#065f46",
                                   fontSize: "0.85rem",
-                                  lineHeight: 1.4,
+                                  lineHeight: 1.3,
                                   overflow: "hidden",
                                   display: "-webkit-box",
                                   WebkitLineClamp: 2,
                                   WebkitBoxOrient: "vertical",
-                                  minHeight: "2.4em"
+                                  minHeight: "2.2em",
+                                  maxHeight: "2.2em"
                                 }}
                               >
                                 {booking.notes || "Không có ghi chú"}
                               </Typography>
-                            </Box>
+                            )}
                           </Box>
+                        </Box>
 
-                          {/* Price */}
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minHeight: 40 }}>
-                            <Avatar
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                          <Avatar
+                            sx={{ 
+                              bgcolor: "#ecfdf5", 
+                              color: "#059669", 
+                              width: 32, 
+                              height: 32 
+                            }}
+                          >
+                            <PaymentIcon fontSize="small" />
+                          </Avatar>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 500, fontSize: "0.8rem", lineHeight: 1.2 }}>
+                              Tổng tiền
+                            </Typography>
+                            <Typography 
+                              variant="h6" 
                               sx={{ 
-                                bgcolor: "#ecfdf5", 
                                 color: "#059669", 
-                                width: 32, 
-                                height: 32 
+                                fontWeight: 700,
+                                fontSize: "1rem",
+                                lineHeight: 1.3
                               }}
                             >
-                              <PaymentIcon fontSize="small" />
-                            </Avatar>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 500, fontSize: "0.8rem" }}>
-                                Tổng tiền
-                              </Typography>
-                              <Typography 
-                                variant="h6" 
-                                sx={{ 
-                                  color: "#059669", 
-                                  fontWeight: 700,
-                                  fontSize: "1rem"
-                                }}
-                              >
-                                {booking.totalPrice?.toLocaleString('vi-VN', { 
-                                  style: 'currency', 
-                                  currency: 'VND' 
-                                }) || 'N/A'}
-                              </Typography>
-                            </Box>
+                              {booking.totalPrice?.toLocaleString('vi-VN', { 
+                                style: 'currency', 
+                                currency: 'VND' 
+                              }) || 'N/A'}
+                            </Typography>
                           </Box>
-                        </Stack>
+                        </Box>
                       </Box>
 
-                      {/* Footer Section - Fixed Position */}
                       <Box sx={{ 
                         mt: "auto",
-                        pt: 2, 
+                        pt: 2.5, 
                         borderTop: "1px solid #d1fae5",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        minHeight: 48
+                        minHeight: 45
                       }}>
                         <Typography variant="body2" sx={{ color: "#6b7280", fontSize: "0.8rem" }}>
                           Phương thức thanh toán
@@ -478,7 +685,7 @@ function MyBooking() {
                             color: "#059669",
                             fontSize: "0.7rem",
                             height: 24,
-                            minWidth: 60
+                            minWidth: 65
                           }}
                         />
                       </Box>

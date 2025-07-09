@@ -1,12 +1,11 @@
 import axios from "axios";
 
-const API_URL = "https://backend-eej5.onrender.com/api";
+const API_URL = "http://localhost:8080/api";
 
 const api = axios.create({
   baseURL: API_URL,
 });
 
-// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -20,19 +19,15 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
 api.interceptors.response.use(
   (response) => {
-    // Log response data for debugging
     console.log("API Response:", response.data);
     return response;
   },
   (error) => {
     if (error.response?.status === 403) {
-      // Clear invalid token
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      // Redirect to login page
       window.location.href = "/login";
     }
     return Promise.reject(error);
@@ -75,7 +70,6 @@ export const courtAPI = {
       size,
     };
 
-    // Only add non-empty parameters
     if (minPrice) params.minPrice = minPrice;
     if (maxPrice) params.maxPrice = maxPrice;
     if (address) params.address = address;
