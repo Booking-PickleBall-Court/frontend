@@ -257,18 +257,27 @@ function MyBooking() {
             </Button>
           </Card>
         ) : (
-          <Grid container spacing={3}>
+          <Box sx={{ mt: 2 }}>
+            <Grid 
+              container 
+              spacing={3} 
+              sx={{ 
+                alignItems: "stretch",
+                justifyContent: "flex-start" 
+              }}
+            >
             {bookings.map((booking) => {
               const start = dayjs(booking.startTime);
               const end = dayjs(booking.endTime);
               const statusColor = getStatusColor(booking.status);
 
               return (
-                <Grid item xs={12} md={6} lg={4} key={booking.id}>
+                <Grid item xs={12} md={6} lg={4} key={booking.id} sx={{ display: "flex" }}>
                   <Card
                     sx={{
                       borderRadius: 3,
-                      height: 420, // Fixed height for all cards
+                      height: 420, 
+                      width: "100%", 
                       background: "rgba(255,255,255,0.95)",
                       backdropFilter: "blur(10px)",
                       boxShadow: "0 4px 20px rgba(5, 150, 105, 0.1)",
@@ -309,10 +318,11 @@ function MyBooking() {
                             fontSize: "1.1rem",
                             lineHeight: 1.3,
                             overflow: "hidden",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical"
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            maxWidth: "calc(100% - 100px)" // Reserve space for chip
                           }}
+                          title={booking.courtName}
                         >
                           {booking.courtName}
                         </Typography>
@@ -477,7 +487,8 @@ function MyBooking() {
                 </Grid>
               );
             })}
-          </Grid>
+            </Grid>
+          </Box>
         )}
       </Container>
     </Box>
