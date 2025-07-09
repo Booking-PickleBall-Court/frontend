@@ -2,6 +2,46 @@
   text-align: center;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 0 16px;
+  }
+  
+  .responsive-text {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 960px) {
+  .container {
+    padding: 0 24px;
+  }
+  
+  .responsive-text {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 960px) {
+  .container {
+    padding: 0 32px;
+  }
+  
+  .responsive-text {
+    font-size: 18px;
+  }
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

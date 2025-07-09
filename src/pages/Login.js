@@ -72,10 +72,11 @@ function Login() {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
+        px: { xs: 2, sm: 3, md: 0 },
       }}
     >
       <Container maxWidth="sm">
-        <Box sx={{ mt: 4, mb: 4, position: "relative" }}>
+        <Box sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, position: "relative" }}>
           {/* Nút X để quay về trang chủ */}
           <IconButton
             onClick={() => navigate("/")}
@@ -93,7 +94,7 @@ function Login() {
           <Paper
             elevation={3}
             sx={{
-              p: 4,
+              p: { xs: 3, sm: 4 },
               backgroundColor: "rgba(255, 255, 255, 0.9)",
               borderRadius: "10px",
               boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
@@ -104,14 +105,22 @@ function Login() {
               component="h1"
               gutterBottom
               align="center"
-              sx={{ color: "#1A3C34", fontWeight: "bold" }}
+              sx={{ 
+                color: "#1A3C34", 
+                fontWeight: "bold",
+                fontSize: { xs: "1.8rem", sm: "2.125rem" }
+              }}
             >
               Đăng nhập
             </Typography>
             <Typography
               variant="subtitle1"
               align="center"
-              sx={{ color: "#2E7D32", mb: 2 }}
+              sx={{ 
+                color: "#2E7D32", 
+                mb: 2,
+                fontSize: { xs: "0.9rem", sm: "1rem" }
+              }}
             >
               PickleNET - Đặt lịch online sân thể thao
             </Typography>
@@ -166,20 +175,25 @@ function Login() {
                   backgroundColor: "#2E7D32",
                   "&:hover": { backgroundColor: "#1A3C34" },
                   fontWeight: "bold",
-                  padding: "10px 0",
+                  padding: { xs: "12px 0", sm: "10px 0" },
+                  fontSize: { xs: "0.9rem", sm: "1rem" },
                 }}
                 disabled={loading}
               >
                 {loading ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
               <Box sx={{ mt: 2, textAlign: "center" }}>
-                <Typography variant="body2" color="#1A3C34">
+                <Typography variant="body2" color="#1A3C34" sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}>
                   Bạn chưa có tài khoản?{" "}
                   <Link
                     component="button"
                     variant="body2"
                     onClick={() => navigate("/register")}
-                    sx={{ color: "#2E7D32", textDecoration: "underline" }}
+                    sx={{ 
+                      color: "#2E7D32", 
+                      textDecoration: "underline",
+                      fontSize: { xs: "0.8rem", sm: "0.875rem" }
+                    }}
                   >
                     Đăng ký
                   </Link>

@@ -13,12 +13,10 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Link,
 } from "@mui/material";
 import { bookingAPI } from "../services/api";
 import dayjs from "dayjs";
 import "../styles/MyBookings.css";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotesIcon from "@mui/icons-material/Notes";
