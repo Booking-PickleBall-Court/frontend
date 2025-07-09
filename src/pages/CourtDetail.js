@@ -80,12 +80,11 @@ const CourtDetail = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "#f8fafc",
+        background: "linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 50%, #34d399 100%)",
         pb: 4,
       }}
     >
       <Container maxWidth="lg" sx={{ pt: { xs: 2, md: 4 } }}>
-        {/* Mobile Header */}
         {isMobile && (
           <Box sx={{ 
             display: "flex", 
@@ -95,11 +94,10 @@ const CourtDetail = () => {
             p: 2,
             borderRadius: 2,
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-          }}>
-            <IconButton
-              onClick={() => navigate(-1)}
-              sx={{ mr: 2, color: "#4263eb" }}
-            >
+          }}>                <IconButton
+                  onClick={() => navigate(-1)}
+                  sx={{ mr: 2, color: "#059669" }}
+                >
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h6" sx={{ fontWeight: 600, color: "#1a202c" }}>
@@ -108,7 +106,6 @@ const CourtDetail = () => {
           </Box>
         )}
 
-        {/* Court Info Section */}
         <Card
           sx={{
             mb: 4,
@@ -140,7 +137,7 @@ const CourtDetail = () => {
               
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <LocationOnIcon sx={{ color: "#4263eb", fontSize: 20 }} />
+                  <LocationOnIcon sx={{ color: "#059669", fontSize: 20 }} />
                   <Typography 
                     variant="body1" 
                     sx={{ 
@@ -153,7 +150,7 @@ const CourtDetail = () => {
                 </Box>
                 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <AttachMoneyIcon sx={{ color: "#10b981", fontSize: 20 }} />
+                  <AttachMoneyIcon sx={{ color: "#059669", fontSize: 20 }} />
                   <Typography 
                     variant="body1" 
                     sx={{ 
@@ -190,7 +187,7 @@ const CourtDetail = () => {
                 startIcon={<ExploreIcon />}
                 size={isMobile ? "large" : "large"}
                 sx={{
-                  background: "linear-gradient(135deg, #4263eb 0%, #06b6d4 100%)",
+                  background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
                   color: "white",
                   borderRadius: "25px",
                   width: { xs: "100%", md: "auto" },
@@ -199,11 +196,11 @@ const CourtDetail = () => {
                   fontSize: { xs: "1rem", md: "1.1rem" },
                   fontWeight: 600,
                   textTransform: "none",
-                  boxShadow: "0 8px 20px rgba(66, 99, 235, 0.3)",
+                  boxShadow: "0 8px 20px rgba(5, 150, 105, 0.3)",
                   "&:hover": { 
-                    background: "linear-gradient(135deg, #3730a3 0%, #0891b2 100%)",
+                    background: "linear-gradient(135deg, #047857 0%, #059669 100%)",
                     transform: "translateY(-2px)",
-                    boxShadow: "0 12px 25px rgba(66, 99, 235, 0.4)"
+                    boxShadow: "0 12px 25px rgba(5, 150, 105, 0.4)"
                   },
                   transition: "all 0.3s ease"
                 }}
@@ -215,7 +212,6 @@ const CourtDetail = () => {
           </Box>
         </Card>
 
-        {/* Images Gallery */}
         <Typography 
           variant="h5" 
           sx={{ 

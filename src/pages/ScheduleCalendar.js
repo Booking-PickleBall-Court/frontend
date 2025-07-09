@@ -196,7 +196,7 @@ const ScheduleCalendar = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 50%, #34d399 100%)",
         py: { xs: 2, md: 4 },
       }}
     >
@@ -207,7 +207,6 @@ const ScheduleCalendar = () => {
           px: { xs: 1, sm: 2, md: 3 },
         }}
       >
-        {/* Header */}
         <Card
           sx={{
             mb: 3,
@@ -231,9 +230,9 @@ const ScheduleCalendar = () => {
                 <IconButton
                   onClick={() => navigate(-1)}
                   sx={{
-                    bgcolor: "#f1f5f9",
-                    color: "#4263eb",
-                    "&:hover": { bgcolor: "#e2e8f0" }
+                    bgcolor: "#ecfdf5",
+                    color: "#059669",
+                    "&:hover": { bgcolor: "#d1fae5" }
                   }}
                 >
                   <ArrowBackIcon />
@@ -278,7 +277,22 @@ const ScheduleCalendar = () => {
                         minWidth: { xs: 150, md: 200 },
                         "& .MuiOutlinedInput-root": {
                           borderRadius: 2,
-                          bgcolor: "white"
+                          bgcolor: "white",
+                          "& fieldset": {
+                            borderColor: "#a7f3d0"
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "#059669"
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#059669"
+                          }
+                        },
+                        "& .MuiInputLabel-root": {
+                          color: "#059669",
+                          "&.Mui-focused": {
+                            color: "#059669"
+                          }
                         }
                       }
                     }
@@ -311,18 +325,18 @@ const ScheduleCalendar = () => {
               <Chip
                 label="Có thể đặt"
                 sx={{
-                  bgcolor: "#f0f9ff",
-                  color: "#0369a1",
-                  border: "2px solid #bae6fd",
+                  bgcolor: "#ecfdf5",
+                  color: "#065f46",
+                  border: "2px solid #a7f3d0",
                   fontWeight: 500
                 }}
               />
               <Chip
                 label="Đã chọn ✔"
                 sx={{
-                  bgcolor: "#dcfce7",
-                  color: "#15803d",
-                  border: "2px solid #86efac",
+                  bgcolor: "#d1fae5",
+                  color: "#065f46",
+                  border: "2px solid #059669",
                   fontWeight: 500
                 }}
               />
@@ -411,14 +425,14 @@ const ScheduleCalendar = () => {
                               borderRadius: 2,
                               border: "2px solid",
                               borderColor: isSelected 
-                                ? "#10b981" 
+                                ? "#059669" 
                                 : isBooked 
                                 ? "#ef4444" 
                                 : isLocked 
                                 ? "#94a3b8" 
-                                : "#e2e8f0",
+                                : "#a7f3d0",
                               bgcolor: isSelected 
-                                ? "#10b981" 
+                                ? "#059669" 
                                 : isBooked 
                                 ? "#fef2f2" 
                                 : isLocked 
@@ -538,18 +552,18 @@ const ScheduleCalendar = () => {
                                 borderRight: "1px solid #e2e8f0",
                                 cursor: (isBooked || isLocked) ? "not-allowed" : "pointer",
                                 bgcolor: isSelected 
-                                  ? "#dcfce7" 
+                                  ? "#d1fae5" 
                                   : isBooked 
                                   ? "#fef2f2" 
                                   : isLocked 
                                   ? "#f8fafc" 
                                   : "white",
-                                border: isSelected ? "2px solid #10b981" : "none",
+                                border: isSelected ? "2px solid #059669" : "none",
                                 "&:hover": {
                                   bgcolor: (!isBooked && !isLocked) 
                                     ? isSelected 
-                                      ? "#bbf7d0" 
-                                      : "#f0f9ff"
+                                      ? "#a7f3d0" 
+                                      : "#ecfdf5"
                                     : undefined
                                 },
                                 transition: "all 0.2s ease"
@@ -559,7 +573,7 @@ const ScheduleCalendar = () => {
                                 variant="h6"
                                 sx={{
                                   color: isSelected 
-                                    ? "#15803d" 
+                                    ? "#065f46" 
                                     : isBooked 
                                     ? "#dc2626" 
                                     : isLocked 
@@ -587,13 +601,13 @@ const ScheduleCalendar = () => {
           <Card
             sx={{
               borderRadius: 3,
-              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-              background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
-              border: "2px solid #0ea5e9"
+              boxShadow: "0 8px 32px rgba(5, 150, 105, 0.15)",
+              background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
+              border: "2px solid #a7f3d0"
             }}
           >
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, color: "#0c4a6e" }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, color: "#065f46" }}>
                 Tóm tắt đặt sân
               </Typography>
               
@@ -604,19 +618,19 @@ const ScheduleCalendar = () => {
                 mb: 3
               }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <AccessTimeIcon sx={{ color: "#0369a1" }} />
+                  <AccessTimeIcon sx={{ color: "#059669" }} />
                   <Box>
                     <Typography variant="body2" sx={{ color: "#64748b" }}>
                       Tổng thời gian
                     </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: "#0c4a6e" }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: "#065f46" }}>
                       {totalHours}h
                     </Typography>
                   </Box>
                 </Box>
                 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <PaymentIcon sx={{ color: "#10b981" }} />
+                  <PaymentIcon sx={{ color: "#059669" }} />
                   <Box>
                     <Typography variant="body2" sx={{ color: "#64748b" }}>
                       Tổng tiền
@@ -646,12 +660,12 @@ const ScheduleCalendar = () => {
                   fontSize: "1.1rem",
                   fontWeight: 600,
                   borderRadius: 3,
-                  background: "linear-gradient(135deg, #4263eb 0%, #06b6d4 100%)",
-                  boxShadow: "0 8px 20px rgba(66, 99, 235, 0.3)",
+                  background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+                  boxShadow: "0 8px 20px rgba(5, 150, 105, 0.3)",
                   "&:hover": {
-                    background: "linear-gradient(135deg, #3730a3 0%, #0891b2 100%)",
+                    background: "linear-gradient(135deg, #047857 0%, #059669 100%)",
                     transform: "translateY(-2px)",
-                    boxShadow: "0 12px 25px rgba(66, 99, 235, 0.4)"
+                    boxShadow: "0 12px 25px rgba(5, 150, 105, 0.4)"
                   },
                   transition: "all 0.3s ease"
                 }}
