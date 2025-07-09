@@ -1,18 +1,27 @@
-import React, { useState, useEffect } from "react";
-import "../styles/ScheduleCalendar.css";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Box, Button } from "@mui/material";
+import { 
+  Box, 
+  Button, 
+  Card,
+  CardContent,
+  Typography,
+  useTheme,
+  useMediaQuery,
+  IconButton,
+  Chip,
+  Alert
+} from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { TextField } from "@mui/material";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import SportsTennisIcon from "@mui/icons-material/SportsTennis";
+import PaymentIcon from "@mui/icons-material/Payment";
 import { courtAPI, bookingAPI, paymentAPI } from "../services/api";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import MenuItem from "@mui/material/MenuItem";
 
 dayjs.extend(isSameOrAfter);
 
@@ -63,12 +72,13 @@ const ScheduleCalendar = () => {
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [currentLockedSlots, setCurrentLockedSlots] = useState([]);
   const [subCourts, setSubCourts] = useState([]);
-  const [notes, setNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("CARD");
   const [bookedSlots, setBookedSlots] = useState([]);
   const [courtHourlyPrice, setCourtHourlyPrice] = useState(0);
+  const [courtName, setCourtName] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Lấy courtId từ query param
   const searchParams = new URLSearchParams(location.search);
@@ -80,6 +90,7 @@ const ScheduleCalendar = () => {
       courtAPI.getCourtById(courtId).then(res => {
         setSubCourts(res.data.subCourts || []);
         setCourtHourlyPrice(res.data.hourlyPrice || 0);
+        setCourtName(res.data.name || "");
       });
     }
   }, [courtId]);
@@ -88,18 +99,12 @@ const ScheduleCalendar = () => {
     if (courtId && selectedDate) {
       bookingAPI.getBookedSlots(courtId, dayjs(selectedDate).format("YYYY-MM-DD"))
         .then(res => setBookedSlots(res.data.bookedSlots || []));
-
-      console.log(`Fetching booked slots for court ${courtId} on ${dayjs(selectedDate).format("YYYY-MM-DD")}`);
-      console.log(`Booked slots:`, bookedSlots);
-      
-      
     } else {
       setBookedSlots([]);
     }
   }, [courtId, selectedDate]);
 
-  // Hàm để kiểm tra và cập nhật các ô đã qua giờ hiện tại
-  const updateLockedSlots = () => {
+  const updateLockedSlots = useCallback(() => {
     const now = dayjs();
     const currentTime = now.format("HH:mm");
     const isToday =
@@ -111,14 +116,13 @@ const ScheduleCalendar = () => {
     } else {
       setCurrentLockedSlots(lockedSlots);
     }
-  };
+  }, [selectedDate]);
 
-  // Cập nhật lockedSlots mỗi phút và khi ngày thay đổi
   useEffect(() => {
     updateLockedSlots();
-    const interval = setInterval(updateLockedSlots, 60000); // Cập nhật mỗi phút
+    const interval = setInterval(updateLockedSlots, 60000);
     return () => clearInterval(interval);
-  }, [selectedDate]);
+  }, [selectedDate, updateLockedSlots]);
 
   const toggleSlot = (time, court) => {
     if (
@@ -137,7 +141,6 @@ const ScheduleCalendar = () => {
   const minutes = totalMinutes % 60;
   const totalHours = `${hours}:${minutes === 0 ? "00" : minutes}`;
 
-  // Thêm hàm kiểm tra slot đã được book
   const isSlotBooked = (time, subCourtId) => {
     const date = dayjs(selectedDate).format("YYYY-MM-DD");
     const slotStart = dayjs(`${date}T${time}:00`);
@@ -152,7 +155,6 @@ const ScheduleCalendar = () => {
     });
   };
 
-  // Khi nhấn TIẾP THEO, gửi dữ liệu booking đúng format
   const handleBooking = () => {
     if (!courtId || selectedSlots.length === 0) {
       alert("Vui lòng chọn khung giờ!");
@@ -160,7 +162,6 @@ const ScheduleCalendar = () => {
     }
     const date = dayjs(selectedDate).format("YYYY-MM-DD");
 
-    // Tạo một mảng các đối tượng booking riêng lẻ cho mỗi slot đã chọn
     const bookings = selectedSlots.map(slot => {
       const [timeStr, subCourtIdStr] = slot.split("-");
       const subCourtId = Number(subCourtIdStr);
@@ -177,8 +178,8 @@ const ScheduleCalendar = () => {
     const bookingData = {
       courtId: Number(courtId),
       bookings,
-      notes,
-      paymentMethod,
+      notes: `Booking for ${selectedSlots.length} slots`,
+      paymentMethod: "CARD",
     };
     paymentAPI.createCheckoutSession(bookingData)
       .then(res => {
@@ -194,227 +195,487 @@ const ScheduleCalendar = () => {
   return (
     <Box
       sx={{
-        backgroundImage: `url(/bg-home.avif)`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        padding: "2rem",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minHeight: "90vh",
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        py: { xs: 2, md: 4 },
       }}
     >
-      <div
-        className="calendar-wrapper"
-        style={{
-          width: "95%",
-          maxWidth: "1300px",
-          height: "auto",
-          overflow: "hidden",
-          padding: "20px",
-          borderRadius: "10px",
-          background: "rgba(255, 255, 255, 0.9)",
+      <Box
+        sx={{
+          maxWidth: { xs: "100%", md: "1400px" },
+          mx: "auto",
+          px: { xs: 1, sm: 2, md: 3 },
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: "40px",
-            width: "100%",
+        {/* Header */}
+        <Card
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            background: "rgba(255,255,255,0.95)",
+            backdropFilter: "blur(10px)"
           }}
         >
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(-1)}
-            sx={{
-              borderRadius: "50px",
-              padding: "8px 20px",
-              borderColor: "#4263eb",
-              color: "#4263eb",
-              "&:hover": {
-                borderColor: "#2541b2",
-                backgroundColor: "rgba(66, 99, 235, 0.04)",
-              },
-            }}
-          >
-            Quay lại
-          </Button>
-          <h4
-            style={{
-              fontSize: "28px",
-              fontWeight: "bold",
-              margin: 0,
-              whiteSpace: "nowrap",
-            }}
-          >
-            Đặt lịch ngày trực quan
-          </h4>
-          <div className="d-flex justify-content-center mb-3">
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Chọn ngày"
-                value={dayjs(selectedDate)}
-                onChange={(newValue) => {
-                  setSelectedDate(newValue.toDate());
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} className="date-picker-custom" />
-                )}
-                inputFormat="DD/MM/YYYY"
-              />
-            </LocalizationProvider>
-          </div>
-        </div>
-
-        <div
-          className="calendar-container"
-          style={{ display: "flex", overflowX: "auto" }}
-        >
-          <div className="fixed-column">
-            <div className="corner-cell"></div>
-            {subCourts.map((court) => (
-              <div
-                key={court.id}
-                className="court-label"
-                style={{
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                  padding: "5px",
-                  textAlign: "center",
-                  minWidth: "100px",
-                }}
-              >
-                {court.name}
-              </div>
-            ))}
-          </div>
-          <div
-            className="scrollable-section"
-            style={{ overflowX: "auto", whiteSpace: "nowrap", flex: "1" }}
-          >
-            <div className="header-row" style={{ display: "flex" }}>
-              {times.map((time) => (
-                <div
-                  key={time}
-                  className="time-cell"
-                  style={{
-                    height: "40px",
-                    padding: "10px",
-                    textAlign: "center",
-                    fontSize: "14px",
-                    fontWeight: "bold",
+          <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: 2
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <IconButton
+                  onClick={() => navigate(-1)}
+                  sx={{
+                    bgcolor: "#f1f5f9",
+                    color: "#4263eb",
+                    "&:hover": { bgcolor: "#e2e8f0" }
                   }}
                 >
-                  {time}
-                </div>
-              ))}
-            </div>
-            {subCourts.map((court) => (
-              <div
-                key={court.id}
-                className="court-row"
-                style={{ display: "flex" }}
-              >
-                {times.map((time) => {
-                  const slot = `${time}-${court.id}`;
-                  const isSelected = selectedSlots.includes(slot);
-                  const isBooked = isSlotBooked(time, court.id);
-                  const isLocked = currentLockedSlots.includes(time);
-                  return (
-                    <div
-                      key={slot}
-                      className={`slot ${isSelected ? "selected" : ""} ${
-                        isBooked ? "booked" : ""
-                      } ${isLocked ? "locked" : ""}`}
-                      style={{
-                        minWidth: "56px",
-                        height: "50px",
-                        textAlign: "center",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "1px solid #ddd",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        cursor: isLocked ? "not-allowed" : "pointer",
+                  <ArrowBackIcon />
+                </IconButton>
+                <Box>
+                  <Typography 
+                    variant={isMobile ? "h6" : "h5"} 
+                    sx={{ 
+                      fontWeight: 700,
+                      color: "#1a202c",
+                      mb: 0.5
+                    }}
+                  >
+                    {courtName || "Đặt lịch sân"}
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: "#64748b",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5
+                    }}
+                  >
+                    <SportsTennisIcon fontSize="small" />
+                    Chọn khung giờ phù hợp
+                  </Typography>
+                </Box>
+              </Box>
+              
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Chọn ngày"
+                  value={dayjs(selectedDate)}
+                  onChange={(newValue) => {
+                    setSelectedDate(newValue.toDate());
+                  }}
+                  slotProps={{
+                    textField: {
+                      size: isMobile ? "small" : "medium",
+                      sx: {
+                        minWidth: { xs: 150, md: 200 },
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          bgcolor: "white"
+                        }
+                      }
+                    }
+                  }}
+                />
+              </LocalizationProvider>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Legend */}
+        <Card
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+            background: "rgba(255,255,255,0.95)"
+          }}
+        >
+          <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#1a202c" }}>
+              Chú thích
+            </Typography>
+            <Box sx={{ 
+              display: "flex", 
+              flexWrap: "wrap", 
+              gap: { xs: 1, md: 2 },
+              alignItems: "center"
+            }}>
+              <Chip
+                label="Có thể đặt"
+                sx={{
+                  bgcolor: "#f0f9ff",
+                  color: "#0369a1",
+                  border: "2px solid #bae6fd",
+                  fontWeight: 500
+                }}
+              />
+              <Chip
+                label="Đã chọn ✔"
+                sx={{
+                  bgcolor: "#dcfce7",
+                  color: "#15803d",
+                  border: "2px solid #86efac",
+                  fontWeight: 500
+                }}
+              />
+              <Chip
+                label="Đã đặt ✖"
+                sx={{
+                  bgcolor: "#fef2f2",
+                  color: "#dc2626",
+                  border: "2px solid #fecaca",
+                  fontWeight: 500
+                }}
+              />
+              <Chip
+                label="Đã khóa 🔒"
+                sx={{
+                  bgcolor: "#f8fafc",
+                  color: "#64748b",
+                  border: "2px solid #e2e8f0",
+                  fontWeight: 500
+                }}
+              />
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Schedule Grid */}
+        <Card
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            background: "rgba(255,255,255,0.95)",
+            overflow: "hidden"
+          }}
+        >
+          <CardContent sx={{ p: 0 }}>
+            {isMobile ? (
+              /* Mobile Layout */
+              <Box>
+                {subCourts.map((court) => (
+                  <Box key={court.id} sx={{ mb: 3 }}>
+                    <Box
+                      sx={{
+                        p: 2,
+                        bgcolor: "#f8fafc",
+                        borderBottom: "1px solid #e2e8f0"
                       }}
-                      onClick={() => toggleSlot(time, court.id)}
                     >
-                      {isSelected ? "✔" : isBooked ? "✖" : isLocked ? "🔒" : ""}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 600,
+                          color: "#1a202c",
+                          textAlign: "center"
+                        }}
+                      >
+                        {court.name}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(60px, 1fr))",
+                        gap: 1,
+                        p: 2
+                      }}
+                    >
+                      {times.map((time) => {
+                        const slot = `${time}-${court.id}`;
+                        const isSelected = selectedSlots.includes(slot);
+                        const isBooked = isSlotBooked(time, court.id);
+                        const isLocked = currentLockedSlots.includes(time);
+                        
+                        return (
+                          <Button
+                            key={slot}
+                            variant={isSelected ? "contained" : "outlined"}
+                            size="small"
+                            disabled={isBooked || isLocked}
+                            onClick={() => toggleSlot(time, court.id)}
+                            sx={{
+                              minWidth: 60,
+                              height: 50,
+                              fontSize: "0.75rem",
+                              fontWeight: 600,
+                              borderRadius: 2,
+                              border: "2px solid",
+                              borderColor: isSelected 
+                                ? "#10b981" 
+                                : isBooked 
+                                ? "#ef4444" 
+                                : isLocked 
+                                ? "#94a3b8" 
+                                : "#e2e8f0",
+                              bgcolor: isSelected 
+                                ? "#10b981" 
+                                : isBooked 
+                                ? "#fef2f2" 
+                                : isLocked 
+                                ? "#f8fafc" 
+                                : "white",
+                              color: isSelected 
+                                ? "white" 
+                                : isBooked 
+                                ? "#dc2626" 
+                                : isLocked 
+                                ? "#64748b" 
+                                : "#374151",
+                              "&:hover": {
+                                transform: (!isBooked && !isLocked) ? "translateY(-2px)" : "none",
+                                boxShadow: (!isBooked && !isLocked) ? "0 4px 12px rgba(0,0,0,0.15)" : "none"
+                              },
+                              "&:disabled": {
+                                cursor: "not-allowed"
+                              }
+                            }}
+                          >
+                            {time}
+                            <br />
+                            {isSelected ? "✔" : isBooked ? "✖" : isLocked ? "🔒" : ""}
+                          </Button>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            ) : (
+              /* Desktop Layout */
+              <Box sx={{ overflow: "auto" }}>
+                <Box sx={{ display: "flex", minWidth: "max-content" }}>
+                  {/* Court Names Column */}
+                  <Box sx={{ minWidth: 120, bgcolor: "#f8fafc", borderRight: "1px solid #e2e8f0" }}>
+                    <Box sx={{ height: 60, display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "1px solid #e2e8f0" }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: "#64748b" }}>
+                        Sân
+                      </Typography>
+                    </Box>
+                    {subCourts.map((court) => (
+                      <Box
+                        key={court.id}
+                        sx={{
+                          height: 70,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderBottom: "1px solid #e2e8f0",
+                          bgcolor: "#f8fafc"
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          sx={{ fontWeight: 600, color: "#1a202c", textAlign: "center" }}
+                        >
+                          {court.name}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
 
-        <div
-          className="summary"
-          style={{
-            fontSize: "16px",
-            fontWeight: "bold",
-            marginTop: "10px",
-            textAlign: "center",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "16px",
-              fontWeight: "bold",
-              marginTop: "10px",
-              marginBottom: "10px",
-              textAlign: "center",
+                  {/* Time Slots Grid */}
+                  <Box sx={{ flex: 1 }}>
+                    {/* Time Headers */}
+                    <Box sx={{ display: "flex", borderBottom: "1px solid #e2e8f0" }}>
+                      {times.map((time) => (
+                        <Box
+                          key={time}
+                          sx={{
+                            minWidth: 80,
+                            height: 60,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRight: "1px solid #e2e8f0",
+                            bgcolor: "#f8fafc"
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: 600, color: "#64748b" }}
+                          >
+                            {time}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+
+                    {/* Court Rows */}
+                    {subCourts.map((court) => (
+                      <Box
+                        key={court.id}
+                        sx={{
+                          display: "flex",
+                          borderBottom: "1px solid #e2e8f0"
+                        }}
+                      >
+                        {times.map((time) => {
+                          const slot = `${time}-${court.id}`;
+                          const isSelected = selectedSlots.includes(slot);
+                          const isBooked = isSlotBooked(time, court.id);
+                          const isLocked = currentLockedSlots.includes(time);
+
+                          return (
+                            <Box
+                              key={slot}
+                              onClick={() => toggleSlot(time, court.id)}
+                              sx={{
+                                minWidth: 80,
+                                height: 70,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                borderRight: "1px solid #e2e8f0",
+                                cursor: (isBooked || isLocked) ? "not-allowed" : "pointer",
+                                bgcolor: isSelected 
+                                  ? "#dcfce7" 
+                                  : isBooked 
+                                  ? "#fef2f2" 
+                                  : isLocked 
+                                  ? "#f8fafc" 
+                                  : "white",
+                                border: isSelected ? "2px solid #10b981" : "none",
+                                "&:hover": {
+                                  bgcolor: (!isBooked && !isLocked) 
+                                    ? isSelected 
+                                      ? "#bbf7d0" 
+                                      : "#f0f9ff"
+                                    : undefined
+                                },
+                                transition: "all 0.2s ease"
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  color: isSelected 
+                                    ? "#15803d" 
+                                    : isBooked 
+                                    ? "#dc2626" 
+                                    : isLocked 
+                                    ? "#64748b" 
+                                    : "#374151",
+                                  fontWeight: 600
+                                }}
+                              >
+                                {isSelected ? "✔" : isBooked ? "✖" : isLocked ? "🔒" : ""}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Summary and Booking */}
+        {selectedSlots.length > 0 && (
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+              background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+              border: "2px solid #0ea5e9"
             }}
           >
-            Tổng giờ: {totalHours}h
-          </p>
-          <p
-            style={{
-              fontSize: "16px",
-              fontWeight: "bold",
-              marginTop: "10px",
-              marginBottom: "10px",
-              textAlign: "center",
-            }}
-          >
-            Tổng tiền: {selectedSlots.reduce((total, slot) => {
-              const time = slot.split("-")[0];
-              const hour = parseInt(time.split(":")[0], 10);
-
-              let currentSlotPrice = courtHourlyPrice / 2; // Giá cơ bản 30 phút
+            <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, color: "#0c4a6e" }}>
+                Tóm tắt đặt sân
+              </Typography>
               
-              if (hour >= 17) {
-                currentSlotPrice *= 1.10; // Tăng 10% cho giờ cao điểm
+              <Box sx={{ 
+                display: "grid", 
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                gap: 3,
+                mb: 3
+              }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <AccessTimeIcon sx={{ color: "#0369a1" }} />
+                  <Box>
+                    <Typography variant="body2" sx={{ color: "#64748b" }}>
+                      Tổng thời gian
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: "#0c4a6e" }}>
+                      {totalHours}h
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <PaymentIcon sx={{ color: "#10b981" }} />
+                  <Box>
+                    <Typography variant="body2" sx={{ color: "#64748b" }}>
+                      Tổng tiền
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: "#059669" }}>
+                      {selectedSlots.reduce((total, slot) => {
+                        const time = slot.split("-")[0];
+                        const hour = parseInt(time.split(":")[0], 10);
+                        let currentSlotPrice = courtHourlyPrice / 2;
+                        if (hour >= 17) {
+                          currentSlotPrice *= 1.10;
+                        }
+                        return total + currentSlotPrice;
+                      }, 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Button
+                variant="contained"
+                size="large"
+                fullWidth
+                onClick={handleBooking}
+                sx={{
+                  height: 56,
+                  fontSize: "1.1rem",
+                  fontWeight: 600,
+                  borderRadius: 3,
+                  background: "linear-gradient(135deg, #4263eb 0%, #06b6d4 100%)",
+                  boxShadow: "0 8px 20px rgba(66, 99, 235, 0.3)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #3730a3 0%, #0891b2 100%)",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 12px 25px rgba(66, 99, 235, 0.4)"
+                  },
+                  transition: "all 0.3s ease"
+                }}
+              >
+                TIẾP THEO - THANH TOÁN
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {selectedSlots.length === 0 && (
+          <Alert 
+            severity="info" 
+            sx={{ 
+              borderRadius: 3,
+              "& .MuiAlert-message": {
+                fontSize: "1rem"
               }
-              
-              return total + currentSlotPrice;
-            }, 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-          </p>
-        </div>
-
-        <button
-          className="next-button"
-          style={{
-            padding: "10px 20px",
-            fontSize: "16px",
-            fontWeight: "bold",
-            borderRadius: "5px",
-            background: "#28a745",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-            display: "block",
-            margin: "0 auto",
-          }}
-          onClick={handleBooking}
-        >
-          TIẾP THEO
-        </button>
-      </div>
+            }}
+          >
+            Vui lòng chọn khung giờ để tiếp tục đặt sân
+          </Alert>
+        )}
+      </Box>
     </Box>
   );
 };

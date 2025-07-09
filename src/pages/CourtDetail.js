@@ -5,81 +5,29 @@ import {
   Typography,
   Button,
   Grid,
-  Paper,
-  Chip,
   CircularProgress,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  MenuItem,
+  useTheme,
+  useMediaQuery,
+  Card,
+  CardMedia,
+  IconButton,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import ExploreIcon from "@mui/icons-material/Explore";
-import { courtAPI, paymentAPI } from "../services/api";
-import {
-  LocalizationProvider,
-  DatePicker,
-} from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import { courtAPI } from "../services/api";
 
 const CourtDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [court, setCourt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [selectedDuration, setSelectedDuration] = useState(60);
-  const [paying, setPaying] = useState(false);
-  const [payError, setPayError] = useState("");
-
-  const handleOpenDialog = () => setOpenDialog(true);
-  const handleCloseDialog = () => setOpenDialog(false);
-
-  const handleConfirmBooking = async () => {
-    if (selectedDate && selectedTime && selectedDuration) {
-      const startTime = selectedTime;
-      const startDateTime = dayjs(`${selectedDate}T${startTime}`);
-      const endDateTime = startDateTime.add(selectedDuration, "minute");
-      const endTime = endDateTime.format("HH:mm");
-
-      console.log("Booking infotmation:", {
-        courtId: id,
-        startTime: `${selectedDate}T${startTime}:00`,
-        endTime: `${selectedDate}T${endTime}:00`,
-        notes: `Booking for ${selectedDuration} minutes`,
-      });
-
-      setPaying(true);
-      setPayError("");
-      try {
-        const res = await paymentAPI.createCheckoutSession({
-          courtId: parseInt(id),
-          startTime: `${selectedDate}T${startTime}:00`,
-          endTime: `${selectedDate}T${endTime}:00`,
-          notes: `Booking for ${selectedDuration} minutes`,
-          paymentMethod: "CARD",
-        });
-
-        if (res.data.url) {
-          window.location.href = res.data.url;
-        } else {
-          setPayError("Phản hồi không hợp lệ từ máy chủ.");
-        }
-      } catch (err) {
-        setPayError("Không thể khởi tạo thanh toán.");
-      } finally {
-        setPaying(false);
-      }
-    }
-  };
 
   useEffect(() => {
     const fetchCourt = async () => {
@@ -120,9 +68,6 @@ const CourtDetail = () => {
     );
   }
 
-  const availableTimes = ["08:00", "09:00", "10:00", "14:00", "15:00", "16:00"];
-  const availableDurations = [60, 90, 120];
-
   const {
     name,
     address,
@@ -132,153 +77,187 @@ const CourtDetail = () => {
   } = court;
 
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          marginBottom: 4,
-        }}
-      >
-        <Box sx={{ flex: 1, paddingRight: 2 }}>
-          <Typography variant="h4" sx={{ fontWeight: "600", marginBottom: 2 }}>
-            {name}
-          </Typography>
-          <Typography sx={{ marginBottom: 1 }}>
-            <strong>Address:</strong> {address}
-          </Typography>
-          <Typography sx={{ marginBottom: 1 }}>
-            <strong>Price:</strong> {hourlyPrice} VND / giờ
-          </Typography>
-          <Typography sx={{ marginBottom: 1 }}>
-            <strong>Description:</strong> {description}
-          </Typography>
-        </Box>
-        <Box sx={{ flex: 0.4 }}>
-          <Button
-            variant="contained"
-            startIcon={<ExploreIcon />}
-            sx={{
-              backgroundColor: "#4263eb",
-              color: "white",
-              borderRadius: "50px",
-              width: "250px",
-              height: "50px",
-              "&:hover": { backgroundColor: "#2541b2" },
-            }}
-            onClick={() => navigate(`/schedule-calendar?courtId=${id}`)}
-          >
-            Đặt sân ngay
-          </Button>
-        </Box>
-      </Box>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#f8fafc",
+        pb: 4,
+      }}
+    >
+      <Container maxWidth="lg" sx={{ pt: { xs: 2, md: 4 } }}>
+        {/* Mobile Header */}
+        {isMobile && (
+          <Box sx={{ 
+            display: "flex", 
+            alignItems: "center", 
+            mb: 3,
+            bgcolor: "white",
+            p: 2,
+            borderRadius: 2,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          }}>
+            <IconButton
+              onClick={() => navigate(-1)}
+              sx={{ mr: 2, color: "#4263eb" }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: "#1a202c" }}>
+              Chi tiết sân
+            </Typography>
+          </Box>
+        )}
 
-      <Grid container spacing={3} sx={{ marginBottom: 4 }}>
-        {imageUrls.map((image, idx) => (
-          <Grid item xs={12} sm={6} md={4} key={idx}>
-            <Paper elevation={3} sx={{ p: 1 }}>
-              <img
-                src={image}
-                alt={`court-image-${idx}`}
-                style={{
-                  height: "330px",
-                  objectFit: "cover",
-                  width: "100%",
-                  borderRadius: "8px",
-                }}
-              />
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle
+        {/* Court Info Section */}
+        <Card
           sx={{
-            fontWeight: "bold",
-            color: "#1A3C34",
-            fontSize: 22,
-            textAlign: "center",
-            py: 2,
+            mb: 4,
+            borderRadius: 3,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+            overflow: "hidden"
           }}
         >
-          Thông tin đặt sân
-        </DialogTitle>
-
-        <DialogContent dividers>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Chọn ngày"
-              value={selectedDate ? dayjs(selectedDate) : null}
-              onChange={(value) => {
-                if (value) setSelectedDate(value.format("YYYY-MM-DD"));
-              }}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  sx: { my: 2 },
-                },
-              }}
-            />
-
-            <TextField
-              select
-              label="Chọn giờ bắt đầu"
-              fullWidth
-              value={selectedTime}
-              onChange={(e) => setSelectedTime(e.target.value)}
-              sx={{ my: 2 }}
-            >
-              {availableTimes.map((time) => (
-                <MenuItem key={time} value={time}>
-                  {time}
-                </MenuItem>
-              ))}
-            </TextField>
-          </LocalizationProvider>
-
-          <TextField
-            select
-            label="Thời lượng (phút)"
-            fullWidth
-            value={selectedDuration}
-            onChange={(e) => setSelectedDuration(parseInt(e.target.value))}
-            sx={{ my: 2 }}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "stretch", md: "center" },
+              p: { xs: 3, md: 4 }
+            }}
           >
-            {availableDurations.map((duration) => (
-              <MenuItem key={duration} value={duration}>
-                {duration} phút
-              </MenuItem>
-            ))}
-          </TextField>
+            <Box sx={{ flex: 1, mb: { xs: 3, md: 0 }, pr: { md: 3 } }}>
+              <Typography 
+                variant={isMobile ? "h5" : "h4"} 
+                sx={{ 
+                  fontWeight: 700, 
+                  mb: 3,
+                  color: "#1a202c",
+                  lineHeight: 1.2
+                }}
+              >
+                {name}
+              </Typography>
+              
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <LocationOnIcon sx={{ color: "#4263eb", fontSize: 20 }} />
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      color: "#4a5568",
+                      fontSize: { xs: "0.95rem", md: "1rem" }
+                    }}
+                  >
+                    {address}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <AttachMoneyIcon sx={{ color: "#10b981", fontSize: 20 }} />
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      color: "#4a5568",
+                      fontSize: { xs: "0.95rem", md: "1rem" },
+                      fontWeight: 600
+                    }}
+                  >
+                    {hourlyPrice?.toLocaleString('vi-VN')} VND / giờ
+                  </Typography>
+                </Box>
+                
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: "#718096",
+                    fontSize: { xs: "0.9rem", md: "0.95rem" },
+                    lineHeight: 1.6,
+                    mt: 1
+                  }}
+                >
+                  {description}
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Box sx={{ 
+              display: "flex", 
+              justifyContent: { xs: "center", md: "flex-end" },
+              alignItems: "center"
+            }}>
+              <Button
+                variant="contained"
+                startIcon={<ExploreIcon />}
+                size={isMobile ? "large" : "large"}
+                sx={{
+                  background: "linear-gradient(135deg, #4263eb 0%, #06b6d4 100%)",
+                  color: "white",
+                  borderRadius: "25px",
+                  width: { xs: "100%", md: "auto" },
+                  minWidth: { md: "200px" },
+                  height: { xs: "56px", md: "56px" },
+                  fontSize: { xs: "1rem", md: "1.1rem" },
+                  fontWeight: 600,
+                  textTransform: "none",
+                  boxShadow: "0 8px 20px rgba(66, 99, 235, 0.3)",
+                  "&:hover": { 
+                    background: "linear-gradient(135deg, #3730a3 0%, #0891b2 100%)",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 12px 25px rgba(66, 99, 235, 0.4)"
+                  },
+                  transition: "all 0.3s ease"
+                }}
+                onClick={() => navigate(`/schedule-calendar?courtId=${id}`)}
+              >
+                Đặt sân ngay
+              </Button>
+            </Box>
+          </Box>
+        </Card>
 
-          {payError && <Alert severity="error">{payError}</Alert>}
-        </DialogContent>
-
-        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-          <Button
-            onClick={handleCloseDialog}
-            variant="outlined"
-            color="inherit"
-          >
-            Huỷ
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleConfirmBooking}
-            disabled={!selectedDate || !selectedTime || paying}
-          >
-            {paying ? "Đang xử lý..." : "Thanh toán"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+        {/* Images Gallery */}
+        <Typography 
+          variant="h5" 
+          sx={{ 
+            fontWeight: 700, 
+            mb: 3, 
+            color: "#1a202c",
+            fontSize: { xs: "1.5rem", md: "1.875rem" }
+          }}
+        >
+          Hình ảnh sân
+        </Typography>
+        
+        <Grid container spacing={{ xs: 2, md: 3 }}>
+          {imageUrls.map((image, idx) => (
+            <Grid item xs={12} sm={6} md={4} key={idx}>
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 8px 25px rgba(0,0,0,0.15)"
+                  }
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  image={image}
+                  alt={`court-image-${idx}`}
+                  sx={{
+                    height: { xs: 200, sm: 250, md: 300 },
+                    objectFit: "cover"
+                  }}
+                />
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
