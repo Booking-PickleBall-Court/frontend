@@ -111,9 +111,9 @@ const Home = () => {
               Không tìm thấy sân phù hợp.
             </Typography>
           ) : (
-            <Grid container spacing={3}>
+            <Grid container spacing={3} alignItems="stretch">
               {currentVenues.map((venue, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
+                <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }}>
                   <Paper
                     elevation={3}
                     sx={{
@@ -121,7 +121,8 @@ const Home = () => {
                       borderRadius: 2,
                       display: "flex",
                       flexDirection: "column",
-                      height: { xs: "auto", sm: "450px" },
+                      height: { xs: "auto", md: "100%" },
+                      minHeight: { xs: "auto", md: 450 },
                       overflow: "hidden",
                       justifyContent: "space-between",
                       width: "100%",
