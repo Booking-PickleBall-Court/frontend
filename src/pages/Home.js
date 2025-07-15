@@ -89,16 +89,9 @@ const Home = () => {
         <SearchBar onSearch={handleSearch} />
       </Box>
 
-      <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+      <Container maxWidth="lg">
         <Box sx={{ mb: 4 }}>
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              fontWeight: "bold", 
-              mb: 2,
-              fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" }
-            }}
-          >
+          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
             Danh sách sân
           </Typography>
 
@@ -111,9 +104,9 @@ const Home = () => {
               Không tìm thấy sân phù hợp.
             </Typography>
           ) : (
-            <Grid container spacing={3} alignItems="stretch">
+            <Grid container spacing={3}>
               {currentVenues.map((venue, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }}>
+                <Grid item xs={12} sm={6} md={4} key={index}>
                   <Paper
                     elevation={3}
                     sx={{
@@ -121,11 +114,10 @@ const Home = () => {
                       borderRadius: 2,
                       display: "flex",
                       flexDirection: "column",
-                      height: { xs: "auto", md: "100%" },
-                      minHeight: { xs: "auto", md: 450 },
+                      height: "450px",
                       overflow: "hidden",
                       justifyContent: "space-between",
-                      width: "100%",
+                      width: "366px",
                       margin: "auto",
                     }}
                   >
@@ -139,28 +131,13 @@ const Home = () => {
                         borderRadius: "8px",
                       }}
                     />
-                    <Typography 
-                      variant="h6" 
-                      sx={{ 
-                        mt: 2,
-                        fontSize: { xs: "1.1rem", sm: "1.25rem" }
-                      }}
-                    >
+                    <Typography variant="h6" sx={{ mt: 2 }}>
                       {venue.name}
                     </Typography>
-                    <Typography 
-                      variant="body2"
-                      sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
-                    >
-                      {venue.address}
-                    </Typography>
+                    <Typography variant="body2">{venue.address}</Typography>
                     <Typography
                       variant="body2"
-                      sx={{ 
-                        fontWeight: "bold", 
-                        mt: 1,
-                        fontSize: { xs: "0.9rem", sm: "0.875rem" }
-                      }}
+                      sx={{ fontWeight: "bold", mt: 1 }}
                     >
                       {venue.hourlyPrice ? venue.hourlyPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Liên hệ để biết giá"}
                     </Typography>
@@ -170,19 +147,16 @@ const Home = () => {
                         display: "flex",
                         justifyContent: "space-between",
                         mt: 2,
-                        flexDirection: { xs: "column", sm: "row" },
-                        gap: { xs: 1, sm: 0 }
                       }}
                     >
                       <Button
                         variant="outlined"
                         sx={{
                           borderRadius: "50px",
-                          width: { xs: "100%", sm: "48%" },
+                          width: "48%",
                           background: "#fff",
                           color: "#4263eb",
                           border: "2px solid #4263eb",
-                          fontSize: { xs: "0.8rem", sm: "0.875rem" },
                           "&:hover": { background: "#4263eb", color: "#fff" },
                         }}
                         onClick={() => handleViewCourtDetail(venue.id)}
@@ -193,10 +167,9 @@ const Home = () => {
                         variant="contained"
                         sx={{
                           borderRadius: "50px",
-                          width: { xs: "100%", sm: "48%" },
+                          width: "48%",
                           backgroundColor: "#4263eb",
                           color: "white",
-                          fontSize: { xs: "0.8rem", sm: "0.875rem" },
                           "&:hover": { backgroundColor: "#2541b2" },
                         }}
                         onClick={() => navigate(`/schedule-calendar?courtId=${venue.id}`)}
